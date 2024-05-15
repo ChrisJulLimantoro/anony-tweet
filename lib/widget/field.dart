@@ -16,7 +16,7 @@ class Field extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 53,
+      // height: 48,
       width: 350,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -25,8 +25,8 @@ class Field extends StatelessWidget {
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 1,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
+            blurRadius: 3,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -40,8 +40,9 @@ class Field extends StatelessWidget {
             borderRadius: BorderRadius.circular(30.0),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20),
+          contentPadding: const EdgeInsets.only(top: 20.0, bottom: 0.0),
         ),
+        cursorHeight: Checkbox.width,
       ),
     );
   }

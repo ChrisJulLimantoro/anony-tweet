@@ -1,8 +1,8 @@
 import 'package:anony_tweet/widget/field.dart';
 import 'package:flutter/material.dart';
 
-class login extends StatelessWidget {
-  const login({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,50 +11,81 @@ class login extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: Image.asset('lib/assets/logo/Logo.png'),
-                ),
-                const SizedBox(height: 50),
-
-                Field(con: usernameController, isPassword: false, text: "Username", logo: Icons.person),
-                const SizedBox(height: 20),
-                Field(con: passwordController, isPassword: true, text: "Password", logo: Icons.lock),
-
-                const SizedBox(height: 40),
-
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.login, size: 24),
-                  label: const Text('Login'),
-                  onPressed: () {
-                    print('Username: ${usernameController.text}');
-                    print('Password: ${passwordController.text}');
-                  },
-                  style: OutlinedButton.styleFrom(minimumSize: const Size(300, 40)),
-                ),
-
-                const SizedBox(height: 20),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text("Don't have account?"),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text('Sign Up'),
-                    ),
-                  ],
-                ),
-              ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 100.0),
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Image.asset('lib/assets/logo/Logo.png'),
+                  ),
+                  const SizedBox(height: 50),
+                  Field(
+                      con: usernameController,
+                      isPassword: false,
+                      text: "Username",
+                      logo: Icons.person),
+                  const SizedBox(height: 20),
+                  Field(
+                      con: passwordController,
+                      isPassword: true,
+                      text: "Password",
+                      logo: Icons.lock),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text("Don't have account?"),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, '/register');
+                        },
+                        child: const Text('Sign Up'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  print(
+                      '${usernameController.text} + ${passwordController.text}');
+                },
+                style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.deepPurple,
+                    textStyle: const TextStyle(
+                      color: Colors.white,
+                    )),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.login_rounded,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
