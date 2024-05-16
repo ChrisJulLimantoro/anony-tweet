@@ -1,10 +1,18 @@
 import 'package:anony_tweet/screen/login.dart';
 import 'package:flutter/material.dart';
 import 'screen/register.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: const String.fromEnvironment('db_url'),
+    anonKey: const String.fromEnvironment('db_anonKey'),
+  );
+
   runApp(const MyApp());
 }
+
+final supabase = Supabase.instance.client;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
