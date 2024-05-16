@@ -29,7 +29,7 @@ class CustomBottomNavBar extends StatelessWidget {
         chipStyle: const ChipStyle(convexBridge: true),
         itemStyle: ItemStyle.circle,
         
-        animated: false,
+        animated: true,
       );
   }
 }
