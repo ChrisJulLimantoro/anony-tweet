@@ -5,12 +5,17 @@ import 'screen/register.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
-  await Supabase.initialize(
-    url: const String.fromEnvironment('db_url'),
-    anonKey: const String.fromEnvironment('db_anonKey'),
-  );
-
-  runApp(const MyApp());
+  try {
+    await Supabase.initialize(
+      url: const String.fromEnvironment('db_url'),
+      anonKey: const String.fromEnvironment('db_anonKey'),
+    );
+    print(const String.fromEnvironment('db_url'));
+    print(const String.fromEnvironment('db_anonKey'));
+    runApp(const MyApp());
+  } catch (e) {
+    print('error $e');
+  }
 }
 
 final supabase = Supabase.instance.client;
@@ -46,10 +51,11 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: HomePage(),
+        home: LoginPage(),
         routes: {
           '/register': (context) => const RegisterPage(),
           '/login': (context) => const LoginPage(),
+          '/home': (context) => HomePage(),
         });
   }
 }

@@ -1,8 +1,10 @@
+import 'package:anony_tweet/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:faker/faker.dart';
 import 'package:anony_tweet/widget/field.dart';
+import 'package:crypt/crypt.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key});
@@ -12,8 +14,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  String generate = WordPair.random().asPascalCase;
-  String profile = Faker().image.image();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -31,21 +31,46 @@ class _RegisterPageState extends State<RegisterPage> {
   //       });
   // }
 
+  Future<void> insertData(BuildContext context) async {
+    try {
+      final response = await supabase.from('user').insert({
+        'username': usernameController.text.trim(),
+        'password': Crypt.sha256(passwordController.text.trim()).toString(),
+        'display_name': WordPair.random().asPascalCase,
+        'display_photo': Faker().image.image(
+          keywords: ['cat', 'dog', 'pig', 'cartoon'],
+          random: true,
+          width: 100,
+          height: 100,
+        ),
+      });
+      if (response != null && response.error != null) {
+        throw Exception(response.error!.message);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User created successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // add delay than go to home
+      await Future.delayed(const Duration(seconds: 3));
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   title: const Text(
-      //     'Register',
-      //     textAlign: TextAlign.center,
-      //     style: TextStyle(
-      //       fontSize: 25,
-      //       fontWeight: FontWeight.bold,
-      //       color: Colors.black,
-      //     ),
-      //   ),
-      // ),
       backgroundColor: Colors.white,
       body: SafeArea(
         // padding: const EdgeInsets.all(20.0),
@@ -134,8 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  print(
-                      '${usernameController.text} + ${passwordController.text}');
+                  insertData(context);
                 },
                 style: ElevatedButton.styleFrom(
                     elevation: 0,
