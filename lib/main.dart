@@ -1,5 +1,8 @@
+import 'package:anony_tweet/screen/bookmark.dart';
+import 'package:anony_tweet/screen/favorites.dart';
 import 'package:anony_tweet/screen/home.dart';
 import 'package:anony_tweet/screen/login.dart';
+import 'package:anony_tweet/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'screen/register.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -56,6 +59,9 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterPage(),
           '/login': (context) => const LoginPage(),
           '/home': (context) => HomePage(),
+          '/bookmark': (context) => BookmarkPage(),
+          '/profile': (context)=> ProfilePage(),
+          '/favorite':(context) => FavoritePage(),
         });
   }
 }
