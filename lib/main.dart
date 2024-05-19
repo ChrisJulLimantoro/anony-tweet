@@ -1,5 +1,6 @@
-import 'package:anony_tweet/screen/bookmark.dart';
-import 'package:anony_tweet/screen/favorites.dart';
+import 'package:anony_tweet/screen/explore.dart';
+import 'package:anony_tweet/screen/notifications.dart';
+import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/screen/home.dart';
 import 'package:anony_tweet/screen/login.dart';
 import 'package:anony_tweet/screen/profile.dart';
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         title: 'Anony Tweets',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white38),
           useMaterial3: true,
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.white,
@@ -54,14 +55,14 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: LoginPage(),
+        home: App(),
         routes: {
           '/register': (context) => const RegisterPage(),
           '/login': (context) => const LoginPage(),
           '/home': (context) => HomePage(),
-          '/bookmark': (context) => BookmarkPage(),
-          '/profile': (context)=> ProfilePage(),
-          '/favorite':(context) => FavoritePage(),
+          '/notifications': (context) => NotificationsPage(),
+          '/profile': (context) => ProfilePage(),
+          '/explore': (context) => ExplorePage(),
         });
   }
 }
