@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/widget/custom_fab.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
@@ -125,20 +126,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 64.0),
-        child: FloatingActionButton(
-          elevation: 1,
-          onPressed: () {
-            debugPrint("PRESSED");
-          },
-          backgroundColor: Colors.black,
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      floatingActionButton: CustomFloatingActionButton(),
     );
   }
 }
