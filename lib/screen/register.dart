@@ -19,18 +19,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  // void _generateName() {
-  //   setState(() => {
-  //         generate = WordPair.random().asPascalCase,
-  //         profile = faker.image.image(
-  //           keywords: ['cat', 'dog', 'pig', 'cartoon'],
-  //           random: true,
-  //           width: 100,
-  //           height: 100,
-  //         ),
-  //       });
-  // }
-
   Future<void> insertData(BuildContext context) async {
     try {
       final response = await supabase.from('user').insert({
@@ -85,35 +73,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // ClipRRect(
-                  //   borderRadius: BorderRadius.circular(50.0),
-                  //   child: SizedBox(
-                  //     child: Image.network(profile ?? faker.image.image(),
-                  //         fit: BoxFit.cover),
-                  //     width: 100,
-                  //     height: 100,
-                  //   ),
-                  // ),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     SizedBox(width: 44.0),
-                  //     Text(
-                  //       generate,
-                  //       style: const TextStyle(
-                  //         color: Colors.black,
-                  //         fontSize: 20,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     ),
-                  //     IconButton(
-                  //       icon: const Icon(Icons.refresh, color: Colors.black),
-                  //       onPressed: () {
-                  //         _generateName();
-                  //       },
-                  //     )
-                  //   ],
-                  // ),
                   SizedBox(
                     width: 200,
                     height: 200,
