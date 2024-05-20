@@ -15,6 +15,18 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login(BuildContext context) async {
+    final authResponse = await supabase.auth.signInAnonymously();
+
+    print(authResponse.user.toString());
+    // if (token.user. != null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(token.error!.message),
+    //       backgroundColor: Colors.red,
+    //     ),
+    //   );r
+    //   return;
+    // }
     final response = await supabase
         .from('user')
         .select()
