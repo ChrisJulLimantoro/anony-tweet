@@ -19,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
         .from('user')
         .select()
         .eq('username', usernameController.text.trim());
+    print(response);
     if (response.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.1 <4.0.0'
+  sdk: '>=3.2.5 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flashy_tab_bar2: ^0.0.10
+  dot_navigation_bar:
+  awesome_bottom_bar: any
+
     
   
 
@@ -40,6 +44,8 @@ dependencies:
   faker: ^2.1.0
   supabase_flutter: ^2.5.3
   crypt: ^4.3.1
+  flutter_bloc: ^8.1.5
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
