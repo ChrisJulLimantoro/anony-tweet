@@ -66,6 +66,7 @@ class HomePage extends StatelessWidget {
                         : Colors.white),
                   ),
                   onPressed: () {
+                    Navigator.pushNamed(context, '/profile');
                     debugPrint("PRESSED");
                   },
                 ),

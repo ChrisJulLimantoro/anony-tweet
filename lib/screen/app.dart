@@ -44,7 +44,7 @@ class _AppState extends State<App> {
 
     final List<Widget> screens = [
       HomePage(),
-      const ExplorePage(),
+      ExplorePage(),
       const NotificationsPage(),
       // const FavoritePage(),
       // const ProfilePage(),
