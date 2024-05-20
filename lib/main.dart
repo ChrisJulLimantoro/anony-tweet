@@ -1,3 +1,4 @@
+import 'package:anony_tweet/screen/detail.dart';
 import 'package:anony_tweet/screen/explore.dart';
 import 'package:anony_tweet/screen/explore/search_page.dart';
 import 'package:anony_tweet/screen/explore/top_trends.dart';
@@ -67,6 +68,7 @@ class MyApp extends StatelessWidget {
           '/explore': (context) => ExplorePage(),
           '/search': (context) => SearchPage(),
           '/top_trends': (context) => TopTrendsPage(),
+          '/comment':(context) => DetailPage()
         });
   }
 }
