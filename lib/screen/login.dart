@@ -1,3 +1,4 @@
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/widget/field.dart';
 import 'package:flutter/material.dart';
 import 'package:anony_tweet/main.dart';
@@ -15,18 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login(BuildContext context) async {
-    final authResponse = await supabase.auth.signInAnonymously();
-
-    print(authResponse.user.toString());
-    // if (token.user. != null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text(token.error!.message),
-    //       backgroundColor: Colors.red,
-    //     ),
-    //   );r
-    //   return;
-    // }
     final response = await supabase
         .from('user')
         .select()
@@ -48,6 +37,9 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.green,
           ),
         );
+        // Set to session the user id
+        var id = await response[0]['id'];
+        SessionContext.of(context)!.id = id;
         await Future.delayed(const Duration(seconds: 3));
         Navigator.pushReplacementNamed(context, '/home');
       } else {

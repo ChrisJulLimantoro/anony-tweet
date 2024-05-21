@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/custom_fab.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
@@ -16,7 +17,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-
+    debugPrint('hello ${SessionContext.of(context)!.id}');
     debugPrint("build");
     List<Tweet> tweets = List.generate(10, (index) {
       return Tweet(

@@ -9,6 +9,8 @@ import 'package:anony_tweet/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'screen/register.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:anony_tweet/SessionProvider.dart';
 
 Future<void> main() async {
   try {
@@ -16,9 +18,15 @@ Future<void> main() async {
       url: const String.fromEnvironment('db_url'),
       anonKey: const String.fromEnvironment('db_anonKey'),
     );
-    print(const String.fromEnvironment('db_url'));
-    print(const String.fromEnvironment('db_anonKey'));
-    runApp(const MyApp());
+    final authResponse =
+        await Supabase.instance.client.auth.signInAnonymously();
+
+    final Session session = authResponse.session!;
+    runApp(SessionProvider(
+      session: session,
+      id: '',
+      child: const MyApp(),
+    ));
   } catch (e) {
     print('error $e');
   }
