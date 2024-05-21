@@ -28,7 +28,7 @@ class SessionProvider extends StatelessWidget {
 // Context to hold the session
 class SessionContext extends InheritedWidget {
   final Session session;
-  final String id;
+  String id;
 
   SessionContext({
     required this.session,

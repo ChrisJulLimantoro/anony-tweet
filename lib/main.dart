@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
           '/explore': (context) => ExplorePage(),
           '/search': (context) => SearchPage(),
           '/top_trends': (context) => TopTrendsPage(),
-          '/comment':(context) => DetailPage()
+          '/comment': (context) => DetailPage()
         });
   }
 }
