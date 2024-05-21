@@ -101,7 +101,7 @@ class Comment extends StatelessWidget {
         ),
         !isLast
             ? Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Divider(
                   height: 0.1,
                   color: MediaQuery.of(context).platformBrightness ==
@@ -110,7 +110,7 @@ class Comment extends StatelessWidget {
                       : Colors.grey.shade800,
                 ),
               )
-            : SizedBox(height: 150),
+            : SizedBox(height: 10),
       ],
     );
   }
