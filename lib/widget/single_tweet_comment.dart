@@ -140,7 +140,7 @@ class SingleTweetComment extends StatelessWidget {
             height: 5,
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20,0,20,0),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
             child: Column(
               children: [
                 Row(
@@ -230,11 +230,26 @@ class SingleTweetComment extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Icon(CupertinoIcons.bubble_left, color: Colors.grey,),
-                    Icon(CupertinoIcons.heart, color: Colors.grey,),
-                    Icon(CupertinoIcons.arrow_2_squarepath, color: Colors.grey,),
-                    Icon(CupertinoIcons.bookmark, color: Colors.grey,),
-                    Icon(CupertinoIcons.share, color: Colors.grey,),
+                    Icon(
+                      CupertinoIcons.bubble_left,
+                      color: Colors.grey,
+                    ),
+                    Icon(
+                      CupertinoIcons.heart,
+                      color: Colors.grey,
+                    ),
+                    Icon(
+                      CupertinoIcons.arrow_2_squarepath,
+                      color: Colors.grey,
+                    ),
+                    Icon(
+                      CupertinoIcons.bookmark,
+                      color: Colors.grey,
+                    ),
+                    Icon(
+                      CupertinoIcons.share,
+                      color: Colors.grey,
+                    ),
                   ],
                 )
               ],
