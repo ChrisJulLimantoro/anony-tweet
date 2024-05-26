@@ -1,3 +1,4 @@
+import 'package:anony_tweet/screen/bookmarks.dart';
 import 'package:anony_tweet/screen/detail.dart';
 import 'package:anony_tweet/screen/explore.dart';
 import 'package:anony_tweet/screen/explore/search_page.dart';
@@ -66,7 +67,7 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: LoginPage(),
+        home: App(),
         routes: {
           '/register': (context) => const RegisterPage(),
           '/login': (context) => const LoginPage(),
@@ -76,7 +77,8 @@ class MyApp extends StatelessWidget {
           '/explore': (context) => ExplorePage(),
           '/search': (context) => SearchPage(),
           '/top_trends': (context) => TopTrendsPage(),
-          '/comment': (context) => DetailPage()
+          '/comment': (context) => DetailPage(),
+          '/bookmarks': (context) => BookmarkPage(),
         });
   }
 }
