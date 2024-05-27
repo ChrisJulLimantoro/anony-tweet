@@ -55,25 +55,28 @@ class HomePage extends StatelessWidget {
             ),
             centerTitle: true,
             floating: true,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: IconButton(
-                  icon: Icon(
-                    CupertinoIcons.person_crop_circle_fill,
-                    size: 32,
-                    color: (theme == Brightness.light
-                        ? Colors.black
-                        : Colors.white),
+            leading: Builder(builder: (BuildContext context) {
+              return Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: IconButton(
+                    icon: Icon(
+                      CupertinoIcons.person_crop_circle_fill,
+                      size: 32,
+                      color: (theme == Brightness.light
+                          ? Colors.black
+                          : Colors.white),
+                    ),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                      // Navigator.pushNamed(context, '/profile');
+                      debugPrint("PRESSED");
+                    },
                   ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/profile');
-                    debugPrint("PRESSED");
-                  },
                 ),
-              ),
-            ),
+              );
+            }),
             actions: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
@@ -128,6 +131,47 @@ class HomePage extends StatelessWidget {
         ],
       ),
       floatingActionButton: CustomFloatingActionButton(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              accountName: Text(faker.person.name()),
+              accountEmail: Text('@' + faker.internet.userName()),
+              currentAccountPicture: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
+                child: CircleAvatar(
+                  backgroundColor:
+                      theme == Brightness.light ? Colors.black : Colors.white,
+                  child: Text(
+                    faker.person.firstName()[0],
+                    style: TextStyle(fontSize: 40.0),
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(CupertinoIcons.bookmark),
+              title: Text('Bookmarks'),
+              onTap: () {
+                Navigator.pushNamed(context, '/bookmarks');
+              },
+            ),
+            ListTile(
+              leading: Icon(CupertinoIcons.gear),
+              title: Text('Settings'),
+              onTap: () {
+                print('Settings pressed');
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
