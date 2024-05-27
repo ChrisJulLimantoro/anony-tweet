@@ -44,6 +44,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           SliverToBoxAdapter(
             child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+
               child: Column(
                 children: [
                   Stack(
@@ -78,7 +80,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               CircleAvatar(
                                 backgroundColor: Colors.blue,
                                 radius: screenWidth * 0.128,
-                                backgroundImage: AssetImage("lib/assets/logo/Logo.png"),
+                                backgroundImage:
+                                    AssetImage("lib/assets/logo/Logo.png"),
                               ),
                             ],
                           ),
@@ -101,9 +104,11 @@ class _ProfilePageState extends State<ProfilePage> {
                           },
                           style: ButtonStyle(
                             padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(horizontal: screenWidth * 0.07),
+                              EdgeInsets.symmetric(
+                                  horizontal: screenWidth * 0.07),
                             ),
-                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
@@ -122,7 +127,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.06),
                             child: Container(
                               width: screenWidth * 0.7,
                               child: Text(
@@ -140,7 +146,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.06),
                             child: Container(
                               width: screenWidth * 0.7,
                               child: Text(
@@ -159,7 +166,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.06),
                             child: Container(
                               width: screenWidth * 0.7,
                               child: Row(
@@ -188,7 +196,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.06),
                             child: Container(
                               width: screenWidth * 0.7,
                               child: Row(
@@ -233,25 +242,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                       SizedBox(height: screenHeight * 0.02),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _buildNavItem(0, 'Posts'),
-                            _buildNavItem(1, 'Replies'),
-                            _buildNavItem(2, 'Liked')
-                          ],
-                        ),
+                      Row(
+                        children: [
+                          _buildNavItem(0, 'Posts'),
+                          _buildNavItem(1, 'Replies'),
+                          _buildNavItem(2, 'Liked')
+                        ],
                       ),
                       Container(
-                        height: screenHeight * 0.5,
-                        child: SingleChildScrollView(
-                          child: _selectedIndex == 0
-                              ? PostsPage()
-                              : _selectedIndex == 1
-                                  ? RepliesPage()
-                                  : LikedPage(),
-                        ),
+                        // height: screenHeight * 0.5,
+                        child: _selectedIndex == 0
+                            ? PostsPage()
+                            : _selectedIndex == 1
+                                ? RepliesPage()
+                                : LikedPage(),
                       ),
                     ],
                   ),
@@ -287,7 +291,8 @@ class _ProfilePageState extends State<ProfilePage> {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14.0,
-            fontWeight: _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
+            fontWeight:
+                _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
             color: _selectedIndex == index ? Colors.blue : Colors.black,
           ),
         ),
@@ -298,48 +303,51 @@ class _ProfilePageState extends State<ProfilePage> {
 
 class PostsPage extends StatelessWidget {
   @override
-  List<Tweet> tweets = List.generate(5, (index) {
-      return Tweet(
-        username: faker.internet.userName(),
-        profilePicture: faker.image.image(
-          keywords: ['nature', 'mountain', 'waterfall'],
-          random: true,
-        ),
-        verified: Random().nextDouble() <= 0.5 ? true : false,
-        createdAt: "${Random().nextInt(23)}h ago",
-        content:
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
-        media: List.generate(
-            Random().nextInt(4),
-            (index) => faker.image.image(
-                  keywords: ['nature', 'mountain', 'waterfall'],
-                  height: 200,
-                  width: 200,
-                  random: true,
-                )),
-        like: Random().nextInt(1000),
-        retweet: Random().nextInt(1000),
-        comment: Random().nextInt(1000),
-        view: Random().nextInt(900) + 100,
-      );
-    });
+  List<Tweet> tweets = List.generate(10, (index) {
+    return Tweet(
+      username: faker.internet.userName(),
+      profilePicture:
+          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
+      // profilePicture: faker.image.image(
+      //   keywords: ['nature', 'mountain', 'waterfall'],
+      //   random: true,
+      // ),
+      // profilePicture: "",
+      verified: Random().nextDouble() <= 0.5 ? true : false,
+      createdAt: "${Random().nextInt(23)}h ago",
+      content:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+      media: [],
+      // media: List.generate(
+      //     Random().nextInt(4),
+      //     (index) => faker.image.image(
+      //           keywords: ['nature', 'mountain', 'waterfall'],
+      //           height: 200,
+      //           width: 200,
+      //           random: true,
+      //         )),
+      like: Random().nextInt(1000),
+      retweet: Random().nextInt(1000),
+      comment: Random().nextInt(1000),
+      view: Random().nextInt(900) + 100,
+    );
+  });
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.only(top: 16.0),
-        child: Column(
-          children: tweets
-              .mapIndexed(
-                (index, tweet) => SingleTweet(
-                  tweet: tweet,
-                  isBookmarked:
-                      Random().nextDouble() <= 0.5 ? true : false,
-                  isLast: index == tweets.length - 1 ? true : false,
-                  isLiked: Random().nextDouble() <= 0.5 ? true : false,
-                ),
-              )
-              .toList(),
-        ),
-      );
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Column(
+        children: tweets
+            .mapIndexed(
+              (index, tweet) => SingleTweet(
+                tweet: tweet,
+                isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
+                isLast: index == tweets.length - 1 ? true : false,
+                isLiked: Random().nextDouble() <= 0.5 ? true : false,
+              ),
+            )
+            .toList(),
+      ),
+    );
   }
 }
 
