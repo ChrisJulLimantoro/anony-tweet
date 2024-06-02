@@ -29,14 +29,29 @@ class SingleTweetComment extends StatefulWidget {
 }
 
 class _SingleTweetCommentState extends State<SingleTweetComment> {
-  bool isLiked=false;
-  bool isBookmarked=false;
+  bool isLiked = false;
+  bool isBookmarked = false;
+  int like= 0;
+  int bookmark=0;
   @override
   void initState() {
     super.initState();
     isLiked = widget.isLiked;
-    isBookmarked= widget.isBookmarked;
+    isBookmarked = widget.isBookmarked;
+    like = widget.tweet.like;
+    bookmark= widget.tweet.view;
   }
+
+  String formatNumber(int number) {
+    if (number >= 1000000) {
+      return "${(number / 1000000).toStringAsFixed(1)}M";
+    } else if (number >= 1000) {
+      return "${(number / 1000).toStringAsFixed(1)}K";
+    } else {
+      return number.toString();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
@@ -182,7 +197,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                 Row(
                   children: [
                     Text(
-                      '2,9K',
+                      widget.tweet.comment.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
@@ -194,7 +209,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      '10K',
+                      like.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
@@ -206,7 +221,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      '300',
+                      bookmark.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
@@ -218,7 +233,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      '300',
+                      widget.tweet.retweet.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
@@ -252,17 +267,22 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     IconButton(
                       onPressed: () {
+                        print(widget.tweet.like);
                         //minus logic like to DB
                         setState(() {
-                          if(isLiked){
-                            isLiked=false;
-                          }else{
-                            isLiked=true;
+                          if (isLiked) {
+                            isLiked = false;
+                            like--;
+                          } else {
+                            isLiked = true;
+                            like++;
                           }
                         });
                       },
                       icon: Icon(
-                        isLiked? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                        isLiked
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
                         color: isLiked ? Colors.red : Colors.grey,
                       ),
                     ),
@@ -276,17 +296,21 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     IconButton(
                       onPressed: () {
                         setState(() {
-                          if(isBookmarked){
-                            isBookmarked=false;
-                          }else{
-                            isBookmarked=true;
+                          if (isBookmarked) {
+                            isBookmarked = false;
+                            bookmark--;
+                          } else {
+                            isBookmarked = true;
+                            bookmark++;
                           }
                         });
                       },
                       icon: Icon(
-                        isBookmarked ? CupertinoIcons.bookmark_fill : CupertinoIcons.bookmark,
-                        color: isBookmarked ? Colors.yellow[600] : Colors.grey
-                      ),
+                          isBookmarked
+                              ? CupertinoIcons.bookmark_fill
+                              : CupertinoIcons.bookmark,
+                          color:
+                              isBookmarked ? Colors.yellow[600] : Colors.grey),
                     ),
                     IconButton(
                       onPressed: () {},

@@ -120,13 +120,17 @@ class _DetailPageState extends State<DetailPage> {
                                         padding: EdgeInsets.only(top: 10),
                                         child: Comment(
                                           tweet: tweet,
+                                          isBookmarked: Random().nextBool(),
+                                          isLiked:  Random().nextBool(),
                                           isLast: index ==
                                               tweets.length -
-                                                  1, // Check if the tweet is the last one
+                                                  1, 
                                         ),
                                       )
                                     : Comment(
                                         tweet: tweet,
+                                        isBookmarked: Random().nextBool(),
+                                        isLiked: Random().nextBool(),
                                         isLast: index ==
                                             tweets.length -
                                                 1, // Check if the tweet is the last one
