@@ -259,7 +259,9 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/postComment');
+                      },
                       icon: Icon(
                         CupertinoIcons.bubble_left,
                         color: Colors.grey,
