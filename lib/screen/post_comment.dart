@@ -18,7 +18,13 @@ class PostComment extends StatelessWidget {
         //   padding: const EdgeInsets.only(left: 5),
         //   child: Center(child: Text("Cancel", style: TextStyle(fontSize: 16),)),
         // ),
-        title: Text("Cancel"), centerTitle: false,
+        title: TextButton(
+          child: Text("Cancel", style: TextStyle(color: Colors.black, fontSize: 18),),
+          onPressed: () {
+            Navigator.popAndPushNamed(context, "/comment");
+          },
+        ),
+        centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 1,
         actions: <Widget>[
