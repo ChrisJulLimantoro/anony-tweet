@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
@@ -8,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ignore_for_file: prefer_const_constructors
 
-class SingleTweetComment extends StatelessWidget {
+class SingleTweetComment extends StatefulWidget {
   final Tweet tweet;
   final bool isBookmarked;
   final bool isLiked;
@@ -23,17 +25,31 @@ class SingleTweetComment extends StatelessWidget {
   });
 
   @override
+  State<SingleTweetComment> createState() => _SingleTweetCommentState();
+}
+
+class _SingleTweetCommentState extends State<SingleTweetComment> {
+  bool isLiked=false;
+  bool isBookmarked=false;
+  @override
+  void initState() {
+    super.initState();
+    isLiked = widget.isLiked;
+    isBookmarked= widget.isBookmarked;
+  }
+  @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
-    debugPrint(tweet.verified.toString());
+    debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
-          create: (context) => LikeButtonBloc(tweet.like, isLiked),
+          create: (context) =>
+              LikeButtonBloc(widget.tweet.like, widget.isLiked),
         ),
         BlocProvider<BookmarkBloc>(
-          create: (context) => BookmarkBloc(isBookmarked),
+          create: (context) => BookmarkBloc(widget.isBookmarked),
         ),
       ],
       child: Column(
@@ -46,7 +62,7 @@ class SingleTweetComment extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(50),
                   child: Image.network(
-                    tweet.profilePicture,
+                    widget.tweet.profilePicture,
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
@@ -63,14 +79,14 @@ class SingleTweetComment extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(tweet.username,
+                          Text(widget.tweet.username,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                               )),
                           SizedBox(
                             width: 5,
                           ),
-                          if (tweet.verified)
+                          if (widget.tweet.verified)
                             Icon(
                               Icons.verified,
                               color: (theme == Brightness.light
@@ -84,7 +100,7 @@ class SingleTweetComment extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        tweet.content,
+                        widget.tweet.content,
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
@@ -92,20 +108,20 @@ class SingleTweetComment extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
-                      if (tweet.media.isNotEmpty)
+                      if (widget.tweet.media.isNotEmpty)
                         SizedBox(
                           height: 200,
-                          width: tweet.media.length * 200.0 >
+                          width: widget.tweet.media.length * 200.0 >
                                   MediaQuery.of(context).size.width
                               ? MediaQuery.of(context).size.width
-                              : tweet.media.length * 200.0,
+                              : widget.tweet.media.length * 200.0,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: ListView(
                               clipBehavior: Clip.none,
                               physics: PageScrollPhysics(),
                               scrollDirection: Axis.horizontal,
-                              children: tweet.media.map((e) {
+                              children: widget.tweet.media.map((e) {
                                 return Container(
                                   decoration: BoxDecoration(
                                       border: Border(
@@ -224,39 +240,65 @@ class SingleTweetComment extends StatelessWidget {
                       ? Colors.grey.shade300
                       : Colors.grey.shade800,
                 ),
-                SizedBox(
-                  height: 10,
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Icon(
-                      CupertinoIcons.bubble_left,
-                      color: Colors.grey,
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        CupertinoIcons.bubble_left,
+                        color: Colors.grey,
+                      ),
                     ),
-                    Icon(
-                      CupertinoIcons.heart,
-                      color: Colors.grey,
+                    IconButton(
+                      onPressed: () {
+                        //minus logic like to DB
+                        setState(() {
+                          if(isLiked){
+                            isLiked=false;
+                          }else{
+                            isLiked=true;
+                          }
+                        });
+                      },
+                      icon: Icon(
+                        isLiked? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                        color: isLiked ? Colors.red : Colors.grey,
+                      ),
                     ),
-                    Icon(
-                      CupertinoIcons.arrow_2_squarepath,
-                      color: Colors.grey,
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        CupertinoIcons.arrow_2_squarepath,
+                        color: Colors.grey,
+                      ),
                     ),
-                    Icon(
-                      CupertinoIcons.bookmark,
-                      color: Colors.grey,
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if(isBookmarked){
+                            isBookmarked=false;
+                          }else{
+                            isBookmarked=true;
+                          }
+                        });
+                      },
+                      icon: Icon(
+                        isBookmarked ? CupertinoIcons.bookmark_fill : CupertinoIcons.bookmark,
+                        color: isBookmarked ? Colors.yellow[600] : Colors.grey
+                      ),
                     ),
-                    Icon(
-                      CupertinoIcons.share,
-                      color: Colors.grey,
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        CupertinoIcons.share,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 )
               ],
             ),
-          ),
-          SizedBox(
-            height: 20,
           ),
           Divider(
             height: 0.1,
