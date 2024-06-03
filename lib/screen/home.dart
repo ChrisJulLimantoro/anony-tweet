@@ -204,7 +204,20 @@ class HomePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
-              accountName: Text(faker.person.name()),
+              accountName: FutureBuilder<List<Tweet>>(
+                future: fetchTweets(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text('No tweets found.');
+                  } else {
+                    return Text(snapshot.data!.first.username);
+                  }
+                },
+              ),
               accountEmail: Text('@' + faker.internet.userName()),
               currentAccountPicture: GestureDetector(
                 onTap: () {
@@ -213,9 +226,26 @@ class HomePage extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor:
                       theme == Brightness.light ? Colors.black : Colors.white,
-                  child: Text(
-                    faker.person.firstName()[0],
-                    style: TextStyle(fontSize: 40.0),
+                  child: FutureBuilder<List<Tweet>>(
+                    future: fetchTweets(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Image.asset("assets/logo/Logo.png");
+                      } else {
+                        return ClipOval(
+                          child: Image.network(
+                            snapshot.data!.first.profilePicture,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
               ),

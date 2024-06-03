@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:intl/intl.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
@@ -35,6 +36,15 @@ class _ProfilePageState extends State<ProfilePage> {
         .eq('id', SessionContext.of(context)!.id)
         .single();
     return response['display_photo'];
+  }
+
+  Future<String> getDate(BuildContext context) async {
+    final response = await supabase
+        .from('user')
+        .select('created_at')
+        .eq('id', SessionContext.of(context)!.id)
+        .single();
+    return response['created_at'];
   }
 
   @override
@@ -113,10 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         child: Image.network(
                                           snapshot.data!,
                                           fit: BoxFit.cover,
-                                          width: screenWidth *
-                                              0.256,
-                                          height: screenWidth *
-                                              0.256,
+                                          width: screenWidth * 0.256,
+                                          height: screenWidth * 0.256,
                                         ),
                                       );
                                     } else {
@@ -229,14 +237,31 @@ class _ProfilePageState extends State<ProfilePage> {
                                           size: screenHeight * 0.02,
                                         ),
                                         SizedBox(width: screenWidth * 0.02),
-                                        Text(
-                                          "Joined May 2024",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
+                                        FutureBuilder<String>(
+                                          future: getDate(context),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return CircularProgressIndicator();
+                                            } else if (snapshot.hasError) {
+                                              return Text(
+                                                  'Error: ${snapshot.error}');
+                                            } else if (!snapshot.hasData ||
+                                                snapshot.data!.isEmpty) {
+                                              return Image.asset(
+                                                  "assets/logo/Logo.png");
+                                            } else {
+                                              return Text(
+                                                '${DateFormat('dd MMM yyyy').format(DateTime.parse(snapshot.data!))}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                  color: Colors.grey,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        )
                                       ],
                                     ),
                                   ),

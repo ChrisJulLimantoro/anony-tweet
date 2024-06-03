@@ -33,6 +33,7 @@ dependencies:
   flashy_tab_bar2: ^0.0.10
   dot_navigation_bar:
   awesome_bottom_bar: any
+  intl: ^0.17.0
 
     
   
