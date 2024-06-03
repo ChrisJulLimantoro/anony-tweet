@@ -69,7 +69,7 @@ class _DetailPageState extends State<DetailPage> {
                     size: 32,
                   ),
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/home');
+                    Navigator.pop(context, '/home');
                   },
                 ),
               ),
