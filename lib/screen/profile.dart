@@ -1,10 +1,12 @@
 import 'dart:math';
+import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:collection/collection.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:anony_tweet/SessionProvider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -15,6 +17,24 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 0;
+
+  Future<String> getName(BuildContext context) async {
+    final response = await supabase
+        .from('user')
+        .select('display_name')
+        .eq('id', SessionContext.of(context)!.id)
+        .single();
+    return response['display_name'];
+  }
+
+  Future<String> getPhoto(BuildContext context) async {
+    final response = await supabase
+        .from('user')
+        .select('display_photo')
+        .eq('id', SessionContext.of(context)!.id)
+        .single();
+    return response['display_photo'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +65,6 @@ class _ProfilePageState extends State<ProfilePage> {
           SliverToBoxAdapter(
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-
               child: Column(
                 children: [
                   Stack(
@@ -80,8 +99,31 @@ class _ProfilePageState extends State<ProfilePage> {
                               CircleAvatar(
                                 backgroundColor: Colors.blue,
                                 radius: screenWidth * 0.128,
-                                backgroundImage:
-                                    AssetImage("lib/assets/logo/Logo.png"),
+                                child: FutureBuilder<String>(
+                                  future: getPhoto(context),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      return Icon(Icons.error);
+                                    } else if (snapshot.hasData) {
+                                      return ClipOval(
+                                        child: Image.network(
+                                          snapshot.data!,
+                                          fit: BoxFit.cover,
+                                          width: screenWidth *
+                                              0.256,
+                                          height: screenWidth *
+                                              0.256,
+                                        ),
+                                      );
+                                    } else {
+                                      return Image.asset(
+                                          "lib/assets/logo/Logo.png");
+                                    }
+                                  },
+                                ),
                               ),
                             ],
                           ),
@@ -122,142 +164,155 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.085),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Text(
-                                "ASIMELEKITI129",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                  FutureBuilder<String>(
+                    future: getName(context),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (snapshot.hasData) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Text(
+                                      snapshot.data!,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.01),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Text(
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12,
-                                  color: Colors.grey.shade700,
+                            SizedBox(height: screenHeight * 0.01),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Text(
+                                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.calendar,
-                                    color: Colors.grey,
-                                    size: screenHeight * 0.02,
-                                  ),
-                                  SizedBox(width: screenWidth * 0.02),
-                                  Text(
-                                    "Joined May 2024",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.grey,
+                            SizedBox(height: screenHeight * 0.02),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.calendar,
+                                          color: Colors.grey,
+                                          size: screenHeight * 0.02,
+                                        ),
+                                        SizedBox(width: screenWidth * 0.02),
+                                        Text(
+                                          "Joined May 2024",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "290",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.black,
+                            SizedBox(height: screenHeight * 0.02),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "290",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          " Posts",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        SizedBox(width: screenWidth * 0.02),
+                                        Text(
+                                          "120",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          " Replies",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    " Posts",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  SizedBox(width: screenWidth * 0.02),
-                                  Text(
-                                    "120",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  Text(
-                                    " Replies",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Row(
-                        children: [
-                          _buildNavItem(0, 'Posts'),
-                          _buildNavItem(1, 'Replies'),
-                          _buildNavItem(2, 'Liked')
-                        ],
-                      ),
-                      Container(
-                        // height: screenHeight * 0.5,
-                        child: _selectedIndex == 0
-                            ? PostsPage()
-                            : _selectedIndex == 1
-                                ? RepliesPage()
-                                : LikedPage(),
-                      ),
-                    ],
+                            SizedBox(height: screenHeight * 0.02),
+                            Row(
+                              children: [
+                                _buildNavItem(0, 'Posts'),
+                                _buildNavItem(1, 'Replies'),
+                                _buildNavItem(2, 'Liked')
+                              ],
+                            ),
+                            Container(
+                              // height: screenHeight * 0.5,
+                              child: _selectedIndex == 0
+                                  ? PostsPage()
+                                  : _selectedIndex == 1
+                                      ? RepliesPage()
+                                      : LikedPage(),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Text('No data');
+                      }
+                    },
                   ),
                 ],
               ),
