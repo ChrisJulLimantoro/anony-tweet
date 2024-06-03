@@ -1,3 +1,5 @@
+import 'package:faker/faker.dart';
+
 class Tweet {
   String username;
   String profilePicture;
@@ -22,4 +24,24 @@ class Tweet {
     required this.comment,
     required this.view,
   });
+
+  factory Tweet.fromJson(Map<String, dynamic> json) {
+    final faker = Faker();
+
+    return Tweet(
+      username: 'Anonymous',
+      profilePicture: faker.image.image(
+        keywords: ['nature', 'mountain', 'waterfall'],
+        random: true,
+      ),
+      verified: false,
+      createdAt: json['created_at'],
+      content: json['content'],
+      media: json['media'] != null ? List<String>.from(json['media']) : [],
+      like: json['like'],
+      retweet: json['retweet'],
+      comment: json['comment'],
+      view: 0,
+    );
+  }
 }

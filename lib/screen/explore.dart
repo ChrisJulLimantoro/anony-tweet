@@ -7,7 +7,7 @@ import 'package:flutter/widgets.dart';
 class ExplorePage extends StatelessWidget {
   ExplorePage({super.key});
 
-  final Faker faker = new Faker();
+  final faker = new Faker();
 
   List<Map<String, dynamic>> generateTrends() {
     List<Map<String, dynamic>> trends = [];
