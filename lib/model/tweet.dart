@@ -1,3 +1,6 @@
+import 'package:anony_tweet/widget/hashtag.dart';
+import 'package:flutter/cupertino.dart';
+
 class Tweet {
   String username;
   String profilePicture;

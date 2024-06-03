@@ -1,5 +1,6 @@
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -104,11 +105,12 @@ class _CommentState extends State<Comment> {
                         // )
                       ],
                     ),
-                    Text(
-                      widget.tweet.content,
-                      style: TextStyle(
-                        fontSize: 14.0,
-                      ),
+                    HashtagText(
+                      text: "saya punya babi #anjing #leo",
+                      onTagTap: (String tag) {
+                        print("Tapped on $tag");
+                        // You can add more actions here, like navigating to another page or showing a modal.
+                      },
                     ),
                     SizedBox(
                       height: 5,
