@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:collection/collection.dart';
 import 'package:faker/faker.dart';
@@ -45,7 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
           SliverToBoxAdapter(
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-
               child: Column(
                 children: [
                   Stack(
@@ -315,8 +315,7 @@ class PostsPage extends StatelessWidget {
       // profilePicture: "",
       verified: Random().nextDouble() <= 0.5 ? true : false,
       createdAt: "${Random().nextInt(23)}h ago",
-      content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+      content: "saya punya babi #anjing #leo",
       media: [],
       // media: List.generate(
       //     Random().nextInt(4),

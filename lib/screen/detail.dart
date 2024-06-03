@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/comment.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:faker/faker.dart';
@@ -25,8 +26,7 @@ class _DetailPageState extends State<DetailPage> {
       ),
       verified: Random().nextDouble() <= 0.5 ? true : false,
       createdAt: "${Random().nextInt(23)}h ago",
-      content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+      content: "saya punya babi #anjing #leo",
       media: List.generate(
           Random().nextInt(4),
           (index) => faker.image.image(
@@ -69,7 +69,7 @@ class _DetailPageState extends State<DetailPage> {
                     size: 32,
                   ),
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/home');
+                    Navigator.pop(context, '/home');
                   },
                 ),
               ),
@@ -91,8 +91,7 @@ class _DetailPageState extends State<DetailPage> {
                         ),
                         verified: Random().nextDouble() <= 0.5 ? true : false,
                         createdAt: "${Random().nextInt(23)}h ago",
-                        content:
-                            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+                        content: "saya punya babi #anjing #leo",
                         media: List.generate(
                             Random().nextInt(4),
                             (index) => faker.image.image(
@@ -121,10 +120,8 @@ class _DetailPageState extends State<DetailPage> {
                                         child: Comment(
                                           tweet: tweet,
                                           isBookmarked: Random().nextBool(),
-                                          isLiked:  Random().nextBool(),
-                                          isLast: index ==
-                                              tweets.length -
-                                                  1, 
+                                          isLiked: Random().nextBool(),
+                                          isLast: index == tweets.length - 1,
                                         ),
                                       )
                                     : Comment(

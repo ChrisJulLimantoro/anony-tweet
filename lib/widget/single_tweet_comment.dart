@@ -4,6 +4,7 @@ import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,15 +32,15 @@ class SingleTweetComment extends StatefulWidget {
 class _SingleTweetCommentState extends State<SingleTweetComment> {
   bool isLiked = false;
   bool isBookmarked = false;
-  int like= 0;
-  int bookmark=0;
+  int like = 0;
+  int bookmark = 0;
   @override
   void initState() {
     super.initState();
     isLiked = widget.isLiked;
     isBookmarked = widget.isBookmarked;
     like = widget.tweet.like;
-    bookmark= widget.tweet.view;
+    bookmark = widget.tweet.view;
   }
 
   String formatNumber(int number) {
@@ -114,12 +115,19 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                           ),
                         ],
                       ),
-                      Text(
-                        widget.tweet.content,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
+                      HashtagText(
+                        text: "saya punya babi #anjing #leo",
+                        onTagTap: (String tag) {
+                          print("Tapped on $tag");
+                          // You can add more actions here, like navigating to another page or showing a modal.
+                        },
                       ),
+                      // Text(
+                      //   widget.tweet.content,
+                      //   style: TextStyle(
+                      //     fontSize: 16.0,
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 8,
                       ),

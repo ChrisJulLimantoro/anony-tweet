@@ -21,7 +21,7 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/comment');
+                Navigator.pushNamed(context, '/comment');
               },
               child: const Icon(
                 CupertinoIcons.chat_bubble,

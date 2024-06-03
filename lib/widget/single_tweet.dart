@@ -2,6 +2,7 @@ import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -85,12 +86,19 @@ class SingleTweet extends StatelessWidget {
                           )
                         ],
                       ),
-                      Text(
-                        tweet.content,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
+                      HashtagText(
+                        text: tweet.content,
+                        onTagTap: (String tag) {
+                          print("Tapped on $tag");
+                          // You can add more actions here, like navigating to another page or showing a modal.
+                        },
                       ),
+                      // Text(
+                      //   tweet.content,
+                      //   style: TextStyle(
+                      //     fontSize: 16.0,
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 8,
                       ),
