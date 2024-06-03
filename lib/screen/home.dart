@@ -18,6 +18,30 @@ class HomePage extends StatelessWidget {
   final faker = Faker();
   final supabase = Supabase.instance.client;
 
+  String timeAgo(DateTime timestamp) {
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(timestamp);
+
+    if (difference.inDays >= 365) {
+      int years = (difference.inDays / 365).floor();
+      return "${years}y ago";
+    } else if (difference.inDays >= 30) {
+      int months = (difference.inDays / 30).floor();
+      return "${months}m ago";
+    } else if (difference.inDays >= 7) {
+      int weeks = (difference.inDays / 7).floor();
+      return "${weeks}w ago";
+    } else if (difference.inDays >= 1) {
+      return "${difference.inDays}d ago";
+    } else if (difference.inHours >= 1) {
+      return "${difference.inHours}h ago";
+    } else if (difference.inMinutes >= 1) {
+      return "${difference.inMinutes}m ago";
+    } else {
+      return "${difference.inSeconds}s ago";
+    }
+  }
+
   Future<List<Tweet>> fetchTweets() async {
     // Make the RPC call
     final response =
@@ -34,6 +58,7 @@ class HomePage extends StatelessWidget {
     // Assuming tweetResponse.data is List<Map<String, dynamic>>
     for (var tweetData in response) {
       // Fetch username from 'user' table
+      DateTime createdAt = DateTime.parse(tweetData['created_at']);
       final userResponse = await supabase
           .from('user')
           .select('*') // Ensure to select 'username' if you need it
@@ -57,7 +82,7 @@ class HomePage extends StatelessWidget {
         profilePicture: userResponse['display_photo'],
         verified: Random()
             .nextBool(), // Consider using a more robust method or data from the database
-        createdAt: tweetData['created_at'],
+        createdAt: timeAgo(createdAt),
         content: tweetData['content'],
         media: [], // Assuming 'media' needs handling
         like: tweetData['like'],
