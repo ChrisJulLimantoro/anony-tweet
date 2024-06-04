@@ -51,7 +51,7 @@ class ActionRow extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 5),
-        const LikeButton(),
+        LikeButton(tweet: tweet,),
         const SizedBox(width: 5),
         Row(
           children: [

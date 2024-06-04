@@ -43,8 +43,8 @@ class HomePage extends StatelessWidget {
   }
 
   Future<List<Tweet>> fetchTweets(BuildContext context) async {
-  // final userId = SessionContext.of(context)!.id; 
-  final userId = "455cb4a8-f014-4c1e-b394-0d6a05db3fdf"; 
+  final userId = SessionContext.of(context)!.id; 
+  // final userId = "455cb4a8-f014-4c1e-b394-0d6a05db3fdf"; 
   print(userId); // Contoh user_id
   
   // Mengambil daftar tweet_id yang disukai oleh user

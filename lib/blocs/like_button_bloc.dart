@@ -1,19 +1,42 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LikeButtonBloc extends Cubit<List> {
-  LikeButtonBloc(int likeCount, bool isLiked) : super([likeCount, isLiked]);
+  final String userId;
+  final String tweetId;
+  final client = Supabase.instance.client;
 
-  void toggle() {
-    emit([!state[1] ? state[0] + 1 : state[0] - 1, !state[1]]);
+  LikeButtonBloc({
+    required int likeCount, 
+    required bool isLiked,
+    required this.userId,
+    required this.tweetId,
+  }) : super([likeCount, isLiked]);
+
+  void toggle() async {
+    bool isCurrentlyLiked = state[1];
+    int currentLikeCount = state[0];
+
+    if (isCurrentlyLiked) {
+      emit([currentLikeCount - 1, false]);
+      await _removeLikeFromDatabase();
+    } else {
+      emit([currentLikeCount + 1, true]);
+      await _addLikeToDatabase();
+    }
   }
 
-  // Stream<List> mapEventToState(event) async* {
-  //   if (event == "toggle") {
-  //     _likeCount = _isLiked ? _likeCount - 1 : _likeCount + 1;
-  //     _isLiked = !_isLiked;
-  //     yield [_likeCount, _isLiked];
-  //   } else {
-  //     yield [_likeCount, _isLiked];
-  //   }
-  // }
+  Future<void> _addLikeToDatabase() async {
+    var response = await client.from('likes').insert({
+      'user_id': userId,
+      'tweet_id': tweetId,
+    });
+  }
+
+  Future<void> _removeLikeFromDatabase() async {
+    var response = await client.from('likes').delete().match({
+      'user_id': userId,
+      'tweet_id': tweetId,
+    });
+  }
 }

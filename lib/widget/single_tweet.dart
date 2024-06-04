@@ -1,3 +1,4 @@
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
@@ -25,12 +26,16 @@ class SingleTweet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-
+    final userId = SessionContext.of(context)!.id; 
     debugPrint(tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
-          create: (context) => LikeButtonBloc(tweet.like, isLiked),
+          create: (context) => LikeButtonBloc(
+              likeCount: tweet.like,
+              isLiked: tweet.isLiked,
+              userId: userId,
+              tweetId: tweet.id),
         ),
         BlocProvider<BookmarkBloc>(
           create: (context) => BookmarkBloc(isBookmarked),
