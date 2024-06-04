@@ -386,6 +386,7 @@ class PostsPage extends StatelessWidget {
   @override
   List<Tweet> tweets = List.generate(10, (index) {
     return Tweet(
+      id: '1',
       username: faker.internet.userName(),
       profilePicture:
           "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
@@ -410,6 +411,7 @@ class PostsPage extends StatelessWidget {
       retweet: Random().nextInt(1000),
       comment: Random().nextInt(1000),
       view: Random().nextInt(900) + 100,
+      isLiked: Random().nextBool()
     );
   });
   Widget build(BuildContext context) {

@@ -42,58 +42,62 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<List<Tweet>> fetchTweets() async {
-    // Make the RPC call
-    final response =
-        await supabase.rpc('gettweet', params: {"search": "", "tag": ""});
-    // Debugging response data and error (if any)
-    // print(response);
-    // Check if there is an error in the response
-    // print("n");
-    // Cast the response data to List<Map<String, dynamic>> if we're sure about the structure
-    List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
-
-    List<Tweet> tweets = [];
-
-    // Assuming tweetResponse.data is List<Map<String, dynamic>>
-    for (var tweetData in response) {
-      // Fetch username from 'user' table
-      DateTime createdAt = DateTime.parse(tweetData['created_at']);
-      final userResponse = await supabase
-          .from('user')
-          .select('*') // Ensure to select 'username' if you need it
-          .eq('id', tweetData['creator_id'])
-          .single();
-
-      if (userResponse == null) {
-        // Handle no data or error
-        print("User not found or error");
-        continue; // Skip this iteration as we can't construct a valid Tweet without user data
-      }
-
-// Now safely access the username
-      String username = userResponse['username'] ?? 'Unknown User';
-
-      // print("User data: ${userResponse}");
-// Provide a fallback value
-
-      tweets.add(Tweet(
-        username: userResponse['display_name'],
-        profilePicture: userResponse['display_photo'],
-        verified: Random()
-            .nextBool(), // Consider using a more robust method or data from the database
-        createdAt: timeAgo(createdAt),
-        content: tweetData['content'],
-        media: [], // Assuming 'media' needs handling
-        like: tweetData['like'],
-        retweet: tweetData['retweet'],
-        comment: tweetData['comment'],
-        view: 100, // Static example, handle appropriately
-      ));
+  Future<List<Tweet>> fetchTweets(BuildContext context) async {
+  // final userId = SessionContext.of(context)!.id; 
+  final userId = "455cb4a8-f014-4c1e-b394-0d6a05db3fdf"; 
+  print(userId); // Contoh user_id
+  
+  // Mengambil daftar tweet_id yang disukai oleh user
+  final likedTweetsResponse = await supabase
+      .from('likes')
+      .select('tweet_id')
+      .eq('user_id', userId);
+  // print(likedTweetsResponse);
+  // Mengekstrak tweet_id ke dalam Set untuk pencarian yang lebih cepat
+  final likedTweetIds = <String>{};
+  if (likedTweetsResponse != null) {
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
     }
-    print(tweets);
-    return tweets;
   }
+  // Lanjutkan dengan mengambil tweet seperti sebelumnya
+  final response = await supabase.rpc('gettweet', params: {"search": "", "tag": ""});
+  List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+
+  List<Tweet> tweets = [];
+  for (var tweetData in data) {
+    DateTime createdAt = DateTime.parse(tweetData['created_at']);
+    final userResponse = await supabase
+        .from('user')
+        .select('*')  // Pastikan untuk memilih kolom yang dibutuhkan saja
+        .eq('id', tweetData['creator_id'])
+        .single();
+
+    if (userResponse == null) {
+      continue;
+    }
+
+    String username = userResponse['username'] ?? 'Unknown User';
+
+    tweets.add(Tweet(
+      id: tweetData['id'],
+      username: userResponse['display_name'],
+      profilePicture: userResponse['display_photo'],
+      verified: Random().nextBool(),
+      createdAt: timeAgo(createdAt),
+      content: tweetData['content'],
+      media: [],
+      like: tweetData['like'],
+      retweet: tweetData['retweet'],
+      comment: tweetData['comment'],
+      view: 100,
+      isLiked: likedTweetIds.contains(tweetData['id']),  // Setel isLiked berdasarkan apakah tweet_id ada dalam likedTweetIds
+    ));
+  }
+  
+  return tweets;
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -165,8 +169,9 @@ class HomePage extends StatelessWidget {
           ),
           SliverToBoxAdapter(
             child: SingleChildScrollView(
+              padding: const EdgeInsets.all(0.0),
               child: FutureBuilder<List<Tweet>>(
-                future: fetchTweets(),
+                future: fetchTweets(context),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
@@ -185,7 +190,7 @@ class HomePage extends StatelessWidget {
                             tweet: tweet,
                             isBookmarked: true,
                             isLast: false,
-                            isLiked: true);
+                            isLiked: tweet.isLiked);
                       }).toList(),
                     );
                   }
@@ -205,7 +210,7 @@ class HomePage extends StatelessWidget {
                 color: Colors.blue,
               ),
               accountName: FutureBuilder<List<Tweet>>(
-                future: fetchTweets(),
+                future: fetchTweets(context),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
@@ -227,7 +232,7 @@ class HomePage extends StatelessWidget {
                   backgroundColor:
                       theme == Brightness.light ? Colors.black : Colors.white,
                   child: FutureBuilder<List<Tweet>>(
-                    future: fetchTweets(),
+                    future: fetchTweets(context),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();

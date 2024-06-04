@@ -4,6 +4,7 @@ import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/cupertino.dart';
 
 class Tweet {
+  String id;
   String username;
   String profilePicture;
   bool verified;
@@ -14,8 +15,10 @@ class Tweet {
   int retweet;
   int comment;
   int view;
+  bool isLiked;
 
   Tweet({
+    required this.id,
     required this.username,
     required this.profilePicture,
     required this.verified,
@@ -26,12 +29,14 @@ class Tweet {
     required this.retweet,
     required this.comment,
     required this.view,
+    required this.isLiked
   });
 
   factory Tweet.fromJson(Map<String, dynamic> json) {
     final faker = Faker();
 
     return Tweet(
+      id: '1',
       username: 'Anonymous',
       profilePicture: faker.image.image(
         keywords: ['nature', 'mountain', 'waterfall'],
@@ -45,6 +50,7 @@ class Tweet {
       retweet: json['retweet'],
       comment: json['comment'],
       view: 0,
+      isLiked: false
     );
   }
 }

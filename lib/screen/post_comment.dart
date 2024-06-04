@@ -55,6 +55,7 @@ class PostComment extends StatelessWidget {
               children: <Widget>[
                 SingleTweetReply(
                   tweet: Tweet(
+                    id: '1',
                     username: faker.internet.userName(),
                     profilePicture: faker.image.image(
                       keywords: ['nature', 'mountain', 'waterfall'],
@@ -75,6 +76,7 @@ class PostComment extends StatelessWidget {
                     retweet: Random().nextInt(1000),
                     comment: Random().nextInt(1000),
                     view: Random().nextInt(900) + 100,
+                    isLiked: Random().nextBool()
                   ),
                   isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
                   isLast: false,

@@ -19,6 +19,7 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   List<Tweet> tweets = List.generate(10, (index) {
     return Tweet(
+      id: '1',
       username: faker.internet.userName(),
       profilePicture: faker.image.image(
         keywords: ['nature', 'mountain', 'waterfall'],
@@ -39,6 +40,7 @@ class _DetailPageState extends State<DetailPage> {
       retweet: Random().nextInt(1000),
       comment: Random().nextInt(1000),
       view: Random().nextInt(900) + 100,
+      isLiked: Random().nextBool()
     );
   });
   @override
@@ -84,6 +86,7 @@ class _DetailPageState extends State<DetailPage> {
                   children: [
                     SingleTweetComment(
                       tweet: Tweet(
+                        id: '1',
                         username: faker.internet.userName(),
                         profilePicture: faker.image.image(
                           keywords: ['nature', 'mountain', 'waterfall'],
@@ -104,6 +107,7 @@ class _DetailPageState extends State<DetailPage> {
                         retweet: Random().nextInt(1000),
                         comment: Random().nextInt(1000),
                         view: Random().nextInt(900) + 100,
+                        isLiked: Random().nextBool()
                       ),
                       isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
                       isLast: false,
