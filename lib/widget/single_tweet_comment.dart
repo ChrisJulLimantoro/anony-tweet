@@ -58,7 +58,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     final userId = SessionContext.of(context)!.id; 
-    debugPrint(widget.tweet.verified.toString());
+    // debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
@@ -121,7 +121,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                         ],
                       ),
                       HashtagText(
-                        text: "saya punya babi #anjing #leo",
+                        text: widget.tweet.content,
                         onTagTap: (String tag) {
                           print("Tapped on $tag");
                           // You can add more actions here, like navigating to another page or showing a modal.
@@ -282,7 +282,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     IconButton(
                       onPressed: () {
-                        print(widget.tweet.like);
+                        // print(widget.tweet.like);
                         //minus logic like to DB
                         setState(() {
                           if (isLiked) {

@@ -60,7 +60,7 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
     final userId = SessionContext.of(context)!.id; 
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
-    debugPrint(widget.tweet.verified.toString());
+    // debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(

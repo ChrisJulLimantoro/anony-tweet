@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
         .from('user')
         .select()
         .eq('username', usernameController.text.trim());
-    print(response);
+    // print(response);
     if (response.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -107,8 +107,8 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  print(
-                      '${usernameController.text} + ${passwordController.text}');
+                  // print(
+                  //     '${usernameController.text} + ${passwordController.text}');
                   login(context);
                 },
                 style: ElevatedButton.styleFrom(

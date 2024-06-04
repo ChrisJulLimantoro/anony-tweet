@@ -32,14 +32,14 @@ class _CommentState extends State<Comment> {
     super.initState();
     isLiked = widget.isLiked;
     isBookmarked = widget.isBookmarked;
-    print(isLiked);
+    // print(isLiked);
   }
 
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
-    debugPrint(widget.tweet.verified.toString());
+    // debugPrint(widget.tweet.verified.toString());
     return Column(
       children: [
         Padding(
@@ -120,7 +120,7 @@ class _CommentState extends State<Comment> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            print("comment");
+                            // print("comment");
                           },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,

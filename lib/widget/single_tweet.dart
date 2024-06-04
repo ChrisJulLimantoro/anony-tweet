@@ -27,7 +27,7 @@ class SingleTweet extends StatelessWidget {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     final userId = SessionContext.of(context)!.id; 
-    debugPrint(tweet.verified.toString());
+    // debugPrint(tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(

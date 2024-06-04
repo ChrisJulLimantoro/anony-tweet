@@ -14,6 +14,14 @@ class ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void goToDetailPage(BuildContext context, String detailId) {
+      Navigator.pushNamed(
+        context,
+        '/comment',
+        arguments: detailId,
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -21,7 +29,7 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushNamed(context, '/comment');
+                goToDetailPage(context, tweet.id);
               },
               child: const Icon(
                 CupertinoIcons.chat_bubble,
@@ -51,7 +59,9 @@ class ActionRow extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 5),
-        LikeButton(tweet: tweet,),
+        LikeButton(
+          tweet: tweet,
+        ),
         const SizedBox(width: 5),
         Row(
           children: [
