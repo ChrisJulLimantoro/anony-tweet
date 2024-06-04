@@ -190,7 +190,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text('8:35 PM · May 20, 2024',
+                    Text(widget.tweet.createdAt,
                         style: TextStyle(color: Colors.grey)),
                   ],
                 ),

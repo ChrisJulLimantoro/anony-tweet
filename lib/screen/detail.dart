@@ -9,6 +9,7 @@ import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DetailPage extends StatefulWidget {
@@ -26,28 +27,11 @@ class _DetailPageState extends State<DetailPage> {
     super.initState();
   }
 
-  String timeAgo(DateTime timestamp) {
-    DateTime now = DateTime.now();
-    Duration difference = now.difference(timestamp);
-
-    if (difference.inDays >= 365) {
-      int years = (difference.inDays / 365).floor();
-      return "${years}y ago";
-    } else if (difference.inDays >= 30) {
-      int months = (difference.inDays / 30).floor();
-      return "${months}m ago";
-    } else if (difference.inDays >= 7) {
-      int weeks = (difference.inDays / 7).floor();
-      return "${weeks}w ago";
-    } else if (difference.inDays >= 1) {
-      return "${difference.inDays}d ago";
-    } else if (difference.inHours >= 1) {
-      return "${difference.inHours}h ago";
-    } else if (difference.inMinutes >= 1) {
-      return "${difference.inMinutes}m ago";
-    } else {
-      return "${difference.inSeconds}s ago";
-    }
+  String customTimeStamp(DateTime timestamp) {
+    DateTime localDateTime = timestamp.toLocal();
+    DateFormat formatter = DateFormat("hh:mm a · MMMM dd, yyyy");
+    String formatted = formatter.format(localDateTime);
+    return formatted;
   }
 
   Future<Tweet> fetchTweet(String id, BuildContext context) async {
@@ -72,7 +56,7 @@ class _DetailPageState extends State<DetailPage> {
 
     final userResponse = await Supabase.instance.client
         .from('user')
-        .select('*') // Pastikan untuk memilih kolom yang dibutuhkan saja
+        .select('*') 
         .eq('id', response['creator_id'])
         .single();
     DateTime createdAt = DateTime.parse(response['created_at']);
@@ -82,7 +66,7 @@ class _DetailPageState extends State<DetailPage> {
       username: userResponse['display_name'],
       profilePicture: userResponse['display_photo'],
       verified: Random().nextBool(),
-      createdAt: timeAgo(createdAt),
+      createdAt: customTimeStamp(createdAt),
       content: response['content'],
       media: [],
       like: response['like'],
@@ -121,12 +105,6 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   leading: Icon(Icons.arrow_back_rounded),
-      //   title: Text("Post", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),),
-      //   centerTitle: true,
-      // ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
