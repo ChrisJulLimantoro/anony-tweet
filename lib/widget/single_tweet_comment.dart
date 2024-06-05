@@ -9,6 +9,7 @@ import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ignore_for_file: prefer_const_constructors
 
@@ -54,21 +55,44 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
     }
   }
 
+  Future<void> handleLikeOperation(String userId) async {
+  if (isLiked) {
+    isLiked = false;
+    like--;
+    await Supabase.instance.client
+        .from('likes')
+        .delete()
+        .match({
+          'user_id': userId,
+          'tweet_id': widget.tweet.id,
+        });
+  } else {
+    isLiked = true;
+    like++;
+    await Supabase.instance.client
+        .from('likes')
+        .insert({
+          'user_id': userId,
+          'tweet_id': widget.tweet.id,
+        });
+  }
+  // Update the state only after the async operation is complete
+  setState(() {});
+}
+
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-    final userId = SessionContext.of(context)!.id; 
+    final userId = SessionContext.of(context)!.id;
     // debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
-          create: (context) =>
-              LikeButtonBloc(
-              likeCount: widget.tweet.like,
-              isLiked: widget.tweet.isLiked,
-              userId: userId,
-              tweetId: widget.tweet.id)
-        ),
+            create: (context) => LikeButtonBloc(
+                likeCount: widget.tweet.like,
+                isLiked: widget.tweet.isLiked,
+                userId: userId,
+                tweetId: widget.tweet.id)),
         BlocProvider<BookmarkBloc>(
           create: (context) => BookmarkBloc(widget.isBookmarked),
         ),
@@ -281,19 +305,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        // print(widget.tweet.like);
-                        //minus logic like to DB
-                        setState(() {
-                          if (isLiked) {
-                            isLiked = false;
-                            like--;
-                          } else {
-                            isLiked = true;
-                            like++;
-                          }
-                        });
-                      },
+                      onPressed: ()=> handleLikeOperation(userId),
                       icon: Icon(
                         isLiked
                             ? CupertinoIcons.heart_fill

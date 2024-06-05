@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:js';
-
 import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';

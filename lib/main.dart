@@ -7,6 +7,7 @@ import 'package:anony_tweet/screen/notifications.dart';
 import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/screen/home.dart';
 import 'package:anony_tweet/screen/login.dart';
+import 'package:anony_tweet/screen/post_comment.dart';
 import 'package:anony_tweet/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'screen/register.dart';
@@ -79,6 +80,7 @@ class MyApp extends StatelessWidget {
           '/top_trends': (context) => TopTrendsPage(),
           '/comment': (context) => DetailPage(id: ModalRoute.of(context)!.settings.arguments as String),
           '/bookmarks': (context) => BookmarkPage(),
+          '/postComment': (context) => PostComment(),
         });
   }
 }
