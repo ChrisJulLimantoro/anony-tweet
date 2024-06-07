@@ -46,12 +46,13 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                debugPrint("tapped");
+                debugPrint("tes");
               },
-              child: const Icon(
+              child:  Icon(
                 CupertinoIcons.repeat,
-                color: Colors.grey,
+                color: tweet.isReTweet ? Colors.teal[400] : Colors.grey,
                 size: 16,
+                
               ),
             ),
             const SizedBox(width: 5),

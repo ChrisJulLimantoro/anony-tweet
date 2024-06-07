@@ -411,7 +411,8 @@ class PostsPage extends StatelessWidget {
       retweet: Random().nextInt(1000),
       comment: Random().nextInt(1000),
       view: Random().nextInt(900) + 100,
-      isLiked: Random().nextBool()
+      isLiked: Random().nextBool(),
+      isReTweet: Random().nextBool()
     );
   });
   Widget build(BuildContext context) {

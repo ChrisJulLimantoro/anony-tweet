@@ -16,6 +16,7 @@ class Tweet {
   int comment;
   int view;
   bool isLiked;
+  bool isReTweet;
 
   Tweet({
     required this.id,
@@ -29,7 +30,8 @@ class Tweet {
     required this.retweet,
     required this.comment,
     required this.view,
-    required this.isLiked
+    required this.isLiked,
+    required this.isReTweet
   });
 
   factory Tweet.fromJson(Map<String, dynamic> json) {
@@ -50,7 +52,8 @@ class Tweet {
       retweet: json['retweet'],
       comment: json['comment'],
       view: 0,
-      isLiked: false
+      isLiked: false,
+      isReTweet: false
     );
   }
 }

@@ -91,7 +91,8 @@ class HomePage extends StatelessWidget {
       retweet: tweetData['retweet'],
       comment: tweetData['comment'],
       view: 100,
-      isLiked: likedTweetIds.contains(tweetData['id']),  // Setel isLiked berdasarkan apakah tweet_id ada dalam likedTweetIds
+      isLiked: likedTweetIds.contains(tweetData['id']),
+      isReTweet: Random().nextBool()
     ));
   }
   

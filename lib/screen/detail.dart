@@ -74,6 +74,7 @@ class _DetailPageState extends State<DetailPage> {
       comment: response['comment'],
       view: 100,
       isLiked: likedTweetIds.contains(response['id']),
+      isReTweet: Random().nextBool()
     );
   }
 
@@ -100,6 +101,7 @@ class _DetailPageState extends State<DetailPage> {
         retweet: Random().nextInt(1000),
         comment: Random().nextInt(1000),
         view: Random().nextInt(900) + 100,
+        isReTweet: Random().nextBool(),
         isLiked: Random().nextBool());
   });
   @override
