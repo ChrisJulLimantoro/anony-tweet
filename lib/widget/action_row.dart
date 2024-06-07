@@ -56,7 +56,7 @@ class ActionRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 5),
-            Text(tweet.retweet.toString()),
+            Text(tweet.retweet.toString(), style: TextStyle(color: tweet.isReTweet ? Colors.teal[400] : Colors.black),),
           ],
         ),
         const SizedBox(width: 5),
