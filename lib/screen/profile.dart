@@ -9,6 +9,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -383,54 +384,107 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class PostsPage extends StatelessWidget {
+  Future<List<Tweet>> fetchPost(BuildContext context) async {
+    String timeAgo(DateTime timestamp) {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(timestamp);
+
+      if (difference.inDays >= 365) {
+        int years = (difference.inDays / 365).floor();
+        return "${years}y ago";
+      } else if (difference.inDays >= 30) {
+        int months = (difference.inDays / 30).floor();
+        return "${months}m ago";
+      } else if (difference.inDays >= 7) {
+        int weeks = (difference.inDays / 7).floor();
+        return "${weeks}w ago";
+      } else if (difference.inDays >= 1) {
+        return "${difference.inDays}d ago";
+      } else if (difference.inHours >= 1) {
+        return "${difference.inHours}h ago";
+      } else if (difference.inMinutes >= 1) {
+        return "${difference.inMinutes}m ago";
+      } else {
+        return "${difference.inSeconds}s ago";
+      }
+    }
+
+    final userId = SessionContext.of(context)!.id;
+    
+    // Fetch user data
+    final userResponse = await Supabase.instance.client
+        .from('user')
+        .select('display_name, display_photo')
+        .eq('id', userId)
+        .single();
+
+    final displayName = userResponse['display_name'] ?? 'Unknown';
+    final profilePicture = userResponse['display_photo'] ?? '';
+
+    // Fetch tweets data
+    final tweetResponse = await Supabase.instance.client
+        .from('tweets')
+        .select('*')
+        .eq('creator_id', userId);
+
+
+  List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(tweetResponse);
+
+    List<Tweet> tweets = [];
+
+    for (var tweet in data) {
+      tweets.add(Tweet(
+        id: userId,
+        username: displayName,
+        profilePicture: profilePicture,
+        verified: Random().nextBool(),
+        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+        content: tweet['content'] ?? '',
+        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+        like: tweet['like'] ?? 0,
+        retweet: tweet['retweet'] ?? 0,
+        comment: tweet['comment'] ?? 0,
+        view: 100,
+        isLiked: Random().nextBool(),
+        isReTweet: Random().nextBool(),
+      ));
+    }
+
+    print(tweets[0]);
+    return tweets;
+  }
+
   @override
-  List<Tweet> tweets = List.generate(10, (index) {
-    return Tweet(
-      id: '1',
-      username: faker.internet.userName(),
-      profilePicture:
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      // profilePicture: faker.image.image(
-      //   keywords: ['nature', 'mountain', 'waterfall'],
-      //   random: true,
-      // ),
-      // profilePicture: "",
-      verified: Random().nextDouble() <= 0.5 ? true : false,
-      createdAt: "${Random().nextInt(23)}h ago",
-      content: "saya punya babi #anjing #leo",
-      media: [],
-      // media: List.generate(
-      //     Random().nextInt(4),
-      //     (index) => faker.image.image(
-      //           keywords: ['nature', 'mountain', 'waterfall'],
-      //           height: 200,
-      //           width: 200,
-      //           random: true,
-      //         )),
-      like: Random().nextInt(1000),
-      retweet: Random().nextInt(1000),
-      comment: Random().nextInt(1000),
-      view: Random().nextInt(900) + 100,
-      isLiked: Random().nextBool(),
-      isReTweet: Random().nextBool()
-    );
-  });
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Column(
-        children: tweets
-            .mapIndexed(
-              (index, tweet) => SingleTweet(
-                tweet: tweet,
-                isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
-                isLast: index == tweets.length - 1 ? true : false,
-                isLiked: Random().nextDouble() <= 0.5 ? true : false,
+    return SingleChildScrollView(
+              padding: const EdgeInsets.all(0.0),
+              child: FutureBuilder<List<Tweet>>(
+                future: fetchPost(context),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.data!.isEmpty) {
+                    return Center(child: Text('No tweets found.'));
+                  } else {
+                    return ListView(
+                      shrinkWrap:
+                          true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
+                      physics:
+                          NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
+                      children: snapshot.data!.map((tweet) {
+                        return SingleTweet(
+                            tweet: tweet,
+                            isBookmarked: true,
+                            isLast: false,
+                            isLiked: tweet.isLiked);
+                      }).toList(),
+                    );
+                  }
+                },
               ),
-            )
-            .toList(),
-      ),
-    );
+            );
   }
 }
 
