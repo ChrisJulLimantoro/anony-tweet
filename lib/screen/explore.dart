@@ -1,24 +1,51 @@
-import 'package:anony_tweet/widget/custom_fab.dart';
+import 'package:anony_tweet/main.dart';
+import 'package:anony_tweet/screen/search_page.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-class ExplorePage extends StatelessWidget {
-  ExplorePage({super.key});
+class ExplorePage extends StatefulWidget {
+  const ExplorePage({Key? key}) : super(key: key);
 
-  final faker = new Faker();
+  @override
+  State<ExplorePage> createState() => _ExplorePageState();
+}
+
+class _ExplorePageState extends State<ExplorePage> {
+  List<String> tags = [];
 
   List<Map<String, dynamic>> generateTrends() {
     List<Map<String, dynamic>> trends = [];
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < tags.length; i++) {
       trends.add({
-        'trend_location': faker.address.country(),
-        'title': faker.lorem.word(),
-        'tweets': '${faker.randomGenerator.integer(9999)}K Tweets',
+        // 'trend_location': faker.address.country(),
+        'title': tags[i],
       });
     }
     return trends;
+  }
+
+  Future<void> getTags() async {
+    final response = await supabase.rpc('gettags');
+    if (response is List<dynamic>) {
+      setState(() {
+        tags = response.cast<String>();
+      });
+    }
+  }
+
+  Future<int> getCountTag(String tag) async {
+    final response = await supabase.rpc('gettagcount', params: {
+      'tag': tag,
+    });
+    // print("TOTAL COUNT" + response.toString());
+    return response;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getTags();
   }
 
   @override
@@ -29,7 +56,7 @@ class ExplorePage extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            title: Container(
+            title: SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               child: GestureDetector(
                 onTap: () {
@@ -39,19 +66,19 @@ class ExplorePage extends StatelessWidget {
                   enabled: false,
                   decoration: InputDecoration(
                     hintText: "Search Anony Tweets",
-                    hintStyle: TextStyle(
+                    hintStyle: const TextStyle(
                       fontSize: 16,
                       color: Colors.black54,
                     ),
                     focusColor: Colors.blue,
-                    border: OutlineInputBorder(
+                    border: const OutlineInputBorder(
                       borderSide: BorderSide.none,
                     ),
                   ),
                   maxLines: 1,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
-                    color: Colors.blue.shade700,
+                    color: Colors.blue,
                   ),
                   // controller: _searchController,
                 ),
@@ -60,7 +87,7 @@ class ExplorePage extends StatelessWidget {
             leading: Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: IconButton(
-                icon: Icon(
+                icon: const Icon(
                   CupertinoIcons.person_crop_circle_fill,
                   size: 32,
                 ),
@@ -74,7 +101,7 @@ class ExplorePage extends StatelessWidget {
                   onPressed: () {
                     print("PRESSED");
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     CupertinoIcons.gear,
                     size: 28,
                   ))
@@ -91,7 +118,7 @@ class ExplorePage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Trends for you",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
@@ -99,11 +126,9 @@ class ExplorePage extends StatelessWidget {
                     onTap: () {
                       Navigator.pushNamed(context, '/top_trends');
                     },
-                    child: Text(
-                      "Show more",
+                    child: const Text(
+                      "Refresh trends",
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
                         color: Colors.blue,
                       ),
                     ),
@@ -116,13 +141,13 @@ class ExplorePage extends StatelessWidget {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 if (index == trends.length) {
-                  return Padding(
+                  return const Padding(
                     padding: EdgeInsets.only(bottom: 60.0),
                   );
                 }
                 return Container(
                   decoration: BoxDecoration(
-                    border: Border(
+                    border: const Border(
                       bottom: BorderSide(
                         color: Colors.grey,
                         width: 0.3,
@@ -130,39 +155,56 @@ class ExplorePage extends StatelessWidget {
                     ),
                   ),
                   child: ListTile(
-                    title: Text(
-                      "Trending in " + trends[index]['trend_location'],
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black45,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SearchPage(
+                            initialSearch: trends[index]['title'],
+                          ),
+                        ),
+                      );
+                    },
+                    // title: Text(
+                    //   "Trending in ${trends[index]['trend_location']}",
+                    //   style: const TextStyle(
+                    //     fontSize: 14,
+                    //     color: Colors.black45,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    //   maxLines: 1,
+                    // ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          trends[index]['title'],
-                          style: TextStyle(
+                          "#${trends[index]['title']}",
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          trends[index]['tweets'],
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black45,
-                          ),
-                        ),
+                        FutureBuilder<int>(
+                          future: getCountTag(tags[index]),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<int> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Text("Loading...");
+                            } else if (snapshot.hasError) {
+                              return Text("Error: ${snapshot.error}");
+                            } else {
+                              return Text("${snapshot.data} Tweets");
+                            }
+                          },
+                        )
                       ],
                     ),
                     trailing: IconButton(
-                      alignment: Alignment.topRight,
+                      alignment: Alignment.centerRight,
                       onPressed: () {},
-                      icon: Icon(
+                      icon: const Icon(
                         CupertinoIcons.ellipsis_vertical,
                         color: Colors.grey,
                         size: 14,
@@ -171,12 +213,12 @@ class ExplorePage extends StatelessWidget {
                   ),
                 );
               },
-              childCount: trends.length + 1, // Increase the child count by 1
+              childCount: trends.length + 1,
             ),
           ),
         ],
       ),
-      floatingActionButton: CustomFloatingActionButton(),
+      // floatingActionButton: CustomFloatingActionButton(),
     );
   }
 }

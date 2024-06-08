@@ -2,6 +2,7 @@ import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/search_page.dart';
 import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class SingleTweet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-    final userId = SessionContext.of(context)!.id; 
+    final userId = SessionContext.of(context)!.id;
     // debugPrint(tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
@@ -94,8 +95,14 @@ class SingleTweet extends StatelessWidget {
                       HashtagText(
                         text: tweet.content,
                         onTagTap: (String tag) {
-                          print("Tapped on $tag");
-                          // You can add more actions here, like navigating to another page or showing a modal.
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchPage(
+                                initialSearch: tag,
+                              ),
+                            ),
+                          );
                         },
                       ),
                       // Text(

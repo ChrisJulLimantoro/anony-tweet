@@ -5,10 +5,16 @@ import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:faker/faker.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  final String? initialSearch;
+  // final Map<String, dynamic> tweetArguments;
+
+  SearchPage({
+    Key? key,
+    required this.initialSearch,
+    // required this.tweetArguments,
+  }) : super(key: key);
 
   @override
   SearchPageState createState() => SearchPageState();
@@ -17,7 +23,7 @@ class SearchPage extends StatefulWidget {
 class SearchPageState extends State<SearchPage> {
   late FocusNode _focusNode;
   bool _requestFocus = false;
-  final TextEditingController _searchController = TextEditingController();
+  late TextEditingController _searchController;
 
   List<String> tags = [];
 
@@ -32,6 +38,88 @@ class SearchPageState extends State<SearchPage> {
         tags = response.cast<String>();
       });
     }
+  }
+
+  Future<Tweet> fromJson(Map<String, dynamic> json) async {
+    String timeAgo(DateTime timestamp) {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(timestamp);
+
+      if (difference.inDays >= 365) {
+        int years = (difference.inDays / 365).floor();
+        return "${years}y ago";
+      } else if (difference.inDays >= 30) {
+        int months = (difference.inDays / 30).floor();
+        return "${months}m ago";
+      } else if (difference.inDays >= 7) {
+        int weeks = (difference.inDays / 7).floor();
+        return "${weeks}w ago";
+      } else if (difference.inDays >= 1) {
+        return "${difference.inDays}d ago";
+      } else if (difference.inHours >= 1) {
+        return "${difference.inHours}h ago";
+      } else if (difference.inMinutes >= 1) {
+        return "${difference.inMinutes}m ago";
+      } else {
+        return "${difference.inSeconds}s ago";
+      }
+    }
+
+    Future<String> getDisplayName() async {
+      try {
+        if (json['creator_id'] == null) {
+          return "";
+        }
+
+        final response = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', json['creator_id'])
+            .single();
+
+        return response['display_name'] ?? "";
+      } catch (e) {
+        print('Error getting display name: $e');
+        return "";
+      }
+    }
+
+    Future<String> getDisplayPhoto() async {
+      try {
+        if (json['creator_id'] == null) {
+          return "";
+        }
+
+        final response = await supabase
+            .from('user')
+            .select('display_photo')
+            .eq('id', json['creator_id'])
+            .single();
+
+        return response['display_photo'] ?? "";
+      } catch (e) {
+        print('Error getting display photo: $e');
+        return "";
+      }
+    }
+
+    String username = await getDisplayName();
+    String profilePicture = await getDisplayPhoto();
+
+    return Tweet(
+        id: '1',
+        username: username,
+        profilePicture: profilePicture,
+        verified: false,
+        createdAt: timeAgo(DateTime.parse(json['created_at'])),
+        content: json['content'],
+        media: json['media'] != null ? List<String>.from(json['media']) : [],
+        like: json['like'],
+        retweet: json['retweet'],
+        comment: json['comment'],
+        view: 0,
+        isLiked: false,
+        isReTweet: false);
   }
 
   Future searchTweets(String search, String tag) async {
@@ -49,10 +137,12 @@ class SearchPageState extends State<SearchPage> {
       });
     }
 
+    print(response);
+
     if (response is List<dynamic>) {
-      setState(() {
-        tweets = response.map((item) => Tweet.fromJson(item)).toList();
-      });
+      tweets =
+          await Future.wait(response.map((item) => fromJson(item)).toList());
+      setState(() {});
     }
   }
 
@@ -61,6 +151,7 @@ class SearchPageState extends State<SearchPage> {
     super.initState();
     _focusNode = FocusNode();
     getTags();
+    _searchController = TextEditingController(text: widget.initialSearch);
     _searchController.addListener(() {
       if (_searchController.text.isNotEmpty) {
         searchTweets(_searchController.text, _searchController.text);
