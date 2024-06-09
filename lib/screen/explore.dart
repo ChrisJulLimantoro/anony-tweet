@@ -13,6 +13,7 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   List<String> tags = [];
+  List<String> words = [];
 
   List<Map<String, dynamic>> generateTrends() {
     List<Map<String, dynamic>> trends = [];
@@ -34,6 +35,32 @@ class _ExplorePageState extends State<ExplorePage> {
     }
   }
 
+  Future<void> getRandomizedWords() async {
+    final response = await supabase.rpc("get_randomized_words_from_content");
+    if (response is List<dynamic>) {
+      setState(() {
+        words = response
+            .map((item) => item['randomized_word'] as String)
+            .where((word) => word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
+            .take(5)
+            .toList();
+      });
+    }
+    print(words);
+  }
+
+  bool isEmoji(String s) {
+    int codePoint = s.runes.first;
+    return (codePoint >= 0x1F600 && codePoint <= 0x1F64F) ||
+        (codePoint >= 0x1F300 && codePoint <= 0x1F5FF) ||
+        (codePoint >= 0x1F680 && codePoint <= 0x1F6FF) ||
+        (codePoint >= 0x2600 && codePoint <= 0x26FF) ||
+        (codePoint >= 0x2700 && codePoint <= 0x27BF) ||
+        (codePoint >= 0xFE00 && codePoint <= 0xFE0F) ||
+        (codePoint >= 0x1F900 && codePoint <= 0x1F9FF) ||
+        (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF);
+  }
+
   Future<int> getCountTag(String tag) async {
     final response = await supabase.rpc('gettagcount', params: {
       'tag': tag,
@@ -46,6 +73,7 @@ class _ExplorePageState extends State<ExplorePage> {
   void initState() {
     super.initState();
     getTags();
+    getRandomizedWords();
   }
 
   @override
@@ -124,7 +152,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/top_trends');
+                      getRandomizedWords();
                     },
                     child: const Text(
                       "Refresh trends",
@@ -140,10 +168,19 @@ class _ExplorePageState extends State<ExplorePage> {
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                if (index == trends.length) {
+                if (index == tags.length + words.length) {
                   return const Padding(
-                    padding: EdgeInsets.only(bottom: 60.0),
+                    padding: EdgeInsets.only(bottom: 10.0),
                   );
+                }
+                String title;
+                bool isTrend;
+                if (index < tags.length) {
+                  title = tags[index];
+                  isTrend = true;
+                } else {
+                  title = words[index - tags.length];
+                  isTrend = false;
                 }
                 return Container(
                   decoration: BoxDecoration(
@@ -160,45 +197,39 @@ class _ExplorePageState extends State<ExplorePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SearchPage(
-                            initialSearch: trends[index]['title'],
+                            initialSearch: title,
                           ),
                         ),
                       );
                     },
-                    // title: Text(
-                    //   "Trending in ${trends[index]['trend_location']}",
-                    //   style: const TextStyle(
-                    //     fontSize: 14,
-                    //     color: Colors.black45,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    //   maxLines: 1,
-                    // ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "#${trends[index]['title']}",
+                          isTrend ? "#$title" : title,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        FutureBuilder<int>(
-                          future: getCountTag(tags[index]),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<int> snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Text("Loading...");
-                            } else if (snapshot.hasError) {
-                              return Text("Error: ${snapshot.error}");
-                            } else {
-                              return Text("${snapshot.data} Tweets");
-                            }
-                          },
-                        )
+                        if (isTrend)
+                          FutureBuilder<int>(
+                            future: getCountTag(title),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<int> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Text("Loading...");
+                              } else if (snapshot.hasError) {
+                                return Text("Error: ${snapshot.error}");
+                              } else {
+                                return Text("${snapshot.data} Tweets");
+                              }
+                            },
+                          )
+                        else
+                          Text("xxx tweets")
                       ],
                     ),
                     trailing: IconButton(
@@ -213,7 +244,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   ),
                 );
               },
-              childCount: trends.length + 1,
+              childCount: tags.length + words.length + 1,
             ),
           ),
         ],
