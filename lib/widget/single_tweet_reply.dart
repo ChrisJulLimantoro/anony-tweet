@@ -1,9 +1,10 @@
 import 'dart:io';
-
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,14 +55,18 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
 
   @override
   Widget build(BuildContext context) {
+    final userId = SessionContext.of(context)!.id; 
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
-    debugPrint(widget.tweet.verified.toString());
+    // debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
-          create: (context) =>
-              LikeButtonBloc(widget.tweet.like, widget.isLiked),
+          create: (context) => LikeButtonBloc(
+              likeCount: widget.tweet.like,
+              isLiked: widget.tweet.isLiked,
+              userId: userId,
+              tweetId: widget.tweet.id),
         ),
         BlocProvider<BookmarkBloc>(
           create: (context) => BookmarkBloc(widget.isBookmarked),
@@ -114,12 +119,19 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                           ),
                         ],
                       ),
-                      Text(
-                        widget.tweet.content,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
+                      HashtagText(
+                        text: "saya punya babi #anjing #leo",
+                        onTagTap: (String tag) {
+                          print("Tapped on $tag");
+                          // You can add more actions here, like navigating to another page or showing a modal.
+                        },
                       ),
+                      // Text(
+                      //   widget.tweet.content,
+                      //   style: TextStyle(
+                      //     fontSize: 16.0,
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 8,
                       ),
@@ -162,7 +174,13 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                         height: 100,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [Text("Replying to "), Text("@hello", style: TextStyle(color: Colors.blue),)],
+                          children: [
+                            Text("Replying to "),
+                            Text(
+                              "@hello",
+                              style: TextStyle(color: Colors.blue),
+                            )
+                          ],
                         ),
                       ),
                     ],

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:anony_tweet/widget/single_tweet_reply.dart';
 import 'package:faker/faker.dart';
@@ -19,7 +20,10 @@ class PostComment extends StatelessWidget {
         //   child: Center(child: Text("Cancel", style: TextStyle(fontSize: 16),)),
         // ),
         title: TextButton(
-          child: Text("Cancel", style: TextStyle(color: Colors.black, fontSize: 18),),
+          child: Text(
+            "Cancel",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
           onPressed: () {
             Navigator.popAndPushNamed(context, "/comment");
           },
@@ -51,6 +55,7 @@ class PostComment extends StatelessWidget {
               children: <Widget>[
                 SingleTweetReply(
                   tweet: Tweet(
+                    id: '1',
                     username: faker.internet.userName(),
                     profilePicture: faker.image.image(
                       keywords: ['nature', 'mountain', 'waterfall'],
@@ -58,8 +63,7 @@ class PostComment extends StatelessWidget {
                     ),
                     verified: Random().nextDouble() <= 0.5 ? true : false,
                     createdAt: "${Random().nextInt(23)}h ago",
-                    content:
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+                    content: "saya punya babi #anjing #leo",
                     media: List.generate(
                         Random().nextInt(4),
                         (index) => faker.image.image(
@@ -72,6 +76,8 @@ class PostComment extends StatelessWidget {
                     retweet: Random().nextInt(1000),
                     comment: Random().nextInt(1000),
                     view: Random().nextInt(900) + 100,
+                    isLiked: Random().nextBool(),
+                    isReTweet: Random().nextBool()
                   ),
                   isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
                   isLast: false,

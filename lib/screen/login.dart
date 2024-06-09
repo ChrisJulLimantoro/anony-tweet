@@ -1,4 +1,5 @@
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/widget/field.dart';
 import 'package:flutter/material.dart';
 import 'package:anony_tweet/main.dart';
@@ -20,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
         .from('user')
         .select()
         .eq('username', usernameController.text.trim());
-    print(response);
+    // print(response);
     if (response.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -41,7 +42,12 @@ class _LoginPageState extends State<LoginPage> {
         var id = await response[0]['id'];
         SessionContext.of(context)!.id = id;
         await Future.delayed(const Duration(seconds: 3));
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => App(),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -101,8 +107,8 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  print(
-                      '${usernameController.text} + ${passwordController.text}');
+                  // print(
+                  //     '${usernameController.text} + ${passwordController.text}');
                   login(context);
                 },
                 style: ElevatedButton.styleFrom(

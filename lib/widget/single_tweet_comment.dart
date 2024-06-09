@@ -1,12 +1,15 @@
 import 'dart:io';
 
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ignore_for_file: prefer_const_constructors
 
@@ -31,15 +34,15 @@ class SingleTweetComment extends StatefulWidget {
 class _SingleTweetCommentState extends State<SingleTweetComment> {
   bool isLiked = false;
   bool isBookmarked = false;
-  int like= 0;
-  int bookmark=0;
+  int like = 0;
+  int bookmark = 0;
   @override
   void initState() {
     super.initState();
     isLiked = widget.isLiked;
     isBookmarked = widget.isBookmarked;
     like = widget.tweet.like;
-    bookmark= widget.tweet.view;
+    bookmark = widget.tweet.view;
   }
 
   String formatNumber(int number) {
@@ -52,17 +55,44 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
     }
   }
 
+  Future<void> handleLikeOperation(String userId) async {
+  if (isLiked) {
+    isLiked = false;
+    like--;
+    await Supabase.instance.client
+        .from('likes')
+        .delete()
+        .match({
+          'user_id': userId,
+          'tweet_id': widget.tweet.id,
+        });
+  } else {
+    isLiked = true;
+    like++;
+    await Supabase.instance.client
+        .from('likes')
+        .insert({
+          'user_id': userId,
+          'tweet_id': widget.tweet.id,
+        });
+  }
+  // Update the state only after the async operation is complete
+  setState(() {});
+}
+
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-
-    debugPrint(widget.tweet.verified.toString());
+    final userId = SessionContext.of(context)!.id;
+    // debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
-          create: (context) =>
-              LikeButtonBloc(widget.tweet.like, widget.isLiked),
-        ),
+            create: (context) => LikeButtonBloc(
+                likeCount: widget.tweet.like,
+                isLiked: widget.tweet.isLiked,
+                userId: userId,
+                tweetId: widget.tweet.id)),
         BlocProvider<BookmarkBloc>(
           create: (context) => BookmarkBloc(widget.isBookmarked),
         ),
@@ -114,12 +144,19 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                           ),
                         ],
                       ),
-                      Text(
-                        widget.tweet.content,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
+                      HashtagText(
+                        text: widget.tweet.content,
+                        onTagTap: (String tag) {
+                          print("Tapped on $tag");
+                          // You can add more actions here, like navigating to another page or showing a modal.
+                        },
                       ),
+                      // Text(
+                      //   widget.tweet.content,
+                      //   style: TextStyle(
+                      //     fontSize: 16.0,
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 8,
                       ),
@@ -177,7 +214,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text('8:35 PM · May 20, 2024',
+                    Text(widget.tweet.createdAt,
                         style: TextStyle(color: Colors.grey)),
                   ],
                 ),
@@ -268,19 +305,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {
-                        print(widget.tweet.like);
-                        //minus logic like to DB
-                        setState(() {
-                          if (isLiked) {
-                            isLiked = false;
-                            like--;
-                          } else {
-                            isLiked = true;
-                            like++;
-                          }
-                        });
-                      },
+                      onPressed: ()=> handleLikeOperation(userId),
                       icon: Icon(
                         isLiked
                             ? CupertinoIcons.heart_fill

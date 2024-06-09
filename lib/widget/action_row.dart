@@ -14,6 +14,14 @@ class ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void goToDetailPage(BuildContext context, String detailId) {
+      Navigator.pushNamed(
+        context,
+        '/comment',
+        arguments: detailId,
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -21,7 +29,7 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/comment');
+                goToDetailPage(context, tweet.id);
               },
               child: const Icon(
                 CupertinoIcons.chat_bubble,
@@ -38,20 +46,23 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                debugPrint("tapped");
+                debugPrint("tes");
               },
-              child: const Icon(
+              child:  Icon(
                 CupertinoIcons.repeat,
-                color: Colors.grey,
+                color: tweet.isReTweet ? Colors.teal[400] : Colors.grey,
                 size: 16,
+                
               ),
             ),
             const SizedBox(width: 5),
-            Text(tweet.retweet.toString()),
+            Text(tweet.retweet.toString(), style: TextStyle(color: tweet.isReTweet ? Colors.teal[400] : Colors.black),),
           ],
         ),
         const SizedBox(width: 5),
-        const LikeButton(),
+        LikeButton(
+          tweet: tweet,
+        ),
         const SizedBox(width: 5),
         Row(
           children: [

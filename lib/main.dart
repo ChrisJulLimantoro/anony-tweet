@@ -1,8 +1,7 @@
 import 'package:anony_tweet/screen/bookmarks.dart';
 import 'package:anony_tweet/screen/detail.dart';
 import 'package:anony_tweet/screen/explore.dart';
-import 'package:anony_tweet/screen/explore/search_page.dart';
-import 'package:anony_tweet/screen/explore/top_trends.dart';
+import 'package:anony_tweet/screen/search_page.dart';
 import 'package:anony_tweet/screen/notifications.dart';
 import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/screen/home.dart';
@@ -68,7 +67,7 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: App(),
+        home: LoginPage(),
         routes: {
           '/register': (context) => const RegisterPage(),
           '/login': (context) => const LoginPage(),
@@ -76,11 +75,12 @@ class MyApp extends StatelessWidget {
           '/notifications': (context) => NotificationsPage(),
           '/profile': (context) => ProfilePage(),
           '/explore': (context) => ExplorePage(),
-          '/search': (context) => SearchPage(),
-          '/top_trends': (context) => TopTrendsPage(),
-          '/comment': (context) => DetailPage(),
+          '/search': (context) => SearchPage(
+            initialSearch: null,
+          ),
+          '/comment': (context) => DetailPage(id: ModalRoute.of(context)!.settings.arguments as String),
           '/bookmarks': (context) => BookmarkPage(),
-          '/postComment': (contect) => PostComment(),
+          '/postComment': (context) => PostComment(),
         });
   }
 }

@@ -1,10 +1,15 @@
 import 'dart:math';
+import 'package:intl/intl.dart';
+import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:collection/collection.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:anony_tweet/SessionProvider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -15,6 +20,33 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 0;
+
+  Future<String> getName(BuildContext context) async {
+    final response = await supabase
+        .from('user')
+        .select('display_name')
+        .eq('id', SessionContext.of(context)!.id)
+        .single();
+    return response['display_name'];
+  }
+
+  Future<String> getPhoto(BuildContext context) async {
+    final response = await supabase
+        .from('user')
+        .select('display_photo')
+        .eq('id', SessionContext.of(context)!.id)
+        .single();
+    return response['display_photo'];
+  }
+
+  Future<String> getDate(BuildContext context) async {
+    final response = await supabase
+        .from('user')
+        .select('created_at')
+        .eq('id', SessionContext.of(context)!.id)
+        .single();
+    return response['created_at'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +77,6 @@ class _ProfilePageState extends State<ProfilePage> {
           SliverToBoxAdapter(
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
-
               child: Column(
                 children: [
                   Stack(
@@ -80,8 +111,29 @@ class _ProfilePageState extends State<ProfilePage> {
                               CircleAvatar(
                                 backgroundColor: Colors.blue,
                                 radius: screenWidth * 0.128,
-                                backgroundImage:
-                                    AssetImage("lib/assets/logo/Logo.png"),
+                                child: FutureBuilder<String>(
+                                  future: getPhoto(context),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      return Icon(Icons.error);
+                                    } else if (snapshot.hasData) {
+                                      return ClipOval(
+                                        child: Image.network(
+                                          snapshot.data!,
+                                          fit: BoxFit.cover,
+                                          width: screenWidth * 0.256,
+                                          height: screenWidth * 0.256,
+                                        ),
+                                      );
+                                    } else {
+                                      return Image.asset(
+                                          "lib/assets/logo/Logo.png");
+                                    }
+                                  },
+                                ),
                               ),
                             ],
                           ),
@@ -122,142 +174,172 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.085),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Text(
-                                "ASIMELEKITI129",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
+                  FutureBuilder<String>(
+                    future: getName(context),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (snapshot.hasData) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Text(
+                                      snapshot.data!,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.01),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Text(
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 12,
-                                  color: Colors.grey.shade700,
+                            SizedBox(height: screenHeight * 0.01),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Text(
+                                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.calendar,
-                                    color: Colors.grey,
-                                    size: screenHeight * 0.02,
-                                  ),
-                                  SizedBox(width: screenWidth * 0.02),
-                                  Text(
-                                    "Joined May 2024",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.grey,
+                            SizedBox(height: screenHeight * 0.02),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          CupertinoIcons.calendar,
+                                          color: Colors.grey,
+                                          size: screenHeight * 0.02,
+                                        ),
+                                        SizedBox(width: screenWidth * 0.02),
+                                        FutureBuilder<String>(
+                                          future: getDate(context),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return CircularProgressIndicator();
+                                            } else if (snapshot.hasError) {
+                                              return Text(
+                                                  'Error: ${snapshot.error}');
+                                            } else if (!snapshot.hasData ||
+                                                snapshot.data!.isEmpty) {
+                                              return Image.asset(
+                                                  "assets/logo/Logo.png");
+                                            } else {
+                                              return Text(
+                                                '${DateFormat('dd MMM yyyy').format(DateTime.parse(snapshot.data!))}',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                  color: Colors.grey,
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        )
+                                      ],
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Row(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.06),
-                            child: Container(
-                              width: screenWidth * 0.7,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "290",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.black,
+                            SizedBox(height: screenHeight * 0.02),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: screenWidth * 0.06),
+                                  child: Container(
+                                    width: screenWidth * 0.7,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "290",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          " Posts",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        SizedBox(width: screenWidth * 0.02),
+                                        Text(
+                                          "120",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          " Replies",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  Text(
-                                    " Posts",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  SizedBox(width: screenWidth * 0.02),
-                                  Text(
-                                    "120",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  Text(
-                                    " Replies",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: screenHeight * 0.02),
-                      Row(
-                        children: [
-                          _buildNavItem(0, 'Posts'),
-                          _buildNavItem(1, 'Replies'),
-                          _buildNavItem(2, 'Liked')
-                        ],
-                      ),
-                      Container(
-                        // height: screenHeight * 0.5,
-                        child: _selectedIndex == 0
-                            ? PostsPage()
-                            : _selectedIndex == 1
-                                ? RepliesPage()
-                                : LikedPage(),
-                      ),
-                    ],
+                            SizedBox(height: screenHeight * 0.02),
+                            Row(
+                              children: [
+                                _buildNavItem(0, 'Posts'),
+                                _buildNavItem(1, 'Replies'),
+                                _buildNavItem(2, 'Liked')
+                              ],
+                            ),
+                            Container(
+                              // height: screenHeight * 0.5,
+                              child: _selectedIndex == 0
+                                  ? PostsPage()
+                                  : _selectedIndex == 1
+                                      ? RepliesPage()
+                                      : LikedPage(),
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Text('No data');
+                      }
+                    },
                   ),
                 ],
               ),
@@ -302,52 +384,107 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class PostsPage extends StatelessWidget {
+  Future<List<Tweet>> fetchPost(BuildContext context) async {
+    String timeAgo(DateTime timestamp) {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(timestamp);
+
+      if (difference.inDays >= 365) {
+        int years = (difference.inDays / 365).floor();
+        return "${years}y ago";
+      } else if (difference.inDays >= 30) {
+        int months = (difference.inDays / 30).floor();
+        return "${months}m ago";
+      } else if (difference.inDays >= 7) {
+        int weeks = (difference.inDays / 7).floor();
+        return "${weeks}w ago";
+      } else if (difference.inDays >= 1) {
+        return "${difference.inDays}d ago";
+      } else if (difference.inHours >= 1) {
+        return "${difference.inHours}h ago";
+      } else if (difference.inMinutes >= 1) {
+        return "${difference.inMinutes}m ago";
+      } else {
+        return "${difference.inSeconds}s ago";
+      }
+    }
+
+    final userId = SessionContext.of(context)!.id;
+    
+    // Fetch user data
+    final userResponse = await Supabase.instance.client
+        .from('user')
+        .select('display_name, display_photo')
+        .eq('id', userId)
+        .single();
+
+    final displayName = userResponse['display_name'] ?? 'Unknown';
+    final profilePicture = userResponse['display_photo'] ?? '';
+
+    // Fetch tweets data
+    final tweetResponse = await Supabase.instance.client
+        .from('tweets')
+        .select('*')
+        .eq('creator_id', userId);
+
+
+  List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(tweetResponse);
+
+    List<Tweet> tweets = [];
+
+    for (var tweet in data) {
+      tweets.add(Tweet(
+        id: userId,
+        username: displayName,
+        profilePicture: profilePicture,
+        verified: Random().nextBool(),
+        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+        content: tweet['content'] ?? '',
+        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+        like: tweet['like'] ?? 0,
+        retweet: tweet['retweet'] ?? 0,
+        comment: tweet['comment'] ?? 0,
+        view: 100,
+        isLiked: Random().nextBool(),
+        isReTweet: Random().nextBool(),
+      ));
+    }
+
+    print(tweets[0]);
+    return tweets;
+  }
+
   @override
-  List<Tweet> tweets = List.generate(10, (index) {
-    return Tweet(
-      username: faker.internet.userName(),
-      profilePicture:
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      // profilePicture: faker.image.image(
-      //   keywords: ['nature', 'mountain', 'waterfall'],
-      //   random: true,
-      // ),
-      // profilePicture: "",
-      verified: Random().nextDouble() <= 0.5 ? true : false,
-      createdAt: "${Random().nextInt(23)}h ago",
-      content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
-      media: [],
-      // media: List.generate(
-      //     Random().nextInt(4),
-      //     (index) => faker.image.image(
-      //           keywords: ['nature', 'mountain', 'waterfall'],
-      //           height: 200,
-      //           width: 200,
-      //           random: true,
-      //         )),
-      like: Random().nextInt(1000),
-      retweet: Random().nextInt(1000),
-      comment: Random().nextInt(1000),
-      view: Random().nextInt(900) + 100,
-    );
-  });
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Column(
-        children: tweets
-            .mapIndexed(
-              (index, tweet) => SingleTweet(
-                tweet: tweet,
-                isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
-                isLast: index == tweets.length - 1 ? true : false,
-                isLiked: Random().nextDouble() <= 0.5 ? true : false,
+    return SingleChildScrollView(
+              padding: const EdgeInsets.all(0.0),
+              child: FutureBuilder<List<Tweet>>(
+                future: fetchPost(context),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.data!.isEmpty) {
+                    return Center(child: Text('No tweets found.'));
+                  } else {
+                    return ListView(
+                      shrinkWrap:
+                          true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
+                      physics:
+                          NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
+                      children: snapshot.data!.map((tweet) {
+                        return SingleTweet(
+                            tweet: tweet,
+                            isBookmarked: true,
+                            isLast: false,
+                            isLiked: tweet.isLiked);
+                      }).toList(),
+                    );
+                  }
+                },
               ),
-            )
-            .toList(),
-      ),
-    );
+            );
   }
 }
 

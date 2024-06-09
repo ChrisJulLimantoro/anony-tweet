@@ -1,7 +1,10 @@
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/search_page.dart';
 import 'package:anony_tweet/widget/action_row.dart';
+import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,12 +27,16 @@ class SingleTweet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-
-    debugPrint(tweet.verified.toString());
+    final userId = SessionContext.of(context)!.id;
+    // debugPrint(tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
         BlocProvider<LikeButtonBloc>(
-          create: (context) => LikeButtonBloc(tweet.like, isLiked),
+          create: (context) => LikeButtonBloc(
+              likeCount: tweet.like,
+              isLiked: tweet.isLiked,
+              userId: userId,
+              tweetId: tweet.id),
         ),
         BlocProvider<BookmarkBloc>(
           create: (context) => BookmarkBloc(isBookmarked),
@@ -85,12 +92,25 @@ class SingleTweet extends StatelessWidget {
                           )
                         ],
                       ),
-                      Text(
-                        tweet.content,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                        ),
+                      HashtagText(
+                        text: tweet.content,
+                        onTagTap: (String tag) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchPage(
+                                initialSearch: tag,
+                              ),
+                            ),
+                          );
+                        },
                       ),
+                      // Text(
+                      //   tweet.content,
+                      //   style: TextStyle(
+                      //     fontSize: 16.0,
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 8,
                       ),
