@@ -151,9 +151,15 @@ class SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+    getTags();
     _focusNode = FocusNode();
     _searchController = TextEditingController();
-    getTags();
+
+    if (widget.initialSearch != null) {
+      _searchController.text = widget.initialSearch!;
+      searchTweets(widget.initialSearch!, widget.initialSearch!);
+    }
+
     _searchSubject = PublishSubject<String>();
     _searchSubject.stream
         .debounceTime(Duration(milliseconds: 600))
