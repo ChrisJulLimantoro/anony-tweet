@@ -1,10 +1,11 @@
 import 'dart:math';
-
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 
 class SearchPage extends StatefulWidget {
   final String? initialSearch;
@@ -24,6 +25,7 @@ class SearchPageState extends State<SearchPage> {
   late FocusNode _focusNode;
   bool _requestFocus = false;
   late TextEditingController _searchController;
+  late PublishSubject<String> _searchSubject;
 
   List<String> tags = [];
 
@@ -150,11 +152,14 @@ class SearchPageState extends State<SearchPage> {
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+    _searchController = TextEditingController();
     getTags();
-    _searchController = TextEditingController(text: widget.initialSearch);
-    _searchController.addListener(() {
-      if (_searchController.text.isNotEmpty) {
-        searchTweets(_searchController.text, _searchController.text);
+    _searchSubject = PublishSubject<String>();
+    _searchSubject.stream
+        .debounceTime(Duration(milliseconds: 600))
+        .listen((search) {
+      if (search.isNotEmpty) {
+        searchTweets(search, search);
       } else {
         setState(() {
           tweets = [];
@@ -166,6 +171,8 @@ class SearchPageState extends State<SearchPage> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _searchController.dispose();
+    _searchSubject.close();
     super.dispose();
   }
 
@@ -199,6 +206,23 @@ class SearchPageState extends State<SearchPage> {
             color: Colors.blue.shade700,
           ),
           controller: _searchController,
+          onSubmitted: (value) {
+            if (!recentSearches.contains(value)) {
+              setState(() {
+                recentSearches.add(value);
+              });
+            }
+            if (value.isNotEmpty) {
+              searchTweets(value, value);
+            } else {
+              setState(() {
+                tweets = [];
+              });
+            }
+          },
+          onChanged: (value) {
+            _searchSubject.add(value);
+          },
         ),
       ),
       body: Column(

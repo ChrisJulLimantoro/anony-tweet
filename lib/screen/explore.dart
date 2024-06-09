@@ -1,6 +1,5 @@
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/screen/search_page.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -41,7 +40,8 @@ class _ExplorePageState extends State<ExplorePage> {
       setState(() {
         words = response
             .map((item) => item['randomized_word'] as String)
-            .where((word) => word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
+            .where((word) =>
+                word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
             .take(5)
             .toList();
       });
