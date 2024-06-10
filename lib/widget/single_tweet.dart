@@ -5,6 +5,7 @@ import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/search_page.dart';
 import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -46,6 +47,30 @@ class SingleTweet extends StatelessWidget {
       ],
       child: Column(
         children: [
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 32, bottom: 5),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.repeat,
+                      size: 12,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      "Reposted from CJ",
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Row(
@@ -155,7 +180,7 @@ class SingleTweet extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
-                      ActionRow(tweet: tweet),                    
+                      ActionRow(tweet: tweet),
                     ],
                   ),
                 ),
