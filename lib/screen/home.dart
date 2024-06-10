@@ -227,10 +227,12 @@ class HomePage extends StatelessWidget {
                           NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
                       children: snapshot.data!.map((tweet) {
                         return SingleTweet(
-                            tweet: tweet,
-                            isBookmarked: true,
-                            isLast: false,
-                            isLiked: tweet.isLiked);
+                          tweet: tweet,
+                          isBookmarked: true,
+                          isLast: false,
+                          isLiked: tweet.isLiked,
+                          searchTerm: '',
+                        );
                       }).toList(),
                     );
                   }

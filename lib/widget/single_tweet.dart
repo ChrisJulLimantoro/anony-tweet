@@ -15,6 +15,7 @@ class SingleTweet extends StatelessWidget {
   final bool isBookmarked;
   final bool isLiked;
   final bool isLast;
+  final String searchTerm;
 
   const SingleTweet({
     super.key,
@@ -22,6 +23,7 @@ class SingleTweet extends StatelessWidget {
     required this.isBookmarked,
     required this.isLast,
     required this.isLiked,
+    required this.searchTerm,
   });
 
   @override
@@ -94,6 +96,7 @@ class SingleTweet extends StatelessWidget {
                       ),
                       HashtagText(
                         text: tweet.content,
+                        searchTerm: searchTerm,
                         onTagTap: (String tag) {
                           Navigator.push(
                             context,
@@ -152,7 +155,7 @@ class SingleTweet extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
-                      ActionRow(tweet: tweet)
+                      ActionRow(tweet: tweet),                    
                     ],
                   ),
                 ),

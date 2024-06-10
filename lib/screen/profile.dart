@@ -410,7 +410,7 @@ class PostsPage extends StatelessWidget {
     }
 
     final userId = SessionContext.of(context)!.id;
-    
+
     // Fetch user data
     final userResponse = await Supabase.instance.client
         .from('user')
@@ -427,8 +427,8 @@ class PostsPage extends StatelessWidget {
         .select('*')
         .eq('creator_id', userId);
 
-
-  List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(tweetResponse);
+    List<Map<String, dynamic>> data =
+        List<Map<String, dynamic>>.from(tweetResponse);
 
     List<Tweet> tweets = [];
 
@@ -457,34 +457,36 @@ class PostsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-              padding: const EdgeInsets.all(0.0),
-              child: FutureBuilder<List<Tweet>>(
-                future: fetchPost(context),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.data!.isEmpty) {
-                    return Center(child: Text('No tweets found.'));
-                  } else {
-                    return ListView(
-                      shrinkWrap:
-                          true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
-                      physics:
-                          NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
-                      children: snapshot.data!.map((tweet) {
-                        return SingleTweet(
-                            tweet: tweet,
-                            isBookmarked: true,
-                            isLast: false,
-                            isLiked: tweet.isLiked);
-                      }).toList(),
-                    );
-                  }
-                },
-              ),
+      padding: const EdgeInsets.all(0.0),
+      child: FutureBuilder<List<Tweet>>(
+        future: fetchPost(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.data!.isEmpty) {
+            return Center(child: Text('No tweets found.'));
+          } else {
+            return ListView(
+              shrinkWrap:
+                  true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
+              physics:
+                  NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
+              children: snapshot.data!.map((tweet) {
+                return SingleTweet(
+                  tweet: tweet,
+                  isBookmarked: true,
+                  isLast: false,
+                  isLiked: tweet.isLiked,
+                  searchTerm: '',
+                );
+              }).toList(),
             );
+          }
+        },
+      ),
+    );
   }
 }
 

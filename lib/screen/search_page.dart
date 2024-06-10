@@ -22,25 +22,17 @@ class SearchPage extends StatefulWidget {
 }
 
 class SearchPageState extends State<SearchPage> {
-  late FocusNode _focusNode;
-  bool _requestFocus = false;
   late TextEditingController _searchController;
   late PublishSubject<String> _searchSubject;
+
+  late FocusNode _focusNode;
+  bool _requestFocus = false;
 
   List<String> tags = [];
 
   List<Tweet> tweets = [];
 
   List<String> recentSearches = [];
-
-  Future<void> getTags() async {
-    final response = await supabase.rpc('gettags');
-    if (response is List<dynamic>) {
-      setState(() {
-        tags = response.cast<String>();
-      });
-    }
-  }
 
   Future<Tweet> fromJson(Map<String, dynamic> json) async {
     String timeAgo(DateTime timestamp) {
@@ -98,10 +90,10 @@ class SearchPageState extends State<SearchPage> {
             .eq('id', json['creator_id'])
             .single();
 
-        return response['display_photo'] ?? "";
+        return response['display_photo'] ?? "lib/assets/logo/Logo.png";
       } catch (e) {
         print('Error getting display photo: $e');
-        return "";
+        return "lib/assets/logo/Logo.png";
       }
     }
 
@@ -145,6 +137,15 @@ class SearchPageState extends State<SearchPage> {
       tweets =
           await Future.wait(response.map((item) => fromJson(item)).toList());
       setState(() {});
+    }
+  }
+
+  Future<void> getTags() async {
+    final response = await supabase.rpc('gettags');
+    if (response is List<dynamic>) {
+      setState(() {
+        tags = response.cast<String>();
+      });
     }
   }
 
@@ -270,6 +271,7 @@ class SearchPageState extends State<SearchPage> {
                   onTap: () {
                     searchTweets(tags[index], tags[index]);
                   },
+                  
                   child: Chip(
                     label: Text("#${tags[index]}"),
                     onDeleted: () {
@@ -342,6 +344,7 @@ class SearchPageState extends State<SearchPage> {
                     isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
                     isLast: tweets.last == tweet,
                     isLiked: Random().nextDouble() <= 0.5 ? true : false,
+                    searchTerm: _searchController.text,
                   );
                 }).toList(),
               ),

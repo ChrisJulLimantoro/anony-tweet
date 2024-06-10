@@ -69,6 +69,14 @@ class _ExplorePageState extends State<ExplorePage> {
     return response;
   }
 
+  Future<int> getCountWord(String word) async {
+    final response = await supabase.rpc('get_tweet_count_by_word', params: {
+      'word_to_search': word,
+    });
+    // print("TOTAL COUNT" + response.toString());
+    return response;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -229,7 +237,20 @@ class _ExplorePageState extends State<ExplorePage> {
                             },
                           )
                         else
-                          Text("xxx tweets")
+                          FutureBuilder<int>(
+                            future: getCountWord(title),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<int> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Text("Loading...");
+                              } else if (snapshot.hasError) {
+                                return Text("Error: ${snapshot.error}");
+                              } else {
+                                return Text("${snapshot.data} Tweets");
+                              }
+                            },
+                          )
                       ],
                     ),
                     trailing: IconButton(

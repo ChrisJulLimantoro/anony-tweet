@@ -121,6 +121,7 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                       ),
                       HashtagText(
                         text: "saya punya babi #anjing #leo",
+                        searchTerm: "",
                         onTagTap: (String tag) {
                           print("Tapped on $tag");
                           // You can add more actions here, like navigating to another page or showing a modal.
