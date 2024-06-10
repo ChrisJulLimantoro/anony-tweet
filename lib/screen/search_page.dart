@@ -30,7 +30,8 @@ class SearchPageState extends State<SearchPage> {
 
   List<String> tags = [];
 
-  List<Tweet> tweets = [];
+  List<Tweet> tweets_sorted_created = [];
+  List<Tweet> tweets_sorted_top = [];
 
   List<String> recentSearches = [];
 
@@ -134,9 +135,15 @@ class SearchPageState extends State<SearchPage> {
     print(response);
 
     if (response is List<dynamic>) {
-      tweets =
+      tweets_sorted_created =
           await Future.wait(response.map((item) => fromJson(item)).toList());
       setState(() {});
+
+      // tweets_sorted_created.sort((a, b) {
+      //   var dateA = DateTime.parse(a.createdAt);
+      //   var dateB = DateTime.parse(b.createdAt);
+      //   return dateA.compareTo(dateB);
+      // });
     }
   }
 
@@ -169,7 +176,7 @@ class SearchPageState extends State<SearchPage> {
         searchTweets(search, search);
       } else {
         setState(() {
-          tweets = [];
+          tweets_sorted_created = [];
         });
       }
     });
@@ -192,165 +199,208 @@ class SearchPageState extends State<SearchPage> {
       _requestFocus = true;
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            hintText: "Search Anony Tweets",
-            hintStyle: const TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-            ),
-            focusColor: Colors.blue,
-            border: const OutlineInputBorder(
-              borderSide: BorderSide.none,
-            ),
-          ),
-          maxLines: 1,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.blue.shade700,
-          ),
-          controller: _searchController,
-          onSubmitted: (value) {
-            if (!recentSearches.contains(value)) {
-              setState(() {
-                recentSearches.add(value);
-              });
-            }
-            if (value.isNotEmpty) {
-              searchTweets(value, value);
-            } else {
-              setState(() {
-                tweets = [];
-              });
-            }
-          },
-          onChanged: (value) {
-            _searchSubject.add(value);
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          if (tweets.isEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                top: 16.0,
-                right: 16.0,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                CupertinoIcons.arrow_left,
               ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Tags',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      "Refresh tags",
-                      style: TextStyle(
-                        color: Colors.blue,
-                      ),
-                    )
-                  ],
+            ),
+            title: TextField(
+              focusNode: _focusNode,
+              decoration: InputDecoration(
+                hintText: "Search Anony Tweets",
+                hintStyle: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
                 ),
-              ),
-            ),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 4.0,
-              children: List<Widget>.generate(tags.length, (int index) {
-                return GestureDetector(
-                  onTap: () {
-                    searchTweets(tags[index], tags[index]);
+                focusColor: Colors.blue,
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                ),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      tweets_sorted_created = [];
+                    });
                   },
-                  
-                  child: Chip(
-                    label: Text("#${tags[index]}"),
-                    onDeleted: () {
-                      setState(() {
-                        tags.removeAt(index);
-                      });
-                    },
+                  icon: const Icon(
+                    CupertinoIcons.clear,
+                    color: Colors.black54,
                   ),
-                );
-              }),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                top: 16.0,
-                right: 16.0,
-              ),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Recent searches',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          recentSearches.clear();
-                        });
-                      },
-                      child: const Text(
-                        "Clear",
-                        style: TextStyle(
-                          color: Colors.blue,
-                        ),
-                      ),
-                    )
-                  ],
                 ),
               ),
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.blue.shade700,
+              ),
+              controller: _searchController,
+              onSubmitted: (value) {
+                if (!recentSearches.contains(value)) {
+                  setState(() {
+                    recentSearches.add(value);
+                  });
+                }
+                if (value.isNotEmpty) {
+                  searchTweets(value, value);
+                } else {
+                  setState(() {
+                    tweets_sorted_created = [];
+                  });
+                }
+              },
+              onChanged: (value) {
+                _searchSubject.add(value);
+              },
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: recentSearches.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(recentSearches[index]),
-                    trailing: Transform.rotate(
-                      angle: -135.0 * (3.14159265359 / 180.0),
-                      child: const Icon(
-                        CupertinoIcons.arrow_right,
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  text: "Top",
+                ),
+                Tab(
+                  text: "Latest",
+                ),
+              ],
+            )),
+        body: TabBarView(
+          children: [
+            Column(
+              children: [
+                if (tweets_sorted_created.isEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      top: 16.0,
+                      right: 16.0,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Tags',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Text(
+                            "Refresh tags",
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: List<Widget>.generate(tags.length, (int index) {
+                      return GestureDetector(
+                        onTap: () {
+                          searchTweets(tags[index], tags[index]);
+                        },
+                        child: Chip(
+                          label: Text("#${tags[index]}"),
+                          onDeleted: () {
+                            setState(() {
+                              tags.removeAt(index);
+                            });
+                          },
+                        ),
+                      );
+                    }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      top: 16.0,
+                      right: 16.0,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Recent searches',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                recentSearches.clear();
+                              });
+                            },
+                            child: const Text(
+                              "Clear",
+                              style: TextStyle(
+                                color: Colors.blue,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: recentSearches.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Text(recentSearches[index]),
+                          trailing: Transform.rotate(
+                            angle: -135.0 * (3.14159265359 / 180.0),
+                            child: const Icon(
+                              CupertinoIcons.arrow_right,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+                if (tweets_sorted_created.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: tweets_sorted_created.map((tweet) {
+                          return SingleTweet(
+                            tweet: tweet,
+                            isBookmarked:
+                                Random().nextDouble() <= 0.5 ? true : false,
+                            isLast: tweets_sorted_created.last == tweet,
+                            isLiked:
+                                Random().nextDouble() <= 0.5 ? true : false,
+                            searchTerm: _searchController.text,
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            Column(
+              children: [],
             ),
           ],
-          if (tweets.isNotEmpty) ...[
-            SingleChildScrollView(
-              child: Column(
-                children: tweets.map((tweet) {
-                  return SingleTweet(
-                    tweet: tweet,
-                    isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
-                    isLast: tweets.last == tweet,
-                    isLiked: Random().nextDouble() <= 0.5 ? true : false,
-                    searchTerm: _searchController.text,
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/screen/search_page.dart';
+import 'package:anony_tweet/widget/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -86,7 +87,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> trends = generateTrends();
+    // List<Map<String, dynamic>> trends = generateTrends();
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -122,14 +123,17 @@ class _ExplorePageState extends State<ExplorePage> {
             ),
             leading: Padding(
               padding: const EdgeInsets.only(left: 8.0),
-              child: IconButton(
-                icon: const Icon(
-                  CupertinoIcons.person_crop_circle_fill,
-                  size: 32,
+              child: Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(
+                    CupertinoIcons.person_crop_circle_fill,
+                    size: 32,
+                  ),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                    print("PRESSED");
+                  },
                 ),
-                onPressed: () {
-                  print("PRESSED");
-                },
               ),
             ),
             actions: [
@@ -232,7 +236,7 @@ class _ExplorePageState extends State<ExplorePage> {
                               } else if (snapshot.hasError) {
                                 return Text("Error: ${snapshot.error}");
                               } else {
-                                return Text("${snapshot.data} Tweets");
+                                return Text("${snapshot.data} posts");
                               }
                             },
                           )
@@ -247,7 +251,7 @@ class _ExplorePageState extends State<ExplorePage> {
                               } else if (snapshot.hasError) {
                                 return Text("Error: ${snapshot.error}");
                               } else {
-                                return Text("${snapshot.data} Tweets");
+                                return Text("${snapshot.data} posts");
                               }
                             },
                           )
@@ -270,6 +274,7 @@ class _ExplorePageState extends State<ExplorePage> {
           ),
         ],
       ),
+      drawer: MyDrawer(),
       // floatingActionButton: CustomFloatingActionButton(),
     );
   }
