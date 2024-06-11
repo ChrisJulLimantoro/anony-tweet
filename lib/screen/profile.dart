@@ -503,12 +503,93 @@ class RepliesPage extends StatelessWidget {
 }
 
 class LikedPage extends StatelessWidget {
+  Future<List<Tweet>> fetchPost(BuildContext context) async {
+  String timeAgo(DateTime timestamp) {
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(timestamp);
+
+    if (difference.inDays >= 365) {
+      return "${(difference.inDays / 365).floor()}y ago";
+    } else if (difference.inDays >= 30) {
+      return "${(difference.inDays / 30).floor()}m ago";
+    } else if (difference.inDays >= 7) {
+      return "${(difference.inDays / 7).floor()}w ago";
+    } else if (difference.inDays >= 1) {
+      return "${difference.inDays}d ago";
+    } else if (difference.inHours >= 1) {
+      return "${difference.inHours}h ago";
+    } else if (difference.inMinutes >= 1) {
+      return "${difference.inMinutes}m ago";
+    } else {
+      return "${difference.inSeconds}s ago";
+    }
+  }
+
+  final userId = SessionContext.of(context)!.id;
+
+  final response = await Supabase.instance.client
+      .rpc('get_user_liked_tweets', params: {'p_user_id': userId});
+
+  List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+  List<Tweet> tweets = [];
+
+  for (var tweet in data) {
+    final userResponse = await Supabase.instance.client
+        .from('user')
+        .select('display_name, display_photo')
+        .eq('id', tweet['creator_id'])
+        .single();
+    tweets.add(Tweet(
+      id: tweet['id'],
+      username: userResponse['display_name'],
+      profilePicture: userResponse['display_photo'],
+      verified: Random().nextBool(),
+      createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+      content: tweet['content'],
+      media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+      like: tweet['like'],
+      retweet: tweet['retweet'],
+      comment: tweet['comment'],
+      view: 0,
+      isLiked: true,
+      isReTweet: false,
+    ));
+  }
+  return tweets;
+}
+
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Liked Content',
-        style: TextStyle(fontSize: 20.0),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(0.0),
+      child: FutureBuilder<List<Tweet>>(
+        future: fetchPost(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.data!.isEmpty) {
+            return Center(child: Text('No tweets found.'));
+          } else {
+            return ListView(
+              shrinkWrap:
+                  true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
+              physics:
+                  NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
+              children: snapshot.data!.map((tweet) {
+                return SingleTweet(
+                  tweet: tweet,
+                  isBookmarked: true,
+                  isLast: false,
+                  isLiked: tweet.isLiked,
+                  searchTerm: '',
+                );
+              }).toList(),
+            );
+          }
+        },
       ),
     );
   }
