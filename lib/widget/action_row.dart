@@ -12,6 +12,40 @@ class ActionRow extends StatelessWidget {
 
   final Tweet tweet;
 
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(CupertinoIcons.repeat, color: Colors.black),
+                title:
+                    Text('Repost', style: TextStyle(color: Colors.black)),
+                onTap: () => Navigator.pop(context),
+              ),
+              ListTile(
+                leading: Icon(CupertinoIcons.clear_circled, color: Colors.red),
+                title: Text('Cancel', style: TextStyle(color: Colors.red)),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     void goToDetailPage(BuildContext context, String detailId) {
@@ -46,17 +80,20 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                debugPrint("tes");
+                _showBottomSheet(context);
               },
-              child:  Icon(
+              child: Icon(
                 CupertinoIcons.repeat,
                 color: tweet.isReTweet ? Colors.teal[400] : Colors.grey,
                 size: 16,
-                
               ),
             ),
             const SizedBox(width: 5),
-            Text(tweet.retweet.toString(), style: TextStyle(color: tweet.isReTweet ? Colors.teal[400] : Colors.black),),
+            Text(
+              tweet.retweet.toString(),
+              style: TextStyle(
+                  color: tweet.isReTweet ? Colors.teal[400] : Colors.black),
+            ),
           ],
         ),
         const SizedBox(width: 5),
