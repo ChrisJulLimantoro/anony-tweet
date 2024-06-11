@@ -1,11 +1,9 @@
-import 'dart:math';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:rxdart/subjects.dart';
 
 class SearchPage extends StatefulWidget {
   final String? initialSearch;
@@ -21,18 +19,18 @@ class SearchPage extends StatefulWidget {
   SearchPageState createState() => SearchPageState();
 }
 
-class SearchPageState extends State<SearchPage> {
+class SearchPageState extends State<SearchPage>
+    with SingleTickerProviderStateMixin {
   late TextEditingController _searchController;
   late PublishSubject<String> _searchSubject;
 
   late FocusNode _focusNode;
-  bool _requestFocus = false;
+  bool isSearching = false;
+  bool tabChanged = false;
+  late TabController _tabController;
 
+  List<Tweet> tweets = [];
   List<String> tags = [];
-
-  List<Tweet> tweets_sorted_created = [];
-  List<Tweet> tweets_sorted_top = [];
-
   List<String> recentSearches = [];
 
   Future<Tweet> fromJson(Map<String, dynamic> json) async {
@@ -117,12 +115,13 @@ class SearchPageState extends State<SearchPage> {
         isReTweet: false);
   }
 
-  Future searchTweets(String search, String tag) async {
+  Future searchTweets(String search, String tag, String order_by) async {
     final response = await supabase.rpc(
-      'gettweet',
+      'gettweet2',
       params: {
         'search': search,
         'tag': tag,
+        'order_by': order_by,
       },
     );
 
@@ -135,15 +134,9 @@ class SearchPageState extends State<SearchPage> {
     print(response);
 
     if (response is List<dynamic>) {
-      tweets_sorted_created =
+      tweets =
           await Future.wait(response.map((item) => fromJson(item)).toList());
       setState(() {});
-
-      // tweets_sorted_created.sort((a, b) {
-      //   var dateA = DateTime.parse(a.createdAt);
-      //   var dateB = DateTime.parse(b.createdAt);
-      //   return dateA.compareTo(dateB);
-      // });
     }
   }
 
@@ -159,13 +152,19 @@ class SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabSelection);
+
     getTags();
     _focusNode = FocusNode();
     _searchController = TextEditingController();
 
+    // print("INITIAL SEARCH " + widget.initialSearch.toString()!);
+
     if (widget.initialSearch != null) {
       _searchController.text = widget.initialSearch!;
-      searchTweets(widget.initialSearch!, widget.initialSearch!);
+      searchTweets(widget.initialSearch!, widget.initialSearch!, "created_at");
     }
 
     _searchSubject = PublishSubject<String>();
@@ -173,13 +172,27 @@ class SearchPageState extends State<SearchPage> {
         .debounceTime(Duration(milliseconds: 600))
         .listen((search) {
       if (search.isNotEmpty) {
-        searchTweets(search, search);
+        searchTweets(search, search, "created_at");
       } else {
         setState(() {
-          tweets_sorted_created = [];
+          tweets = [];
         });
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => FocusScope.of(context).requestFocus(_focusNode),
+    );
+  }
+
+  void _handleTabSelection() {
+    if (_tabController.indexIsChanging) {
+      setState(() {
+        tabChanged = _tabController.index == 0;
+        String orderBy = _tabController.index == 0 ? "created_at" : "like";
+        searchTweets(_searchController.text, _searchController.text, orderBy);
+      });
+    }
   }
 
   @override
@@ -187,100 +200,98 @@ class SearchPageState extends State<SearchPage> {
     _focusNode.dispose();
     _searchController.dispose();
     _searchSubject.close();
+    _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_requestFocus) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => FocusScope.of(context).requestFocus(_focusNode),
-      );
-      _requestFocus = true;
-    }
-
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-            leading: IconButton(
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            CupertinoIcons.arrow_left,
+          ),
+        ),
+        title: TextField(
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            hintText: "Search Anony Tweets",
+            hintStyle: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+            focusColor: Colors.blue,
+            border: const OutlineInputBorder(
+              borderSide: BorderSide.none,
+            ),
+            suffixIcon: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                _searchController.clear();
+                setState(() {
+                  tweets = [];
+                });
               },
-              icon: Icon(
-                CupertinoIcons.arrow_left,
+              icon: const Icon(
+                CupertinoIcons.clear,
+                color: Colors.black54,
               ),
             ),
-            title: TextField(
-              focusNode: _focusNode,
-              decoration: InputDecoration(
-                hintText: "Search Anony Tweets",
-                hintStyle: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
-                focusColor: Colors.blue,
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                ),
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {
-                      tweets_sorted_created = [];
-                    });
-                  },
-                  icon: const Icon(
-                    CupertinoIcons.clear,
-                    color: Colors.black54,
+          ),
+          maxLines: 1,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.blue.shade700,
+          ),
+          controller: _searchController,
+          onSubmitted: (value) {
+            if (!recentSearches.contains(value)) {
+              setState(() {
+                recentSearches.add(value);
+              });
+            }
+            if (value.isNotEmpty) {
+              searchTweets(value, value, "created_at");
+              // setState(() {
+              // });
+            } else {
+              setState(() {
+                tweets = [];
+              });
+            }
+          },
+          onChanged: (value) {
+            _searchSubject.add(value);
+          },
+        ),
+        bottom: (tweets.isNotEmpty)
+            ? TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(
+                    text: "Latest",
                   ),
-                ),
-              ),
-              maxLines: 1,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.blue.shade700,
-              ),
-              controller: _searchController,
-              onSubmitted: (value) {
-                if (!recentSearches.contains(value)) {
-                  setState(() {
-                    recentSearches.add(value);
-                  });
-                }
-                if (value.isNotEmpty) {
-                  searchTweets(value, value);
-                } else {
-                  setState(() {
-                    tweets_sorted_created = [];
-                  });
-                }
-              },
-              onChanged: (value) {
-                _searchSubject.add(value);
-              },
-            ),
-            bottom: TabBar(
-              tabs: [
-                Tab(
-                  text: "Top",
-                ),
-                Tab(
-                  text: "Latest",
-                ),
-              ],
-            )),
-        body: TabBarView(
-          children: [
-            Column(
+                  Tab(
+                    text: "Top",
+                  ),
+                ],
+              )
+            : null,
+      ),
+      body: (!tweets.isNotEmpty)
+          ? Column(
               children: [
-                if (tweets_sorted_created.isEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      top: 16.0,
-                      right: 16.0,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    top: 16.0,
+                    right: 16.0,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Row(
@@ -289,7 +300,7 @@ class SearchPageState extends State<SearchPage> {
                           const Text(
                             'Tags',
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -303,105 +314,112 @@ class SearchPageState extends State<SearchPage> {
                       ),
                     ),
                   ),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 4.0,
-                    children: List<Widget>.generate(tags.length, (int index) {
-                      return GestureDetector(
-                        onTap: () {
-                          searchTweets(tags[index], tags[index]);
+                ),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  children: List<Widget>.generate(tags.length, (int index) {
+                    return GestureDetector(
+                      onTap: () {
+                        _searchController.text = "#" + tags[index];
+                        searchTweets(tags[index], "", "created_at");
+                      },
+                      child: Chip(
+                        label: Text("#${tags[index]}"),
+                        onDeleted: () {
+                          setState(() {
+                            tags.removeAt(index);
+                          });
                         },
-                        child: Chip(
-                          label: Text("#${tags[index]}"),
-                          onDeleted: () {
+                      ),
+                    );
+                  }),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    top: 8.0,
+                    right: 16.0,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Recent searches',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
                             setState(() {
-                              tags.removeAt(index);
+                              recentSearches.clear();
                             });
                           },
+                          child: const Text(
+                            "Clear",
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: recentSearches.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(recentSearches[index]),
+                        trailing: Transform.rotate(
+                          angle: -135.0 * (3.14159265359 / 180.0),
+                          child: const Icon(
+                            CupertinoIcons.arrow_right,
+                          ),
                         ),
                       );
-                    }),
+                    },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      top: 16.0,
-                      right: 16.0,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Recent searches',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                recentSearches.clear();
-                              });
-                            },
-                            child: const Text(
-                              "Clear",
-                              style: TextStyle(
-                                color: Colors.blue,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: recentSearches.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(recentSearches[index]),
-                          trailing: Transform.rotate(
-                            angle: -135.0 * (3.14159265359 / 180.0),
-                            child: const Icon(
-                              CupertinoIcons.arrow_right,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-                if (tweets_sorted_created.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: tweets_sorted_created.map((tweet) {
-                          return SingleTweet(
-                            tweet: tweet,
-                            isBookmarked:
-                                Random().nextDouble() <= 0.5 ? true : false,
-                            isLast: tweets_sorted_created.last == tweet,
-                            isLiked:
-                                Random().nextDouble() <= 0.5 ? true : false,
-                            searchTerm: _searchController.text,
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ],
+            )
+          : Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  ListView.builder(
+                    itemCount: tweets.length,
+                    itemBuilder: (context, index) {
+                      return SingleTweet(
+                        tweet: tweets[index],
+                        isBookmarked: true,
+                        isLast: false,
+                        isLiked: tweets[index].isLiked,
+                        searchTerm: _searchController.text,
+                      );
+                    },
+                  ),
+                  ListView.builder(
+                    itemCount: tweets.length,
+                    itemBuilder: (context, index) {
+                      return SingleTweet(
+                        tweet: tweets[index],
+                        isBookmarked: true,
+                        isLast: false,
+                        isLiked: tweets[index].isLiked,
+                        searchTerm: _searchController.text,
+                      );
+                    },
+                  )
+                ],
+              ),
             ),
-            Column(
-              children: [],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

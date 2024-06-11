@@ -41,7 +41,13 @@ class _ExplorePageState extends State<ExplorePage> {
     if (response is List<dynamic>) {
       setState(() {
         words = response
-            .map((item) => item['randomized_word'] as String)
+            .map((item) {
+              String word = item['randomized_word'] as String;
+              word = word.replaceAll(RegExp(r'\s+'), '');
+              // word = word.replaceAll(
+              //     RegExp(r'\W'), '');
+              return word;
+            })
             .where((word) =>
                 word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
             .take(5)
@@ -104,7 +110,6 @@ class _ExplorePageState extends State<ExplorePage> {
 
   @override
   Widget build(BuildContext context) {
-    // List<Map<String, dynamic>> trends = generateTrends();
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
@@ -215,7 +220,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 children: [
                   const Text(
                     "Trends for you",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -241,13 +246,13 @@ class _ExplorePageState extends State<ExplorePage> {
                   );
                 }
                 String title;
-                bool isTrend;
+                bool isTag;
                 if (index < tags.length) {
                   title = tags[index];
-                  isTrend = true;
+                  isTag = true;
                 } else {
                   title = words[index - tags.length];
-                  isTrend = false;
+                  isTag = false;
                 }
                 return Container(
                   decoration: BoxDecoration(
@@ -264,7 +269,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SearchPage(
-                            initialSearch: title,
+                            initialSearch: isTag ? "#$title" : title,
                           ),
                         ),
                       );
@@ -273,14 +278,14 @@ class _ExplorePageState extends State<ExplorePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isTrend ? "#$title" : title,
+                          isTag ? "#$title" : title,
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (isTrend)
+                        if (isTag)
                           FutureBuilder<int>(
                             future: getCountTag(title),
                             builder: (BuildContext context,
