@@ -2,7 +2,7 @@ import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/screen/search_page.dart';
+import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/cupertino.dart';

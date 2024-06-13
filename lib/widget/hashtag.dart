@@ -16,12 +16,17 @@ class HashtagText extends StatelessWidget {
   Widget build(BuildContext context) {
     // Split text into words
     List<String> words = text.split(' ');
+    List<String> searchWords = searchTerm.toLowerCase().split(' ');
 
     return RichText(
       text: TextSpan(
         style: DefaultTextStyle.of(context).style,
         children: words.map((word) {
-          if (word.toLowerCase() == searchTerm.toLowerCase() &&
+          if (searchWords.any(
+                (searchWord) {
+                  return word.toLowerCase() == searchWord;
+                },
+              ) &&
               word.startsWith("#")) {
             return TextSpan(
               text: '$word ',
@@ -46,7 +51,11 @@ class HashtagText extends StatelessWidget {
             );
           }
           // Check if the word is the search term
-          else if (word.toLowerCase() == searchTerm.toLowerCase()) {
+          else if (searchWords.any(
+            (searchWord) {
+              return word.toLowerCase() == searchWord;
+            },
+          )) {
             return TextSpan(
               text: '$word ',
               style: TextStyle(fontWeight: FontWeight.bold),

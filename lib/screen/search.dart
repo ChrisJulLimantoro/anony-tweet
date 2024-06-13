@@ -117,7 +117,7 @@ class SearchPageState extends State<SearchPage>
 
   Future searchTweets(String search, String tag, String order_by) async {
     final response = await supabase.rpc(
-      'gettweet2',
+      'gettweet',
       params: {
         'search': search,
         'tag': tag,
@@ -181,8 +181,7 @@ class SearchPageState extends State<SearchPage>
     });
 
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => FocusScope.of(context).requestFocus(_focusNode),
-    );
+        (_) => FocusScope.of(context).requestFocus(_focusNode));
   }
 
   void _handleTabSelection() {
@@ -272,10 +271,10 @@ class SearchPageState extends State<SearchPage>
                 controller: _tabController,
                 tabs: [
                   Tab(
-                    text: "Latest",
+                    text: "Top",
                   ),
                   Tab(
-                    text: "Top",
+                    text: "Latest",
                   ),
                 ],
               )
@@ -322,7 +321,7 @@ class SearchPageState extends State<SearchPage>
                     return GestureDetector(
                       onTap: () {
                         _searchController.text = "#" + tags[index];
-                        searchTweets(tags[index], "", "created_at");
+                        searchTweets(tags[index], tags[index], "created_at");
                       },
                       child: Chip(
                         label: Text("#${tags[index]}"),
