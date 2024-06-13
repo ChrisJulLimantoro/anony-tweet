@@ -1,11 +1,13 @@
+import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/bookmark_button.dart';
 import 'package:anony_tweet/widget/like_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ActionRow extends StatelessWidget {
-  const ActionRow({
+class ActionRow extends StatefulWidget {
+  ActionRow({
     super.key,
     required this.tweet,
   });
@@ -13,7 +15,76 @@ class ActionRow extends StatelessWidget {
   final Tweet tweet;
 
   @override
+  State<ActionRow> createState() => _ActionRowState();
+}
+
+class _ActionRowState extends State<ActionRow> {
+  final supabase = Supabase.instance.client;
+  late bool isRetweeted;
+  late int retweetCount;
+
+  @override
+  void initState() {
+    super.initState();
+    isRetweeted = widget.tweet.isReTweet;
+    retweetCount = widget.tweet.retweet;
+  }
+
+  void _showBottomSheet(BuildContext context, String creator, String oldId) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(CupertinoIcons.repeat, color: Colors.black),
+                title: Text('Repost', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  retweet(creator, oldId);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(CupertinoIcons.clear_circled, color: Colors.red),
+                title: Text('Cancel', style: TextStyle(color: Colors.red)),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void retweet(String creator, String oldId) async {
+    try {
+      var response = await supabase
+          .rpc('retweet', params: {'creator': creator, 'old_id': oldId});
+
+      print(response);
+      setState(() {
+        isRetweeted = true;
+        retweetCount += 1;
+      });
+      print('Repost successful');
+    } catch (error) {
+      print('Error reposting tweet: $error');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final userId = SessionContext.of(context)!.id;
     void goToDetailPage(BuildContext context, String detailId) {
       Navigator.pushNamed(
         context,
@@ -29,7 +100,7 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                goToDetailPage(context, tweet.id);
+                goToDetailPage(context, widget.tweet.id);
               },
               child: const Icon(
                 CupertinoIcons.chat_bubble,
@@ -38,7 +109,7 @@ class ActionRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 5),
-            Text(tweet.comment.toString()),
+            Text(widget.tweet.comment.toString()),
           ],
         ),
         const SizedBox(width: 5),
@@ -46,22 +117,25 @@ class ActionRow extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                debugPrint("tes");
+                _showBottomSheet(context, userId, widget.tweet.id);
               },
-              child:  Icon(
+              child: Icon(
                 CupertinoIcons.repeat,
-                color: tweet.isReTweet ? Colors.teal[400] : Colors.grey,
+                color: isRetweeted ? Colors.teal[400] : Colors.grey,
                 size: 16,
-                
               ),
             ),
             const SizedBox(width: 5),
-            Text(tweet.retweet.toString(), style: TextStyle(color: tweet.isReTweet ? Colors.teal[400] : Colors.black),),
+            Text(
+              retweetCount.toString(),
+              style: TextStyle(
+                  color: isRetweeted ? Colors.teal[400] : Colors.black),
+            ),
           ],
         ),
         const SizedBox(width: 5),
         LikeButton(
-          tweet: tweet,
+          tweet: widget.tweet,
         ),
         const SizedBox(width: 5),
         Row(
@@ -72,7 +146,7 @@ class ActionRow extends StatelessWidget {
               size: 16,
             ),
             const SizedBox(width: 5),
-            Text(tweet.view.toString()),
+            Text(widget.tweet.view.toString()),
           ],
         ),
         const SizedBox(width: 5),

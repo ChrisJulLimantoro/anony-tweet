@@ -146,6 +146,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                       ),
                       HashtagText(
                         text: widget.tweet.content,
+                        searchTerm: '',
                         onTagTap: (String tag) {
                           print("Tapped on $tag");
                           // You can add more actions here, like navigating to another page or showing a modal.

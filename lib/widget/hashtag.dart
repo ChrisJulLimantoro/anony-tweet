@@ -1,11 +1,16 @@
-import 'package:flutter/gestures.dart'; 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class HashtagText extends StatelessWidget {
   final String text;
+  final String searchTerm;
   final Function(String) onTagTap;
 
-  HashtagText({required this.text, required this.onTagTap});
+  HashtagText({
+    required this.text,
+    required this.searchTerm,
+    required this.onTagTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +21,20 @@ class HashtagText extends StatelessWidget {
       text: TextSpan(
         style: DefaultTextStyle.of(context).style,
         children: words.map((word) {
+          if (word.toLowerCase() == searchTerm.toLowerCase() &&
+              word.startsWith("#")) {
+            return TextSpan(
+              text: '$word ',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  // Trigger action when hashtag is tapped
+                  onTagTap(word);
+                },
+            );
+          }
           // Check if the word starts with a hashtag
-          if (word.startsWith('#')) {
+          else if (word.startsWith('#')) {
             return TextSpan(
               text: '$word ',
               style: TextStyle(color: Colors.blue),
@@ -26,6 +43,13 @@ class HashtagText extends StatelessWidget {
                   // Trigger action when hashtag is tapped
                   onTagTap(word);
                 },
+            );
+          }
+          // Check if the word is the search term
+          else if (word.toLowerCase() == searchTerm.toLowerCase()) {
+            return TextSpan(
+              text: '$word ',
+              style: TextStyle(fontWeight: FontWeight.bold),
             );
           } else {
             return TextSpan(

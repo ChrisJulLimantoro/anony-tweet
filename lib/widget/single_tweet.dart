@@ -5,6 +5,7 @@ import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/search_page.dart';
 import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,6 +16,7 @@ class SingleTweet extends StatelessWidget {
   final bool isBookmarked;
   final bool isLiked;
   final bool isLast;
+  final String searchTerm;
 
   const SingleTweet({
     super.key,
@@ -22,6 +24,7 @@ class SingleTweet extends StatelessWidget {
     required this.isBookmarked,
     required this.isLast,
     required this.isLiked,
+    required this.searchTerm,
   });
 
   @override
@@ -44,6 +47,31 @@ class SingleTweet extends StatelessWidget {
       ],
       child: Column(
         children: [
+          tweet.isReTweet ?
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 32, bottom: 5),
+                child: Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.repeat,
+                      size: 12,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      "Reposted from CJ",
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ): SizedBox(),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Row(
@@ -94,6 +122,7 @@ class SingleTweet extends StatelessWidget {
                       ),
                       HashtagText(
                         text: tweet.content,
+                        searchTerm: searchTerm,
                         onTagTap: (String tag) {
                           Navigator.push(
                             context,
@@ -152,7 +181,7 @@ class SingleTweet extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
-                      ActionRow(tweet: tweet)
+                      ActionRow(tweet: tweet),
                     ],
                   ),
                 ),

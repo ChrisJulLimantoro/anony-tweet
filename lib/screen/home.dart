@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/custom_fab.dart';
+import 'package:anony_tweet/widget/drawer.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:faker/faker.dart';
@@ -44,21 +45,16 @@ class HomePage extends StatelessWidget {
 
   Future<List<Tweet>> fetchTweets(BuildContext context) async {
     final userId = SessionContext.of(context)!.id;
-    // final userId = "455cb4a8-f014-4c1e-b394-0d6a05db3fdf";
-    print(userId); // Contoh user_id
+    print(userId);
 
-    // Mengambil daftar tweet_id yang disukai oleh user
     final likedTweetsResponse =
         await supabase.from('likes').select('tweet_id').eq('user_id', userId);
-    // print(likedTweetsResponse);
-    // Mengekstrak tweet_id ke dalam Set untuk pencarian yang lebih cepat
     final likedTweetIds = <String>{};
     if (likedTweetsResponse != null) {
       for (var record in likedTweetsResponse) {
         likedTweetIds.add(record['tweet_id']);
       }
     }
-    // Lanjutkan dengan mengambil tweet seperti sebelumnya
     final response =
         await supabase.rpc('gettweet', params: {"search": "", "tag": ""});
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
@@ -68,7 +64,7 @@ class HomePage extends StatelessWidget {
       DateTime createdAt = DateTime.parse(tweetData['created_at']);
       final userResponse = await supabase
           .from('user')
-          .select('*') // Pastikan untuk memilih kolom yang dibutuhkan saja
+          .select('*')
           .eq('id', tweetData['creator_id'])
           .single();
 
@@ -79,61 +75,36 @@ class HomePage extends StatelessWidget {
       String username = userResponse['username'] ?? 'Unknown User';
 
       tweets.add(Tweet(
-          id: tweetData['id'],
-          username: userResponse['display_name'],
-          profilePicture: userResponse['display_photo'],
-          verified: Random().nextBool(),
-          createdAt: timeAgo(createdAt),
-          content: tweetData['content'],
-          media: [],
-          like: tweetData['like'],
-          retweet: tweetData['retweet'],
-          comment: tweetData['comment'],
-          view: 100,
-          isLiked: likedTweetIds.contains(tweetData['id']),
-          isReTweet: Random().nextBool()));
+        id: tweetData['id'],
+        username: userResponse['display_name'],
+        profilePicture: userResponse['display_photo'],
+        verified: Random().nextBool(),
+        createdAt: timeAgo(createdAt),
+        content: tweetData['content'],
+        media: [],
+        like: tweetData['like'],
+        retweet: tweetData['retweet'],
+        comment: tweetData['comment'],
+        view: 100,
+        isLiked: likedTweetIds.contains(tweetData['id']),
+        isReTweet: false,
+      ));
     }
 
     return tweets;
   }
 
-  Future<String?> getDisplayName(BuildContext context) async {
-    try {
-      // Mengambil userId dari SessionContext
-      final userId = SessionContext.of(context)!.id;
-
-      // Query ke supabase untuk mendapatkan display_name
-      final response = await supabase
-          .from('user')
-          .select('display_name')
-          .eq('id', userId)
-          .single();
-      print(response['display_name']);
-      // Mengambil display_name dari data yang dihasilkan
-      return response['display_name'];
-    } catch (e) {
-      // Handle error (misal menampilkan dialog error atau log)
-      print('Error fetching display name: $e');
-      return null;
-    }
-  }
-
   Future<String?> getDisplayPhoto(BuildContext context) async {
     try {
-      // Mengambil userId dari SessionContext
       final userId = SessionContext.of(context)!.id;
 
-      // Query ke supabase untuk mendapatkan display_name
       final response = await supabase
           .from('user')
           .select('display_photo')
           .eq('id', userId)
           .single();
-      print(response['display_photo']);
-      // Mengambil display_name dari data yang dihasilkan
       return response['display_photo'];
     } catch (e) {
-      // Handle error (misal menampilkan dialog error atau log)
       print('Error fetching display photo: $e');
       return null;
     }
@@ -154,28 +125,58 @@ class HomePage extends StatelessWidget {
             centerTitle: true,
             floating: true,
             pinned: true,
-            leading: Builder(builder: (BuildContext context) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: IconButton(
-                    icon: Icon(
-                      CupertinoIcons.person_crop_circle_fill,
-                      size: 32,
-                      color: (theme == Brightness.light
-                          ? Colors.black
-                          : Colors.white),
-                    ),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                      // Navigator.pushNamed(context, '/profile');
-                      debugPrint("PRESSED");
+            leading: Builder(
+              builder: (BuildContext context) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: FutureBuilder<String?>(
+                    future: getDisplayPhoto(context),
+                    builder: (context, snapshot) {
+                      Widget displayImage;
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        displayImage = Icon(
+                          CupertinoIcons.person_crop_circle_fill,
+                          size: 32,
+                          color: (theme == Brightness.light
+                              ? Colors.black
+                              : Colors.white),
+                        );
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        displayImage = Image.network(
+                          snapshot.data!,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            CupertinoIcons.person_crop_circle_fill,
+                            size: 32,
+                            color: (theme == Brightness.light
+                                ? Colors.black
+                                : Colors.white),
+                          ),
+                        );
+                      } else {
+                        displayImage = Icon(
+                          CupertinoIcons.person_crop_circle_fill,
+                          size: 32,
+                          color: (theme == Brightness.light
+                              ? Colors.black
+                              : Colors.white),
+                        );
+                      }
+
+                      return IconButton(
+                        icon: ClipOval(child: displayImage),
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                          debugPrint("PRESSED");
+                        },
+                      );
                     },
                   ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
             actions: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
@@ -227,10 +228,12 @@ class HomePage extends StatelessWidget {
                           NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
                       children: snapshot.data!.map((tweet) {
                         return SingleTweet(
-                            tweet: tweet,
-                            isBookmarked: true,
-                            isLast: false,
-                            isLiked: tweet.isLiked);
+                          tweet: tweet,
+                          isBookmarked: true,
+                          isLast: false,
+                          isLiked: tweet.isLiked,
+                          searchTerm: '',
+                        );
                       }).toList(),
                     );
                   }
@@ -241,77 +244,7 @@ class HomePage extends StatelessWidget {
         ],
       ),
       floatingActionButton: CustomFloatingActionButton(),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              accountName: FutureBuilder<String?>(
-                future: getDisplayName(context),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Text('No tweets found.');
-                  } else {
-                    return Text(snapshot.data!);
-                  }
-                },
-              ),
-              accountEmail: Text('@' + faker.internet.userName()),
-              currentAccountPicture: GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/profile');
-                },
-                child: CircleAvatar(
-                  backgroundColor:
-                      theme == Brightness.light ? Colors.black : Colors.white,
-                  child: FutureBuilder<String?>(
-                    future: getDisplayPhoto(context),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Image.asset("assets/logo/Logo.png");
-                      } else {
-                        return ClipOval(
-                          child: Image.network(
-                            snapshot.data!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(CupertinoIcons.bookmark),
-              title: Text('Bookmarks'),
-              onTap: () {
-                Navigator.pushNamed(context, '/bookmarks');
-              },
-            ),
-            ListTile(
-              leading: Icon(CupertinoIcons.gear),
-              title: Text('Settings'),
-              onTap: () {
-                print('Settings pressed');
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: MyDrawer(),
     ));
   }
 }
