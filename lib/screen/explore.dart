@@ -1,6 +1,6 @@
 import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/main.dart';
-import 'package:anony_tweet/screen/search_page.dart';
+import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   Future<void> getRandomizedWords() async {
-    final response = await supabase.rpc("get_randomized_words_from_content");
+    final response = await supabase.rpc("getrandomwords");
     if (response is List<dynamic>) {
       setState(() {
         words = response
@@ -69,17 +69,10 @@ class _ExplorePageState extends State<ExplorePage> {
         (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF);
   }
 
-  Future<int> getCountTag(String tag) async {
-    final response = await supabase.rpc('gettagcount', params: {
-      'tag': tag,
-    });
-    // print("TOTAL COUNT" + response.toString());
-    return response;
-  }
-
-  Future<int> getCountWord(String word) async {
-    final response = await supabase.rpc('get_tweet_count_by_word', params: {
+  Future<int> getCount(String word) async {
+    final response = await supabase.rpc('gettweetcount', params: {
       'word_to_search': word,
+      'tag': word,
     });
     // print("TOTAL COUNT" + response.toString());
     return response;
@@ -287,7 +280,7 @@ class _ExplorePageState extends State<ExplorePage> {
                         ),
                         if (isTag)
                           FutureBuilder<int>(
-                            future: getCountTag(title),
+                            future: getCount(title),
                             builder: (BuildContext context,
                                 AsyncSnapshot<int> snapshot) {
                               if (snapshot.connectionState ==
@@ -302,7 +295,7 @@ class _ExplorePageState extends State<ExplorePage> {
                           )
                         else
                           FutureBuilder<int>(
-                            future: getCountWord(title),
+                            future: getCount(title),
                             builder: (BuildContext context,
                                 AsyncSnapshot<int> snapshot) {
                               if (snapshot.connectionState ==

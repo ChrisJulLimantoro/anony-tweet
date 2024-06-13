@@ -1,7 +1,7 @@
 import 'package:anony_tweet/screen/bookmarks.dart';
 import 'package:anony_tweet/screen/detail.dart';
 import 'package:anony_tweet/screen/explore.dart';
-import 'package:anony_tweet/screen/search_page.dart';
+import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/screen/notifications.dart';
 import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/screen/home.dart';

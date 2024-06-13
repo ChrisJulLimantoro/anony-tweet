@@ -55,8 +55,11 @@ class HomePage extends StatelessWidget {
         likedTweetIds.add(record['tweet_id']);
       }
     }
-    final response =
-        await supabase.rpc('gettweet', params: {"search": "", "tag": ""});
+    final response = await supabase.rpc('gettweet', params: {
+      "search": "",
+      "tag": "",
+      "order_by": "created_at",
+    });
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
 
     List<Tweet> tweets = [];
