@@ -1,6 +1,8 @@
 import 'package:crypt/crypt.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class SessionBloc extends Cubit<List> {
   final client = Supabase.instance.client;
@@ -23,7 +25,15 @@ class SessionBloc extends Cubit<List> {
       if (Crypt(response[0]['password']).match(password.trim())) {
         id = await response[0]['id'];
 
-        print(response);
+        // store id into shared preferences
+        SharedPreferences sharedUser = await SharedPreferences.getInstance();
+
+        var loginInfo = {
+          "id": id,
+          "expiry": DateTime.now().millisecondsSinceEpoch + 60 * 60 * 24 * 7,
+        };
+        sharedUser.setString('user', json.encode(loginInfo));
+
         return "User found";
       } else {
         return "Wrong Password!";
@@ -31,9 +41,10 @@ class SessionBloc extends Cubit<List> {
     }
   }
 
-  Future<String?> logout() async {
-    session = null;
-    id = null;
-    final response = await client.auth.signOut();
+  Future<void> logout() async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    sharedUser.remove("user");
+
+    await client.auth.signOut();
   }
 }

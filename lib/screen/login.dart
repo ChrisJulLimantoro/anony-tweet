@@ -28,6 +28,7 @@ class _LoginPageState extends State<LoginPage> {
         const SnackBar(
           content: Text('User found'),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 1),
         ),
       );
       await Future.delayed(const Duration(seconds: 1));
@@ -37,6 +38,7 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(
           content: Text(response.toString()),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 1),
         ),
       );
     }

@@ -12,7 +12,7 @@ class MyDrawer extends StatelessWidget {
   Future<String?> getDisplayName(BuildContext context) async {
     try {
       // Mengambil userId dari SessionContext
-      final userId = context.read<SessionBloc>().id ?? "";  
+      final userId = context.read<SessionBloc>().id ?? "";
 
       // Query ke supabase untuk mendapatkan display_name
       final response = await supabase
@@ -33,7 +33,7 @@ class MyDrawer extends StatelessWidget {
   Future<String?> getDisplayPhoto(BuildContext context) async {
     try {
       // Mengambil userId dari SessionContext
-      final userId = context.read<SessionBloc>().id ?? "";  
+      final userId = context.read<SessionBloc>().id ?? "";
 
       // Query ke supabase untuk mendapatkan display_name
       final response = await supabase
@@ -121,6 +121,20 @@ class MyDrawer extends StatelessWidget {
             title: Text('Settings'),
             onTap: () {
               print('Settings pressed');
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+                CupertinoIcons.square_arrow_left,
+              color: Colors.red,
+            ),
+            title: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              context.read<SessionBloc>().logout();
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],

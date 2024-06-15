@@ -11,6 +11,8 @@ import 'package:anony_tweet/screen/post_comment.dart';
 import 'package:anony_tweet/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'screen/register.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,14 +27,33 @@ Future<void> main() async {
     final authResponse =
         await Supabase.instance.client.auth.signInAnonymously();
 
-    print("auth session: ${authResponse.session}");
+    // print("auth session: ${authResponse.session}");
     final Session session = authResponse.session!;
+    final SharedPreferences savedUser = await SharedPreferences.getInstance();
+    final String? user = savedUser.getString('user');
+
+    if (user != null) {
+      final Map<String, dynamic> userMap = json.decode(user);
+      final String id = userMap['id'];
+      final int expiry = userMap['expiry'];
+
+      if (DateTime.now().millisecondsSinceEpoch > expiry) {
+        await savedUser.remove('user');
+      } 
+      else {
+          runApp(BlocProvider(
+            create: (context) => SessionBloc(session: session, id: id),
+            child: const MyApp(),
+          ));
+          return;
+      }
+    }
     runApp(BlocProvider(
       create: (context) => SessionBloc(session: session, id: ''),
       child: const MyApp(),
     ));
   } catch (e) {
-    // print('error $e');
+    print('error $e');
   }
 }
 
@@ -69,7 +90,7 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: LoginPage(),
+        home: context.read<SessionBloc>().id == "" ? const LoginPage() : const App(),
         routes: {
           '/app': (context) => const App(),
           '/register': (context) => const RegisterPage(),
