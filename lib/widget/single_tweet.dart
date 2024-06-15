@@ -1,6 +1,7 @@
 import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/action_row.dart';
@@ -30,7 +31,7 @@ class SingleTweet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-    final userId = SessionContext.of(context)!.id;
+    final userId = context.read<SessionBloc>().id ?? "";
     // debugPrint(tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
@@ -41,37 +42,40 @@ class SingleTweet extends StatelessWidget {
               userId: userId,
               tweetId: tweet.id),
         ),
-        BlocProvider<BookmarkBloc>(
-          create: (context) => BookmarkBloc(isBookmarked),
-        ),
+        // BlocProvider<BookmarkBloc>(
+        //   create: (context) => BookmarkBloc(isBookmarked),
+        // ),
       ],
       child: Column(
         children: [
-          tweet.isReTweet ?
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 32, bottom: 5),
-                child: Row(
-                  children: [
-                    Icon(
-                      CupertinoIcons.repeat,
-                      size: 12,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      "Reposted from CJ",
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w600),
+          tweet.isReTweet
+              ? Row(
+                  children: const [
+                    Padding(
+                      padding: EdgeInsets.only(left: 32, bottom: 5),
+                      child: Row(
+                        children: [
+                          Icon(
+                            CupertinoIcons.repeat,
+                            size: 12,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            "Reposted from CJ",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
+                )
+              : SizedBox(
+                  height: 0,
                 ),
-              ),
-            ],
-          ): SizedBox(),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Row(

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/comment.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
@@ -9,6 +10,7 @@ import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -35,7 +37,7 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Future<Tweet> fetchTweet(String id, BuildContext context) async {
-    final userId = SessionContext.of(context)!.id;
+    final userId = context.read<SessionBloc>().id ?? "";
     final likedTweetsResponse = await Supabase.instance.client
         .from('likes')
         .select('tweet_id')
@@ -56,26 +58,25 @@ class _DetailPageState extends State<DetailPage> {
 
     final userResponse = await Supabase.instance.client
         .from('user')
-        .select('*') 
+        .select('*')
         .eq('id', response['creator_id'])
         .single();
     DateTime createdAt = DateTime.parse(response['created_at']);
     // print("result: ${likedTweetIds.contains(response['id'])}");
     return Tweet(
-      id: response['id'],
-      username: userResponse['display_name'],
-      profilePicture: userResponse['display_photo'],
-      verified: Random().nextBool(),
-      createdAt: customTimeStamp(createdAt),
-      content: response['content'],
-      media: [],
-      like: response['like'],
-      retweet: response['retweet'],
-      comment: response['comment'],
-      view: 100,
-      isLiked: likedTweetIds.contains(response['id']),
-      isReTweet: Random().nextBool()
-    );
+        id: response['id'],
+        username: userResponse['display_name'],
+        profilePicture: userResponse['display_photo'],
+        verified: Random().nextBool(),
+        createdAt: customTimeStamp(createdAt),
+        content: response['content'],
+        media: [],
+        like: response['like'],
+        retweet: response['retweet'],
+        comment: response['comment'],
+        view: 100,
+        isLiked: likedTweetIds.contains(response['id']),
+        isReTweet: Random().nextBool());
   }
 
   List<Tweet> tweets = List.generate(10, (index) {

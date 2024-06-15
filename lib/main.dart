@@ -1,3 +1,4 @@
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/screen/bookmarks.dart';
 import 'package:anony_tweet/screen/detail.dart';
 import 'package:anony_tweet/screen/explore.dart';
@@ -9,6 +10,7 @@ import 'package:anony_tweet/screen/login.dart';
 import 'package:anony_tweet/screen/post_comment.dart';
 import 'package:anony_tweet/screen/profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'screen/register.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,14 +25,14 @@ Future<void> main() async {
     final authResponse =
         await Supabase.instance.client.auth.signInAnonymously();
 
+    print("auth session: ${authResponse.session}");
     final Session session = authResponse.session!;
-    runApp(SessionProvider(
-      session: session,
-      id: '',
+    runApp(BlocProvider(
+      create: (context) => SessionBloc(session: session, id: ''),
       child: const MyApp(),
     ));
   } catch (e) {
-    print('error $e');
+    // print('error $e');
   }
 }
 
@@ -69,6 +71,7 @@ class MyApp extends StatelessWidget {
         ),
         home: LoginPage(),
         routes: {
+          '/app': (context) => const App(),
           '/register': (context) => const RegisterPage(),
           '/login': (context) => const LoginPage(),
           '/home': (context) => HomePage(),
@@ -76,9 +79,10 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => ProfilePage(),
           '/explore': (context) => ExplorePage(),
           '/search': (context) => SearchPage(
-            initialSearch: null,
-          ),
-          '/comment': (context) => DetailPage(id: ModalRoute.of(context)!.settings.arguments as String),
+                initialSearch: null,
+              ),
+          '/comment': (context) => DetailPage(
+              id: ModalRoute.of(context)!.settings.arguments as String),
           '/bookmarks': (context) => BookmarkPage(),
           '/postComment': (context) => PostComment(),
         });

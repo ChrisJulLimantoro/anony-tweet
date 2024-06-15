@@ -45,7 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       // add delay than go to home
       await Future.delayed(const Duration(seconds: 3));
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

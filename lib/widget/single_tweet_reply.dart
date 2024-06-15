@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
@@ -55,7 +56,7 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
 
   @override
   Widget build(BuildContext context) {
-    final userId = SessionContext.of(context)!.id; 
+    final userId = context.read<SessionBloc>().id ?? "";  
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
     // debugPrint(widget.tweet.verified.toString());

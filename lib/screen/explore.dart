@@ -1,9 +1,11 @@
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({Key? key}) : super(key: key);
@@ -87,7 +89,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   Future<String?> getDisplayPhoto(BuildContext context) async {
     try {
-      final userId = SessionContext.of(context)!.id;
+      final userId = context.read<SessionBloc>().id ?? "";
 
       final response = await supabase
           .from('user')

@@ -1,9 +1,11 @@
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/widget/field.dart';
 import 'package:flutter/material.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:crypt/crypt.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,45 +19,26 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login(BuildContext context) async {
-    final response = await supabase
-        .from('user')
-        .select()
-        .eq('username', usernameController.text.trim());
-    // print(response);
-    if (response.isEmpty) {
+    final response = await context
+        .read<SessionBloc>()
+        .login(usernameController.text, passwordController.text);
+
+    if (response.toString() == "User found") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('User not found'),
+          content: Text('User found'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pushReplacementNamed(context, '/app');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response.toString()),
           backgroundColor: Colors.red,
         ),
       );
-    } else {
-      if (Crypt(response[0]['password'])
-          .match(passwordController.text.trim())) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User found'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Set to session the user id
-        var id = await response[0]['id'];
-        SessionContext.of(context)!.id = id;
-        await Future.delayed(const Duration(seconds: 3));
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => App(),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Wrong Password!'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
@@ -107,8 +90,6 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  // print(
-                  //     '${usernameController.text} + ${passwordController.text}');
                   login(context);
                 },
                 style: ElevatedButton.styleFrom(

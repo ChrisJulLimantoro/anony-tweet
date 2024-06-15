@@ -1,9 +1,11 @@
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/bookmark_button.dart';
 import 'package:anony_tweet/widget/like_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ActionRow extends StatefulWidget {
@@ -37,7 +39,7 @@ class _ActionRowState extends State<ActionRow> {
       builder: (context) {
         return Container(
           height: 150,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
@@ -47,16 +49,19 @@ class _ActionRowState extends State<ActionRow> {
           child: Wrap(
             children: <Widget>[
               ListTile(
-                leading: Icon(CupertinoIcons.repeat, color: Colors.black),
-                title: Text('Repost', style: TextStyle(color: Colors.black)),
+                leading: const Icon(CupertinoIcons.repeat, color: Colors.black),
+                title:
+                    const Text('Repost', style: TextStyle(color: Colors.black)),
                 onTap: () {
                   retweet(creator, oldId);
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: Icon(CupertinoIcons.clear_circled, color: Colors.red),
-                title: Text('Cancel', style: TextStyle(color: Colors.red)),
+                leading:
+                    const Icon(CupertinoIcons.clear_circled, color: Colors.red),
+                title:
+                    const Text('Cancel', style: TextStyle(color: Colors.red)),
                 onTap: () => Navigator.pop(context),
               ),
             ],
@@ -71,20 +76,20 @@ class _ActionRowState extends State<ActionRow> {
       var response = await supabase
           .rpc('retweet', params: {'creator': creator, 'old_id': oldId});
 
-      print(response);
+      debugPrint(response);
       setState(() {
         isRetweeted = true;
         retweetCount += 1;
       });
-      print('Repost successful');
+      debugPrint('Repost successful');
     } catch (error) {
-      print('Error reposting tweet: $error');
+      debugPrint('Error reposting tweet: $error');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userId = SessionContext.of(context)!.id;
+    final userId = context.read<SessionBloc>().id ?? "";
     void goToDetailPage(BuildContext context, String detailId) {
       Navigator.pushNamed(
         context,
@@ -138,34 +143,6 @@ class _ActionRowState extends State<ActionRow> {
           tweet: widget.tweet,
         ),
         const SizedBox(width: 5),
-        Row(
-          children: [
-            const Icon(
-              CupertinoIcons.chart_bar_alt_fill,
-              color: Colors.grey,
-              size: 16,
-            ),
-            const SizedBox(width: 5),
-            Text(widget.tweet.view.toString()),
-          ],
-        ),
-        const SizedBox(width: 5),
-        Row(
-          children: [
-            const BookmarkButton(),
-            const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () {
-                debugPrint("tapped");
-              },
-              child: const Icon(
-                CupertinoIcons.share,
-                color: Colors.grey,
-                size: 16,
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
