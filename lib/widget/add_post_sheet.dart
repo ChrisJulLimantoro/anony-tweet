@@ -1,8 +1,10 @@
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/widgets.dart';
-import 'package:crypt/crypt.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddPostSheet extends StatelessWidget {
   const AddPostSheet({super.key});
@@ -63,17 +65,18 @@ class AddPostSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Avatar
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.network(
-                  faker.image.image(
-                    height: 35,
-                    width: 35,
-                    keywords: ['nature', 'mountain', 'waterfall'],
-                    random: true,
-                  ),
-                  fit: BoxFit.cover,
-                ),
+                child: context.read<SessionBloc>().display_photo != null
+                    ? Image.network(
+                        context.read<SessionBloc>().display_photo!,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        "lib/assets/images/logo.png",
+                        fit: BoxFit.cover,
+                      ),
               ),
               Expanded(
                 child: Padding(
@@ -86,7 +89,6 @@ class AddPostSheet extends StatelessWidget {
                         autofocus: true,
                         autocorrect: false,
                         maxLength: 280,
-                        
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
                         cursorHeight: 16,

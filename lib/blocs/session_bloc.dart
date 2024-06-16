@@ -8,6 +8,9 @@ class SessionBloc extends Cubit<List> {
   final client = Supabase.instance.client;
   Session? session;
   String? id = "";
+  String? username = "";
+  String? display_name = "";
+  String? display_photo = "";
 
   SessionBloc({
     this.session,
@@ -23,13 +26,19 @@ class SessionBloc extends Cubit<List> {
       return "User not found!";
     } else {
       if (Crypt(response[0]['password']).match(password.trim())) {
+        this.username = await response[0]['username'];
         id = await response[0]['id'];
+        display_name = await response[0]['display_name'];
+        display_photo = await response[0]['display_photo'];
 
         // store id into shared preferences
         SharedPreferences sharedUser = await SharedPreferences.getInstance();
 
         var loginInfo = {
           "id": id,
+          "display_photo": response[0]['display_photo'],
+          "username": response[0]['username'],
+          "display_name": response[0]['display_name'],
           "expiry": DateTime.now().millisecondsSinceEpoch + 60 * 60 * 24 * 7,
         };
         sharedUser.setString('user', json.encode(loginInfo));
