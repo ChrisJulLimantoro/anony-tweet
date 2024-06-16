@@ -37,14 +37,12 @@ class SingleTweet extends StatelessWidget {
       providers: [
         BlocProvider<LikeButtonBloc>(
           create: (context) => LikeButtonBloc(
-              likeCount: tweet.like,
-              isLiked: tweet.isLiked,
-              userId: userId,
-              tweetId: tweet.id),
+            likeCount: tweet.like,
+            isLiked: tweet.isLiked,
+            userId: userId,
+            tweetId: tweet.id,
+          ),
         ),
-        // BlocProvider<BookmarkBloc>(
-        //   create: (context) => BookmarkBloc(isBookmarked),
-        // ),
       ],
       child: Column(
         children: [

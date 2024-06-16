@@ -30,22 +30,31 @@ Future<void> main() async {
     // print("auth session: ${authResponse.session}");
     final Session session = authResponse.session!;
     final SharedPreferences savedUser = await SharedPreferences.getInstance();
+    // savedUser.clear();
     final String? user = savedUser.getString('user');
 
     if (user != null) {
       final Map<String, dynamic> userMap = json.decode(user);
       final String id = userMap['id'];
+      final String displayName = userMap['displayName'];
+      final String displayPhoto = userMap['displayPhoto'];
+      final String username = userMap['username'];
       final int expiry = userMap['expiry'];
 
       if (DateTime.now().millisecondsSinceEpoch > expiry) {
         await savedUser.remove('user');
-      } 
-      else {
-          runApp(BlocProvider(
-            create: (context) => SessionBloc(session: session, id: id),
-            child: const MyApp(),
-          ));
-          return;
+      } else {
+        runApp(BlocProvider(
+          create: (context) => SessionBloc(
+            session: session,
+            id: id,
+            displayName: displayName,
+            displayPhoto: displayPhoto,
+            username: username,
+          ),
+          child: const MyApp(),
+        ));
+        return;
       }
     }
     runApp(BlocProvider(
@@ -90,7 +99,9 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: context.read<SessionBloc>().id == "" ? const LoginPage() : const App(),
+        home: context.read<SessionBloc>().id == ""
+            ? const LoginPage()
+            : const App(),
         routes: {
           '/app': (context) => const App(),
           '/register': (context) => const RegisterPage(),

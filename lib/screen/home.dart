@@ -63,6 +63,7 @@ class HomePage extends StatelessWidget {
       "order_by": "created_at",
     });
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+    debugPrint(data.toString());
 
     List<Tweet> tweets = [];
     for (var tweetData in data) {

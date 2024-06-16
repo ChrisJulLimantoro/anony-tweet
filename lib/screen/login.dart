@@ -1,10 +1,10 @@
-import 'package:anony_tweet/SessionProvider.dart';
+// import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
-import 'package:anony_tweet/screen/app.dart';
+// import 'package:anony_tweet/screen/app.dart';
 import 'package:anony_tweet/widget/field.dart';
 import 'package:flutter/material.dart';
-import 'package:anony_tweet/main.dart';
-import 'package:crypt/crypt.dart';
+// import 'package:anony_tweet/main.dart';
+// import 'package:crypt/crypt.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
           duration: Duration(seconds: 1),
         ),
       );
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 3));
       Navigator.pushReplacementNamed(context, '/app');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
