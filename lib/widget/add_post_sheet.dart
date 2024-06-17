@@ -2,6 +2,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
 import 'package:anony_tweet/blocs/session_bloc.dart';
+import 'package:anony_tweet/helpers/hashtags.dart';
+import 'package:anony_tweet/helpers/storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +22,8 @@ class _AddPostSheetState extends State<AddPostSheet> {
   final supabase = Supabase.instance.client;
   final TextEditingController tweetController = TextEditingController();
   List<XFile> images = [];
+  bool isLoading = false;
+  bool isTextEmpty = true;
 
   Future<void> pickImage() async {
     try {
@@ -55,42 +59,40 @@ class _AddPostSheetState extends State<AddPostSheet> {
     }
   }
 
+  Future<bool> postTweet(String creator) async {
+    try {
+      List<String> fileNames = [];
+      List<String> tags = getHashtags(tweetController.text);
+
+      // upload media to supabase
+      if (images.isNotEmpty) {
+        List<Future<String>> uploadedImages = images.map((image) {
+          return uploadImage("tweet_medias", File(image.path),
+              "${creator}_${DateTime.now().microsecondsSinceEpoch.toString()}");
+        }).toList();
+
+        fileNames = await Future.wait(uploadedImages);
+      }
+
+      // insert tweet to supabase
+      await supabase.rpc('insert_tweet', params: {
+        "creator": context.read<SessionBloc>().id,
+        "media": fileNames,
+        "tags": tags,
+        "tweet": tweetController.text,
+      });
+      return true;
+    } catch (e) {
+      debugPrint('Error posting tweet: $e');
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
-    Future<void> uploadImage(File imageFile) async {
-      // final storageResponse = await supabase.storage.createBucket('avatars');
-
-      try {
-        await supabase.storage
-            .from("tweet_medias") // Replace with your storage bucket name
-            .upload(
-                "${context.read<SessionBloc>().username}_${DateTime.now().microsecondsSinceEpoch.toString()}",
-                imageFile);
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-    }
-
-    Future<bool> postTweet() async {
-      try {
-        images.forEach((image) {
-          uploadImage(File(image.path));
-        });
-        return true;
-      } catch (e) {
-        debugPrint('Error uploading image: $e');
-        return false;
-      }
-
-      // await supabase.rpc('insert_tweets', params: {
-      //   "creator": context.read<SessionBloc>().id,
-      //   "media": images.isNotEmpty ? images.map((e) => e.path).toList() : [],
-      //   "tags": "",
-      //   "tweet": tweetController.text,
-      // });
-    }
+    print(context.read<SessionBloc>().displayPhoto);
 
     return Column(
       children: [
@@ -102,12 +104,15 @@ class _AddPostSheetState extends State<AddPostSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Cancel button
                 TextButton(
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all(const EdgeInsets.all(0)),
                     overlayColor: MaterialStateProperty.all(Colors.transparent),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                   child: Text(
                     "Cancel",
                     style: TextStyle(
@@ -116,15 +121,82 @@ class _AddPostSheetState extends State<AddPostSheet> {
                             : Colors.white),
                   ),
                 ),
+
+                // Post button
                 ElevatedButton(
-                  onPressed: () async {
-                    await postTweet();
-                  },
+                  onPressed: isLoading || tweetController.text.isEmpty
+                      ? null
+                      : () async {
+                          setState(() => isLoading = true);
+                          bool success = await postTweet(
+                              context.read<SessionBloc>().username ?? "");
+
+                          debugPrint("success : $success");
+
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Tweet posted!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                elevation: 0,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 24,
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                                padding: const EdgeInsets.all(16),
+                                duration: const Duration(seconds: 2),
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                              ),
+                            );
+
+                            setState(() => isLoading = false);
+                            Navigator.pop(context);
+                          } else {
+                            setState(() => isLoading = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "Error posting tweet!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                elevation: 0,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 24,
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                                padding: const EdgeInsets.all(16),
+                                duration: const Duration(seconds: 2),
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                              ),
+                            );
+                            Navigator.pop(context);
+                          }
+                        },
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(
-                        theme == Brightness.light
-                            ? Colors.black
-                            : Colors.white),
+                    backgroundColor:
+                        MaterialStateProperty.all(isLoading || isTextEmpty
+                            ? Colors.grey
+                            : theme == Brightness.light
+                                ? Colors.black
+                                : Colors.white),
                   ),
                   child: Text(
                     "Post",
@@ -194,6 +266,19 @@ class _AddPostSheetState extends State<AddPostSheet> {
                             counter: null,
                             counterText: "",
                             border: InputBorder.none),
+                        onChanged: ((value) {
+                          if (value.isEmpty) {
+                            setState(() {
+                              isTextEmpty = true;
+                            });
+                          } else {
+                            if (isTextEmpty) {
+                              setState(() {
+                                isTextEmpty = false;
+                              });
+                            }
+                          }
+                        }),
                       ),
 
                       // Image Picker Button

@@ -70,7 +70,10 @@ class _DetailPageState extends State<DetailPage> {
         verified: Random().nextBool(),
         createdAt: customTimeStamp(createdAt),
         content: response['content'],
-        media: [],
+        media: response['media'] != null
+            ? List<String>.from(
+                response['media'].map((item) => item as String))
+            : [],
         like: response['like'],
         retweet: response['retweet'],
         comment: response['comment'],

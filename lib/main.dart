@@ -44,6 +44,7 @@ Future<void> main() async {
       if (DateTime.now().millisecondsSinceEpoch > expiry) {
         await savedUser.remove('user');
       } else {
+        print("user found!");
         runApp(BlocProvider(
           create: (context) => SessionBloc(
             session: session,

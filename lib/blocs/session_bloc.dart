@@ -21,6 +21,11 @@ class SessionBloc extends Cubit<void> {
   }) : super([session, id, displayName, displayPhoto, username]);
 
   Future<String?> login(String username, String password) async {
+    final authResponse =
+        await Supabase.instance.client.auth.signInAnonymously();
+
+    session = authResponse.session;
+
     //  Future<void> login(BuildContext context) async {
     final response =
         await client.from('user').select().eq('username', username.trim());
@@ -29,11 +34,12 @@ class SessionBloc extends Cubit<void> {
       return "User not found!";
     } else {
       if (Crypt(response[0]['password']).match(password.trim())) {
-        print(response[0]);
-        this.username = await response[0]['username'];
-        id = await response[0]['id'];
-        displayName = await response[0]['displayName'];
-        displayPhoto = await response[0]['displayPhoto'];
+        this.username = response[0]['username'];
+        id = response[0]['id'];
+        displayName = response[0]['display_name'];
+        displayPhoto = response[0]['display_photo'];
+
+        print(displayPhoto);
 
         // store id into shared preferences
         SharedPreferences sharedUser = await SharedPreferences.getInstance();

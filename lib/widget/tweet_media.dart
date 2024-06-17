@@ -1,0 +1,114 @@
+import 'package:anony_tweet/helpers/storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+
+class TweetMediaGrid extends StatelessWidget {
+  final List<String> images;
+
+  const TweetMediaGrid({super.key, required this.images});
+
+  @override
+  Widget build(BuildContext context) {
+    var imageWidth = (MediaQuery.of(context).size.width - 32 - 60) /
+            (images.length > 1 ? 2 : 1) - (images.length == 1 ? 1 : images.length / 2 * 1);
+
+    if (images.length.isEven) {
+      return SizedBox(
+        height: 200,
+        child: Container(
+          padding: EdgeInsets.zero,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey.shade300, width: 0.5),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              childAspectRatio: imageWidth / (images.length == 2 ? 200 : 100),
+              children: images
+                  .map(
+                    (image) => CachedNetworkImage(
+                      imageUrl: getImageUrl("tweet_medias", image.toString())
+                          .toString(),
+                      width: imageWidth,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.grey.shade300, width: 0.5),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Row(
+            children: [
+              CachedNetworkImage(
+                imageUrl: getImageUrl("tweet_medias", images[0].toString())
+                    .toString(),
+                height: images.length > 1 ? 200 : null,
+                width: imageWidth,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              if (images.length > 1)
+                SizedBox(
+                  width: 2,
+                ),
+              if (images.length > 1)
+                Column(
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl:
+                          getImageUrl("tweet_medias", images[1].toString())
+                              .toString(),
+                      height: 99,
+                      width: imageWidth,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2,
+                      child: Container(
+                        color: Colors.transparent,
+                      ),
+                    ),
+                    CachedNetworkImage(
+                      imageUrl:
+                          getImageUrl("tweet_medias", images[2].toString())
+                              .toString(),
+                      height: 99,
+                      width: imageWidth,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ],
+                )
+            ],
+          ),
+        ),
+      );
+    }
+  }
+}

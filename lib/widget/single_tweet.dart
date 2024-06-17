@@ -2,10 +2,13 @@ import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
+import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
+import 'package:anony_tweet/widget/tweet_media.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,8 +84,8 @@ class SingleTweet extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(50),
-                  child: Image.network(
-                    tweet.profilePicture,
+                  child: CachedNetworkImage(
+                    imageUrl: tweet.profilePicture,
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
@@ -146,40 +149,46 @@ class SingleTweet extends StatelessWidget {
                         height: 8,
                       ),
                       if (tweet.media.isNotEmpty)
-                        SizedBox(
-                          height: 200,
-                          width: tweet.media.length * 200.0 >
-                                  MediaQuery.of(context).size.width
-                              ? MediaQuery.of(context).size.width
-                              : tweet.media.length * 200.0,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: ListView(
-                              clipBehavior: Clip.none,
-                              physics: PageScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              children: tweet.media.map((e) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                          right: BorderSide(
-                                              color: MediaQuery.of(context)
-                                                          .platformBrightness ==
-                                                      Brightness.light
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                              width: 2))),
-                                  child: Image.network(
-                                    e,
-                                    height: 200,
-                                    width: 200,
-                                    fit: BoxFit.cover,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
+                        TweetMediaGrid(images: tweet.media),
+                      // SizedBox(
+                      //   height: 200,
+                      //   width: tweet.media.length * 200.0 >
+                      //           MediaQuery.of(context).size.width
+                      //       ? MediaQuery.of(context).size.width
+                      //       : tweet.media.length * 200.0,
+                      //   child: ClipRRect(
+                      //     borderRadius: BorderRadius.circular(10),
+                      //     child: ListView(
+                      //       clipBehavior: Clip.none,
+                      //       physics: PageScrollPhysics(),
+                      //       scrollDirection: Axis.horizontal,
+                      //       children: tweet.media.map((e) {
+                      //         return Container(
+                      //           decoration: BoxDecoration(
+                      //               border: Border(
+                      //                   right: BorderSide(
+                      //                       color: MediaQuery.of(context)
+                      //                                   .platformBrightness ==
+                      //                               Brightness.light
+                      //                           ? Colors.white
+                      //                           : Colors.black,
+                      //                       width: 2))),
+                      //           child: CachedNetworkImage(
+                      //             imageUrl: getImageUrl(
+                      //                     "tweet_medias", e.toString())
+                      //                 .toString(),
+                      //             height: 200,
+                      //             width: 200,
+                      //             fit: BoxFit.cover,
+                      //             placeholder: (context, url) => Center(
+                      //               child: CircularProgressIndicator(),
+                      //             ),
+                      //           ),
+                      //         );
+                      //       }).toList(),
+                      //     ),
+                      //   ),
+                      // ),
                       SizedBox(
                         height: 8,
                       ),
