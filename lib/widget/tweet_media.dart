@@ -9,7 +9,7 @@ import 'package:flutter/widgets.dart';
 class TweetMediaGrid extends StatelessWidget {
   final Tweet tweet;
 
-  const TweetMediaGrid({super.key, required this.tweet});
+  const TweetMediaGrid({super.key, required this.tweet, required List<String> images});
 
   @override
   Widget build(BuildContext context) {

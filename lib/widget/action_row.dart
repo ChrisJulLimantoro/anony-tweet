@@ -50,8 +50,9 @@ class _ActionRowState extends State<ActionRow> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(CupertinoIcons.repeat, color: Colors.black),
-                title:
-                    const Text('Repost', style: TextStyle(color: Colors.black)),
+                title: Text(
+                    widget.tweet.isRetweetedByUser ? 'Unrepost' : 'Repost',
+                    style: TextStyle(color: Colors.black)),
                 onTap: () {
                   retweet(creator, oldId);
                   Navigator.pop(context);
@@ -129,7 +130,9 @@ class _ActionRowState extends State<ActionRow> {
               },
               child: Icon(
                 CupertinoIcons.repeat,
-                color: isRetweeted ? Colors.teal[400] : Colors.grey,
+                color: widget.tweet.isRetweetedByUser
+                    ? Colors.teal[400]
+                    : Colors.grey,
                 size: 16,
               ),
             ),
@@ -137,7 +140,7 @@ class _ActionRowState extends State<ActionRow> {
             Text(
               retweetCount.toString(),
               style: TextStyle(
-                  color: isRetweeted
+                  color: widget.tweet.isRetweetedByUser
                       ? Colors.teal[400]
                       : widget.isCarousel
                           ? Colors.white

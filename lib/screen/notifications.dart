@@ -154,34 +154,6 @@ class NotificationsPage extends StatelessWidget {
                             if (notification['label'] == "comment") {
                               return SingleTweet(
                                 tweet: Tweet(
-                                  id: notification['tweet']['id'],
-                                  username: notification['display_name'],
-                                  profilePicture: notification['profile'],
-                                  verified: false,
-                                  createdAt:
-                                      timeAgo(notification['created_at']),
-                                  content: notification['tweet']['content'],
-                                  media: notification['tweet']['media'] != null
-                                      ? List<String>.from(notification['tweet']
-                                              ['media']
-                                          .map((item) => item as String))
-                                      : [],
-                                  like: notification['tweet']['like'],
-                                  retweet: notification['tweet']['retweet'],
-                                  comment: notification['tweet']['comment'],
-                                  view: 0,
-                                  isLiked: notification['liked'],
-                                  isReTweet: false,
-                                  isComment: true,
-                                ),
-                                isBookmarked: true,
-                                isLast: false,
-                                isLiked: notification['liked'],
-                                searchTerm: '',
-                              );
-                            } else {
-                              return NotificationPart(
-                                  tweet: Tweet(
                                     id: notification['tweet']['id'],
                                     username: notification['display_name'],
                                     profilePicture: notification['profile'],
@@ -200,10 +172,42 @@ class NotificationsPage extends StatelessWidget {
                                     comment: notification['tweet']['comment'],
                                     view: 0,
                                     isLiked: notification['liked'],
-                                    isReTweet:
-                                        notification['label'] == 'retweet',
-                                    isComment: false,
-                                  ),
+                                    isReTweet: false,
+                                    isComment: true,
+                                    oriCreator: "dummy",
+                                    isRetweetedByUser: false),
+                                isBookmarked: true,
+                                isLast: false,
+                                isLiked: notification['liked'],
+                                searchTerm: '',
+                              );
+                            } else {
+                              return NotificationPart(
+                                  tweet: Tweet(
+                                      id: notification['tweet']['id'],
+                                      username: notification['display_name'],
+                                      profilePicture: notification['profile'],
+                                      verified: false,
+                                      createdAt:
+                                          timeAgo(notification['created_at']),
+                                      content: notification['tweet']['content'],
+                                      media: notification['tweet']['media'] !=
+                                              null
+                                          ? List<String>.from(
+                                              notification['tweet']['media']
+                                                  .map(
+                                                      (item) => item as String))
+                                          : [],
+                                      like: notification['tweet']['like'],
+                                      retweet: notification['tweet']['retweet'],
+                                      comment: notification['tweet']['comment'],
+                                      view: 0,
+                                      isLiked: notification['liked'],
+                                      isReTweet:
+                                          notification['label'] == 'retweet',
+                                      isComment: false,
+                                      oriCreator: "dummy",
+                                      isRetweetedByUser: false),
                                   action: notification['label'],
                                   isLast: false,
                                   searchTerm: "");

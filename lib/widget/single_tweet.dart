@@ -166,6 +166,7 @@ class SingleTweet extends StatelessWidget {
                       if (tweet.media.isNotEmpty)
                         TweetMediaGrid(
                           tweet: tweet,
+                          images: tweet.media,
                         ),
                       // SizedBox(
                       //   height: 200,
