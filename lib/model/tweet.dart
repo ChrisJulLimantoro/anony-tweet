@@ -15,6 +15,7 @@ class Tweet {
   int view;
   bool isLiked;
   bool isReTweet;
+  bool isComment;
 
   Tweet({
     required this.id,
@@ -30,5 +31,6 @@ class Tweet {
     required this.view,
     required this.isLiked,
     required this.isReTweet,
+    this.isComment = false,
   });
 }

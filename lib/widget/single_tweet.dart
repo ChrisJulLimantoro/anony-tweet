@@ -125,19 +125,37 @@ class SingleTweet extends StatelessWidget {
                           )
                         ],
                       ),
-                      HashtagText(
-                        text: tweet.content,
-                        searchTerm: searchTerm,
-                        onTagTap: (String tag) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SearchPage(
-                                initialSearch: tag,
+                      tweet.isComment
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "Replying to ",
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                                Text(
+                                  '@${context.read<SessionBloc>().username!}',
+                                  style: TextStyle(color: Colors.blue),
+                                )
+                              ],
+                            )
+                          : SizedBox(height: 0),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: HashtagText(
+                          text: tweet.content,
+                          searchTerm: searchTerm,
+                          onTagTap: (String tag) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SearchPage(
+                                  initialSearch: tag,
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
                       // Text(
                       //   tweet.content,
