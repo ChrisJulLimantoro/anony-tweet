@@ -1,8 +1,5 @@
 import 'dart:math';
-
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/widget/hashtag.dart';
-import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:anony_tweet/widget/single_tweet_reply.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +74,9 @@ class PostComment extends StatelessWidget {
                     comment: Random().nextInt(1000),
                     view: Random().nextInt(900) + 100,
                     isLiked: Random().nextBool(),
-                    isReTweet: Random().nextBool()
+                    isReTweet: Random().nextBool(),
+                    oriCreator: "Dummy",
+                    isRetweetedByUser: false
                   ),
                   isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
                   isLast: false,

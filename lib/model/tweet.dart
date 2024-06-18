@@ -1,6 +1,3 @@
-import 'package:anony_tweet/main.dart';
-import 'package:faker/faker.dart';
-
 class Tweet {
   String id;
   String username;
@@ -16,6 +13,8 @@ class Tweet {
   bool isLiked;
   bool isReTweet;
   bool isComment;
+  String oriCreator;
+  bool isRetweetedByUser;
 
   Tweet({
     required this.id,
@@ -32,5 +31,7 @@ class Tweet {
     required this.isLiked,
     required this.isReTweet,
     this.isComment = false,
+    required this.oriCreator,
+    required this.isRetweetedByUser,
   });
 }

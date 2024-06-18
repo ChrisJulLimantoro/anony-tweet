@@ -1,8 +1,5 @@
-import 'package:anony_tweet/SessionProvider.dart';
-import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
-import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/action_row.dart';
@@ -51,7 +48,7 @@ class SingleTweet extends StatelessWidget {
         children: [
           tweet.isReTweet
               ? Row(
-                  children: const [
+                  children:  [
                     Padding(
                       padding: EdgeInsets.only(left: 32, bottom: 5),
                       child: Row(
@@ -63,7 +60,7 @@ class SingleTweet extends StatelessWidget {
                           ),
                           SizedBox(width: 5),
                           Text(
-                            "Reposted from CJ",
+                            "Reposted from ${tweet.oriCreator}",
                             style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
@@ -167,7 +164,9 @@ class SingleTweet extends StatelessWidget {
                         height: 8,
                       ),
                       if (tweet.media.isNotEmpty)
-                        TweetMediaGrid(images: tweet.media),
+                        TweetMediaGrid(
+                          tweet: tweet,
+                        ),
                       // SizedBox(
                       //   height: 200,
                       //   width: tweet.media.length * 200.0 >

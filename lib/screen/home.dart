@@ -70,7 +70,19 @@ class HomePage extends StatelessWidget {
           .select('*')
           .eq('id', tweetData['creator_id'])
           .single();
-
+      bool isReTweet = tweetData['retweet_id'] != null;
+      String oriCreator = "";
+      if (isReTweet) {
+        final response2 = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', tweetData['creator_id'])
+            .single();
+        oriCreator = response2['display_name'];
+      }else{
+        final response2= "";
+      }
+      
       tweets.add(Tweet(
         id: tweetData['id'],
         username: userResponse['display_name'],
@@ -87,8 +99,9 @@ class HomePage extends StatelessWidget {
         comment: tweetData['comment'],
         view: 100,
         isLiked: likedTweetIds.contains(tweetData['id']),
-        isReTweet: false,
-      ));
+        isReTweet: isReTweet,
+        oriCreator: oriCreator,
+        isRetweetedByUser: false));
     }
 
     return tweets;

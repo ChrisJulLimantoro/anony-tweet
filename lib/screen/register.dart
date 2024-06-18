@@ -4,7 +4,6 @@ import 'package:anony_tweet/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
-import 'package:faker/faker.dart';
 import 'package:anony_tweet/widget/field.dart';
 import 'package:crypt/crypt.dart';
 

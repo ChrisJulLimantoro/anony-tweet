@@ -1,11 +1,7 @@
 import 'dart:math';
-
-import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/comment.dart';
-import 'package:anony_tweet/widget/hashtag.dart';
-import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
@@ -43,11 +39,11 @@ class _DetailPageState extends State<DetailPage> {
         .select('tweet_id')
         .eq('user_id', userId);
     final likedTweetIds = <String>{};
-    if (likedTweetsResponse != null) {
+    // if (likedTweetsResponse != null) {
       for (var record in likedTweetsResponse) {
         likedTweetIds.add(record['tweet_id']);
       }
-    }
+    // }
     // print(likedTweetsResponse);
     final response = await Supabase.instance.client
         .from('tweets')
@@ -79,7 +75,9 @@ class _DetailPageState extends State<DetailPage> {
         comment: response['comment'],
         view: 100,
         isLiked: likedTweetIds.contains(response['id']),
-        isReTweet: Random().nextBool());
+        isReTweet: Random().nextBool(),
+        oriCreator: "Dummy",
+        isRetweetedByUser: false);
   }
 
   List<Tweet> tweets = List.generate(10, (index) {
@@ -106,7 +104,9 @@ class _DetailPageState extends State<DetailPage> {
         comment: Random().nextInt(1000),
         view: Random().nextInt(900) + 100,
         isReTweet: Random().nextBool(),
-        isLiked: Random().nextBool());
+        isLiked: Random().nextBool(),
+        oriCreator: "Dummy",
+        isRetweetedByUser: false);
   });
   @override
   Widget build(BuildContext context) {

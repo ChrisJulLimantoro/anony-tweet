@@ -27,14 +27,14 @@ class LikeButtonBloc extends Cubit<List> {
   }
 
   Future<void> _addLikeToDatabase() async {
-    var response = await client.from('likes').insert({
+    await client.from('likes').insert({
       'user_id': userId,
       'tweet_id': tweetId,
     });
   }
 
   Future<void> _removeLikeFromDatabase() async {
-    var response = await client.from('likes').delete().match({
+    await client.from('likes').delete().match({
       'user_id': userId,
       'tweet_id': tweetId,
     });

@@ -4,13 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
-import 'package:collection/collection.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:anony_tweet/SessionProvider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -489,6 +485,8 @@ class PostsPage extends StatelessWidget {
         view: 100,
         isLiked: Random().nextBool(),
         isReTweet: Random().nextBool(),
+        oriCreator: "Dummy",
+        isRetweetedByUser: false
       ));
     }
 
@@ -595,6 +593,9 @@ class LikedPage extends StatelessWidget {
         view: 0,
         isLiked: true,
         isReTweet: false,
+        oriCreator: "Dummy",
+        isRetweetedByUser: false
+        
       ));
     }
     return tweets;
