@@ -1,4 +1,3 @@
-import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/screen/search.dart';

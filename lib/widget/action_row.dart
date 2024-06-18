@@ -1,7 +1,5 @@
-import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/widget/bookmark_button.dart';
 import 'package:anony_tweet/widget/like_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ActionRow extends StatefulWidget {
+  bool isCarousel;
+  final Tweet tweet;
+
   ActionRow({
     super.key,
     required this.tweet,
+    this.isCarousel = false,
   });
-
-  final Tweet tweet;
 
   @override
   State<ActionRow> createState() => _ActionRowState();
@@ -100,6 +100,7 @@ class _ActionRowState extends State<ActionRow> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           children: [
@@ -114,7 +115,9 @@ class _ActionRowState extends State<ActionRow> {
               ),
             ),
             const SizedBox(width: 5),
-            Text(widget.tweet.comment.toString()),
+            Text(widget.tweet.comment.toString(),
+                style: TextStyle(
+                    color: widget.isCarousel ? Colors.white : Colors.black)),
           ],
         ),
         const SizedBox(width: 5),
@@ -134,15 +137,16 @@ class _ActionRowState extends State<ActionRow> {
             Text(
               retweetCount.toString(),
               style: TextStyle(
-                  color: isRetweeted ? Colors.teal[400] : Colors.black),
+                  color: isRetweeted
+                      ? Colors.teal[400]
+                      : widget.isCarousel
+                          ? Colors.white
+                          : Colors.black),
             ),
           ],
         ),
         const SizedBox(width: 5),
-        LikeButton(
-          tweet: widget.tweet,
-        ),
-        const SizedBox(width: 5),
+        LikeButton(tweet: widget.tweet, isCarousel: widget.isCarousel),
       ],
     );
   }

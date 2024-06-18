@@ -1,16 +1,21 @@
 import 'package:anony_tweet/helpers/storage.dart';
+import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/photo_carousel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class TweetMediaGrid extends StatelessWidget {
-  final List<String> images;
+  final Tweet tweet;
 
-  const TweetMediaGrid({super.key, required this.images});
+  const TweetMediaGrid({super.key, required this.tweet});
 
   @override
   Widget build(BuildContext context) {
+    final images = tweet.media;
+
     var imageWidth = (MediaQuery.of(context).size.width - 32 - 60) /
-            (images.length > 1 ? 2 : 1) - (images.length == 1 ? 1 : images.length / 2 * 1);
+            (images.length > 1 ? 2 : 1) -
+        (images.length == 1 ? 1 : images.length / 2 * 1);
 
     if (images.length.isEven) {
       return SizedBox(
@@ -33,13 +38,30 @@ class TweetMediaGrid extends StatelessWidget {
               childAspectRatio: imageWidth / (images.length == 2 ? 200 : 100),
               children: images
                   .map(
-                    (image) => CachedNetworkImage(
-                      imageUrl: getImageUrl("tweet_medias", image.toString())
-                          .toString(),
-                      width: imageWidth,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
+                    (image) => GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PhotoCarouselScreen(
+                              tweet: tweet,
+                              selected: image.toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Hero(
+                        tag: image.toString(),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              getImageUrl("tweet_medias", image.toString())
+                                  .toString(),
+                          width: imageWidth,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
                       ),
                     ),
                   )

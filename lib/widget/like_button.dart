@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LikeButton extends StatelessWidget {
-  const LikeButton({super.key, required this.tweet});
+  LikeButton({super.key, required this.tweet, this.isCarousel = false});
   final Tweet tweet;
+  bool isCarousel = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,11 @@ class LikeButton extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text("${state[0]}",
                     style: TextStyle(
-                        color: tweet.isLiked ? Colors.red : Colors.black)),
+                        color: tweet.isLiked
+                            ? Colors.red
+                            : isCarousel
+                                ? Colors.white
+                                : Colors.black)),
               ],
             ),
           );

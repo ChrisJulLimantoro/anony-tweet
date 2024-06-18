@@ -1,6 +1,3 @@
-import 'package:anony_tweet/main.dart';
-import 'package:faker/faker.dart';
-
 class Tweet {
   String id;
   String username;

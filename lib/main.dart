@@ -15,8 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'screen/register.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:anony_tweet/SessionProvider.dart';
 
 Future<void> main() async {
   try {

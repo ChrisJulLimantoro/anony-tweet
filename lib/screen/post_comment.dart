@@ -1,8 +1,5 @@
 import 'dart:math';
-
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/widget/hashtag.dart';
-import 'package:anony_tweet/widget/single_tweet_comment.dart';
 import 'package:anony_tweet/widget/single_tweet_reply.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
