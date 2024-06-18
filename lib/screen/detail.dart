@@ -59,6 +59,19 @@ class _DetailPageState extends State<DetailPage> {
         .single();
     DateTime createdAt = DateTime.parse(response['created_at']);
     // print("result: ${likedTweetIds.contains(response['id'])}");
+    final retweetCountResponse = await Supabase.instance.client
+          .from('tweets')
+          .select()
+          .eq('retweet_id', response['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
     return Tweet(
         id: response['id'],
         username: userResponse['display_name'],
@@ -77,7 +90,7 @@ class _DetailPageState extends State<DetailPage> {
         isLiked: likedTweetIds.contains(response['id']),
         isReTweet: Random().nextBool(),
         oriCreator: "Dummy",
-        isRetweetedByUser: false);
+        isRetweetedByUser: isRetweetedByUser);
   }
 
   List<Tweet> tweets = List.generate(10, (index) {
