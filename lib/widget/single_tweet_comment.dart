@@ -1,10 +1,10 @@
-import 'dart:io';
-
-import 'package:anony_tweet/SessionProvider.dart';
+// import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/bookmark_bloc.dart';
 import 'package:anony_tweet/blocs/like_button_bloc.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
+import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/widget/action_row.dart';
+// import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -56,34 +56,29 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
   }
 
   Future<void> handleLikeOperation(String userId) async {
-  if (isLiked) {
-    isLiked = false;
-    like--;
-    await Supabase.instance.client
-        .from('likes')
-        .delete()
-        .match({
-          'user_id': userId,
-          'tweet_id': widget.tweet.id,
-        });
-  } else {
-    isLiked = true;
-    like++;
-    await Supabase.instance.client
-        .from('likes')
-        .insert({
-          'user_id': userId,
-          'tweet_id': widget.tweet.id,
-        });
+    if (isLiked) {
+      isLiked = false;
+      like--;
+      await Supabase.instance.client.from('likes').delete().match({
+        'user_id': userId,
+        'tweet_id': widget.tweet.id,
+      });
+    } else {
+      isLiked = true;
+      like++;
+      await Supabase.instance.client.from('likes').insert({
+        'user_id': userId,
+        'tweet_id': widget.tweet.id,
+      });
+    }
+    // Update the state only after the async operation is complete
+    setState(() {});
   }
-  // Update the state only after the async operation is complete
-  setState(() {});
-}
 
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
-    final userId = SessionContext.of(context)!.id;
+    final userId = context.read<SessionBloc>().id ?? "";
     // debugPrint(widget.tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
@@ -186,7 +181,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                                                   : Colors.black,
                                               width: 2))),
                                   child: Image.network(
-                                    e,
+                                    getImageUrl("tweet_medias", e),
                                     height: 200,
                                     width: 200,
                                     fit: BoxFit.cover,
@@ -306,7 +301,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                       ),
                     ),
                     IconButton(
-                      onPressed: ()=> handleLikeOperation(userId),
+                      onPressed: () => handleLikeOperation(userId),
                       icon: Icon(
                         isLiked
                             ? CupertinoIcons.heart_fill

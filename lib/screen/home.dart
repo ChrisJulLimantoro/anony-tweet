@@ -1,17 +1,14 @@
-import 'dart:math';
 import 'dart:ui';
-import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/custom_fab.dart';
 import 'package:anony_tweet/widget/drawer.dart';
-import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:anony_tweet/main.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
@@ -43,24 +40,27 @@ class HomePage extends StatelessWidget {
     }
   }
 
+  // tweet
   Future<List<Tweet>> fetchTweets(BuildContext context) async {
-    final userId = SessionContext.of(context)!.id;
-    print(userId);
+    final userId = context.read<SessionBloc>().id ?? "";
+
+    print("user ID: $userId");
 
     final likedTweetsResponse =
         await supabase.from('likes').select('tweet_id').eq('user_id', userId);
     final likedTweetIds = <String>{};
-    if (likedTweetsResponse != null) {
-      for (var record in likedTweetsResponse) {
-        likedTweetIds.add(record['tweet_id']);
-      }
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
     }
+
     final response = await supabase.rpc('gettweet', params: {
       "search": "",
       "tag": "",
       "order_by": "created_at",
     });
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+    debugPrint("data ${data.toString()}");
 
     List<Tweet> tweets = [];
     for (var tweetData in data) {
@@ -71,20 +71,17 @@ class HomePage extends StatelessWidget {
           .eq('id', tweetData['creator_id'])
           .single();
 
-      if (userResponse == null) {
-        continue;
-      }
-
-      String username = userResponse['username'] ?? 'Unknown User';
-
       tweets.add(Tweet(
         id: tweetData['id'],
         username: userResponse['display_name'],
         profilePicture: userResponse['display_photo'],
-        verified: Random().nextBool(),
+        verified: false,
         createdAt: timeAgo(createdAt),
         content: tweetData['content'],
-        media: [],
+        media: tweetData['media'] != null
+            ? List<String>.from(
+                tweetData['media'].map((item) => item as String))
+            : [],
         like: tweetData['like'],
         retweet: tweetData['retweet'],
         comment: tweetData['comment'],
@@ -99,7 +96,7 @@ class HomePage extends StatelessWidget {
 
   Future<String?> getDisplayPhoto(BuildContext context) async {
     try {
-      final userId = SessionContext.of(context)!.id;
+      final userId = context.read<SessionBloc>().id ?? "";
 
       final response = await supabase
           .from('user')
@@ -117,7 +114,6 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-        body: Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -212,77 +208,45 @@ class HomePage extends StatelessWidget {
             ),
           ),
           SliverToBoxAdapter(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(0.0),
-              child: FutureBuilder<List<Tweet>>(
-                future: fetchTweets(context),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (snapshot.data!.isEmpty) {
-                    return Center(child: Text('No tweets found.'));
-                  } else {
-                    return ListView(
-                      shrinkWrap:
-                          true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
-                      physics:
-                          NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
-                      children: snapshot.data!.map((tweet) {
-                        return SingleTweet(
-                          tweet: tweet,
-                          isBookmarked: true,
-                          isLast: false,
-                          isLiked: tweet.isLiked,
-                          searchTerm: '',
-                        );
-                      }).toList(),
-                    );
-                  }
-                },
-              ),
+            child: FutureBuilder<List<Tweet>>(
+              future: fetchTweets(context),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.data!.isEmpty) {
+                  return Center(child: Text('No tweets found.'));
+                } else {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      print("refresh");
+                      fetchTweets(context);
+                    },
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: snapshot.data!.map((tweet) {
+                          return SingleTweet(
+                            tweet: tweet,
+                            isBookmarked: true,
+                            isLast: false,
+                            isLiked: tweet.isLiked,
+                            searchTerm: '',
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
       ),
       floatingActionButton: CustomFloatingActionButton(),
       drawer: MyDrawer(),
-    ));
+    );
   }
 }
-
-// FutureBuilder<List<Tweet>>(
-//         future: fetchTweets(),
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return Center(child: CircularProgressIndicator());
-//           } else if (snapshot.hasError) {
-//             return Center(child: Text('Error: ${snapshot.error}'));
-//           } else if (snapshot.data!.isEmpty) {
-//             return Center(child: Text('No tweets found.'));
-//           } else {
-//             return ListView(
-//               children: snapshot.data!.map((tweet) {
-//                 return ListTile(
-//                   title: Text(tweet.username),
-//                   subtitle: Text(tweet.content),
-//                   trailing: Text("${tweet.like} Likes"),
-//                 );
-//               }).toList(),
-//             );
-//           }
-//         },
-//       ),
-
-// tweets
-//                       .mapIndexed(
-//                         (index, tweet) => SingleTweet(
-//                           tweet: tweet,
-//                           isBookmarked:
-//                               Random().nextDouble() <= 0.5 ? true : false,
-//                           isLast: index == tweets.length - 1 ? true : false,
-//                           isLiked: Random().nextDouble() <= 0.5 ? true : false,
-//                         ),
-//                       )
-//                       .toList(),

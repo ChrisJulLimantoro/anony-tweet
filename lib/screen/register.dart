@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:anony_tweet/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +27,8 @@ class _RegisterPageState extends State<RegisterPage> {
         'username': usernameController.text.trim(),
         'password': Crypt.sha256(passwordController.text.trim()).toString(),
         'display_name': WordPair.random().asPascalCase,
-        'display_photo': Faker().image.image(
-          keywords: ['cat', 'dog', 'pig', 'cartoon'],
-          random: true,
-          width: 100,
-          height: 100,
-        ),
+        'display_photo':
+            "https://randomuser.me/api/portraits/men/${Random().nextInt(10000)}.jpg"
       });
       if (response != null && response.error != null) {
         throw Exception(response.error!.message);
@@ -45,7 +43,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       // add delay than go to home
       await Future.delayed(const Duration(seconds: 3));
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

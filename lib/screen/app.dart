@@ -32,27 +32,17 @@ class _AppState extends State<App> {
       TabItem(
         icon: index == 2 ? CupertinoIcons.bell_fill : CupertinoIcons.bell,
       ),
-      // TabItem(
-      //   icon: Icons.favorite_outline_rounded,
-      //   title: 'Favorites',
-      // ),
-      // TabItem(
-      //   icon: Icons.person,
-      //   title: 'Profile',
-      // ),
     ];
 
     final List<Widget> screens = [
       HomePage(),
-      ExplorePage(),
+      const ExplorePage(),
       const NotificationsPage(),
-      // const FavoritePage(),
-      // const ProfilePage(),
     ];
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      extendBody: true,
+      extendBody: false,
       body: screens[index],
       bottomNavigationBar: BottomBarInspiredInside(
         items: items,
@@ -63,6 +53,7 @@ class _AppState extends State<App> {
         colorSelected: Colors.white,
         animated: true,
         iconSize: 28,
+        padbottom: 8.0,
         indexSelected: index,
         chipStyle: const ChipStyle(convexBridge: true),
         onTap: (idx) {

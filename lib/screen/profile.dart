@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:anony_tweet/blocs/session_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
@@ -25,7 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final response = await supabase
         .from('user')
         .select('display_name')
-        .eq('id', SessionContext.of(context)!.id)
+        .eq('id', context.read<SessionBloc>().id ?? "")
         .single();
     return response['display_name'];
   }
@@ -34,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final response = await supabase
         .from('user')
         .select('display_photo')
-        .eq('id', SessionContext.of(context)!.id)
+        .eq('id', context.read<SessionBloc>().id ?? "")
         .single();
     return response['display_photo'];
   }
@@ -43,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final response = await supabase
         .from('user')
         .select('created_at')
-        .eq('id', SessionContext.of(context)!.id)
+        .eq('id', context.read<SessionBloc>().id ?? "")
         .single();
     return response['created_at'];
   }
@@ -65,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final mediaQuery = MediaQuery.of(context);
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
-    final creatorId = SessionContext.of(context)!.id;
+    final creatorId = context.read<SessionBloc>().id ?? "";
 
     return Scaffold(
       body: CustomScrollView(
@@ -317,8 +319,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               );
                                             } else {
                                               return Text(
-                                                snapshot.data
-                                                    .toString(),
+                                                snapshot.data.toString(),
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
@@ -450,7 +451,7 @@ class PostsPage extends StatelessWidget {
       }
     }
 
-    final userId = SessionContext.of(context)!.id;
+    final userId = context.read<SessionBloc>().id ?? "";
 
     // Fetch user data
     final userResponse = await Supabase.instance.client
@@ -566,7 +567,7 @@ class LikedPage extends StatelessWidget {
       }
     }
 
-    final userId = SessionContext.of(context)!.id;
+    final userId = context.read<SessionBloc>().id ?? "";
 
     final response = await Supabase.instance.client
         .rpc('get_user_liked_tweets', params: {'p_user_id': userId});

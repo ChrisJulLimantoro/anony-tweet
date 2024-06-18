@@ -1,8 +1,10 @@
 import 'package:anony_tweet/SessionProvider.dart';
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -10,7 +12,7 @@ class MyDrawer extends StatelessWidget {
   Future<String?> getDisplayName(BuildContext context) async {
     try {
       // Mengambil userId dari SessionContext
-      final userId = SessionContext.of(context)!.id;
+      final userId = context.read<SessionBloc>().id ?? "";
 
       // Query ke supabase untuk mendapatkan display_name
       final response = await supabase
@@ -31,7 +33,7 @@ class MyDrawer extends StatelessWidget {
   Future<String?> getDisplayPhoto(BuildContext context) async {
     try {
       // Mengambil userId dari SessionContext
-      final userId = SessionContext.of(context)!.id;
+      final userId = context.read<SessionBloc>().id ?? "";
 
       // Query ke supabase untuk mendapatkan display_name
       final response = await supabase
@@ -119,6 +121,20 @@ class MyDrawer extends StatelessWidget {
             title: Text('Settings'),
             onTap: () {
               print('Settings pressed');
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+                CupertinoIcons.square_arrow_left,
+              color: Colors.red,
+            ),
+            title: const Text(
+              'Logout',
+              style: TextStyle(color: Colors.red),
+            ),
+            onTap: () {
+              context.read<SessionBloc>().logout();
+              Navigator.pushReplacementNamed(context, '/login');
             },
           ),
         ],
