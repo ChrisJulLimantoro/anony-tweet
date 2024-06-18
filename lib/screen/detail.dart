@@ -76,7 +76,8 @@ class _DetailPageState extends State<DetailPage> {
         view: 100,
         isLiked: likedTweetIds.contains(response['id']),
         isReTweet: Random().nextBool(),
-        oriCreator: "Dummy");
+        oriCreator: "Dummy",
+        isRetweetedByUser: false);
   }
 
   List<Tweet> tweets = List.generate(10, (index) {
@@ -104,7 +105,8 @@ class _DetailPageState extends State<DetailPage> {
         view: Random().nextInt(900) + 100,
         isReTweet: Random().nextBool(),
         isLiked: Random().nextBool(),
-        oriCreator: "Dummy");
+        oriCreator: "Dummy",
+        isRetweetedByUser: false);
   });
   @override
   Widget build(BuildContext context) {

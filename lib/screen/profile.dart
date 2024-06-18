@@ -485,7 +485,8 @@ class PostsPage extends StatelessWidget {
         view: 100,
         isLiked: Random().nextBool(),
         isReTweet: Random().nextBool(),
-        oriCreator: "Dummy"
+        oriCreator: "Dummy",
+        isRetweetedByUser: false
       ));
     }
 
@@ -592,7 +593,9 @@ class LikedPage extends StatelessWidget {
         view: 0,
         isLiked: true,
         isReTweet: false,
-        oriCreator: "Dummy"
+        oriCreator: "Dummy",
+        isRetweetedByUser: false
+        
       ));
     }
     return tweets;

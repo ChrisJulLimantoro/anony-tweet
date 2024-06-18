@@ -100,7 +100,8 @@ class HomePage extends StatelessWidget {
         view: 100,
         isLiked: likedTweetIds.contains(tweetData['id']),
         isReTweet: isReTweet,
-        oriCreator: oriCreator));
+        oriCreator: oriCreator,
+        isRetweetedByUser: false));
     }
 
     return tweets;

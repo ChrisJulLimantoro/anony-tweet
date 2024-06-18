@@ -113,7 +113,8 @@ class SearchPageState extends State<SearchPage>
         view: 0,
         isLiked: false,
         isReTweet: false,
-        oriCreator: "Dummy");
+        oriCreator: "Dummy",
+        isRetweetedByUser: false);
   }
 
   Future searchTweets(String search, String tag, String order_by) async {
