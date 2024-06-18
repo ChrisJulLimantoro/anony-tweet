@@ -2,7 +2,9 @@ import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/photo_carousel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class TweetMediaGrid extends StatelessWidget {
   final Tweet tweet;
@@ -80,14 +82,30 @@ class TweetMediaGrid extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: Row(
             children: [
-              CachedNetworkImage(
-                imageUrl: getImageUrl("tweet_medias", images[0].toString())
-                    .toString(),
-                height: images.length > 1 ? 200 : null,
-                width: imageWidth,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => const Center(
-                  child: CircularProgressIndicator(),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PhotoCarouselScreen(
+                        tweet: tweet,
+                        selected: images[0].toString(),
+                      ),
+                    ),
+                  );
+                },
+                child: Hero(
+                  tag: images[0].toString(),
+                  child: CachedNetworkImage(
+                    imageUrl: getImageUrl("tweet_medias", images[0].toString())
+                        .toString(),
+                    height: images.length > 1 ? 200 : null,
+                    width: imageWidth,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                 ),
               ),
               if (images.length > 1)
@@ -97,15 +115,31 @@ class TweetMediaGrid extends StatelessWidget {
               if (images.length > 1)
                 Column(
                   children: [
-                    CachedNetworkImage(
-                      imageUrl:
-                          getImageUrl("tweet_medias", images[1].toString())
-                              .toString(),
-                      height: 99,
-                      width: imageWidth,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PhotoCarouselScreen(
+                              tweet: tweet,
+                              selected: images[1].toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Hero(
+                        tag: images[1].toString(),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              getImageUrl("tweet_medias", images[1].toString())
+                                  .toString(),
+                          height: 99,
+                          width: imageWidth,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -114,15 +148,31 @@ class TweetMediaGrid extends StatelessWidget {
                         color: Colors.transparent,
                       ),
                     ),
-                    CachedNetworkImage(
-                      imageUrl:
-                          getImageUrl("tweet_medias", images[2].toString())
-                              .toString(),
-                      height: 99,
-                      width: imageWidth,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: CircularProgressIndicator(),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PhotoCarouselScreen(
+                              tweet: tweet,
+                              selected: images[2].toString(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Hero(
+                        tag: images[2].toString(),
+                        child: CachedNetworkImage(
+                          imageUrl:
+                              getImageUrl("tweet_medias", images[2].toString())
+                                  .toString(),
+                          height: 99,
+                          width: imageWidth,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
                       ),
                     ),
                   ],
