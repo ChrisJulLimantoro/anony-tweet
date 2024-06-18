@@ -48,7 +48,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
     bookmark = widget.tweet.view;
     isRetweeted = widget.tweet.isRetweetedByUser;
     retweetCount = widget.tweet.retweet;
-    print(isRetweeted);
+    print(widget.tweet.retweet);
   }
 
   @override
@@ -180,6 +180,34 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
       ],
       child: Column(
         children: [
+          widget.tweet.isReTweet
+              ? Row(
+                  children:  [
+                    Padding(
+                      padding: EdgeInsets.only(left: 32, bottom: 5),
+                      child: Row(
+                        children: [
+                          Icon(
+                            CupertinoIcons.repeat,
+                            size: 12,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            "Reposted from ${widget.tweet.oriCreator}",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : SizedBox(
+                  height: 0,
+                ),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Row(
