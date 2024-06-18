@@ -254,18 +254,6 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      bookmark.toString(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: 4,
-                    ),
-                    Text(
-                      "bookmark",
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
                       widget.tweet.retweet.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -313,32 +301,6 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                       onPressed: () {},
                       icon: Icon(
                         CupertinoIcons.arrow_2_squarepath,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (isBookmarked) {
-                            isBookmarked = false;
-                            bookmark--;
-                          } else {
-                            isBookmarked = true;
-                            bookmark++;
-                          }
-                        });
-                      },
-                      icon: Icon(
-                          isBookmarked
-                              ? CupertinoIcons.bookmark_fill
-                              : CupertinoIcons.bookmark,
-                          color:
-                              isBookmarked ? Colors.yellow[600] : Colors.grey),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        CupertinoIcons.share,
                         color: Colors.grey,
                       ),
                     ),

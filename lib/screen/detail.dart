@@ -84,21 +84,11 @@ class _DetailPageState extends State<DetailPage> {
     return Tweet(
         id: '1',
         username: faker.internet.userName(),
-        profilePicture: faker.image.image(
-          keywords: ['nature', 'mountain', 'waterfall'],
-          random: true,
-        ),
+        profilePicture: "https://randomuser.me/api/portraits/women/18.jpg",
         verified: Random().nextDouble() <= 0.5 ? true : false,
         createdAt: "${Random().nextInt(23)}h ago",
         content: "saya punya babi #anjing #leo",
-        media: List.generate(
-            Random().nextInt(4),
-            (index) => faker.image.image(
-                  keywords: ['nature', 'mountain', 'waterfall'],
-                  height: 200,
-                  width: 200,
-                  random: true,
-                )),
+        media: [],
         like: Random().nextInt(1000),
         retweet: Random().nextInt(1000),
         comment: Random().nextInt(1000),
