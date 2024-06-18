@@ -73,12 +73,17 @@ class HomePage extends StatelessWidget {
       bool isReTweet = tweetData['retweet_id'] != null;
       String oriCreator = "";
       if (isReTweet) {
-        final response2 = await supabase
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweetData['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
             .from('user')
             .select('display_name')
-            .eq('id', tweetData['creator_id'])
+            .eq('id', originalTweetResponse['creator_id'])
             .single();
-        oriCreator = response2['display_name'];
+        oriCreator = originalCreatorResponse['display_name'];
       } else {
         final response2 = "";
       }
