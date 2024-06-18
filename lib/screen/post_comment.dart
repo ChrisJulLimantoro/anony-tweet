@@ -74,7 +74,8 @@ class PostComment extends StatelessWidget {
                     comment: Random().nextInt(1000),
                     view: Random().nextInt(900) + 100,
                     isLiked: Random().nextBool(),
-                    isReTweet: Random().nextBool()
+                    isReTweet: Random().nextBool(),
+                    oriCreator: "Dummy",
                   ),
                   isBookmarked: Random().nextDouble() <= 0.5 ? true : false,
                   isLast: false,

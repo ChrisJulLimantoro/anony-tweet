@@ -12,6 +12,7 @@ class Tweet {
   int view;
   bool isLiked;
   bool isReTweet;
+  String oriCreator;
 
   Tweet({
     required this.id,
@@ -27,5 +28,6 @@ class Tweet {
     required this.view,
     required this.isLiked,
     required this.isReTweet,
+    required this.oriCreator
   });
 }

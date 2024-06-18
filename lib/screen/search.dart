@@ -112,7 +112,8 @@ class SearchPageState extends State<SearchPage>
         comment: json['comment'],
         view: 0,
         isLiked: false,
-        isReTweet: false);
+        isReTweet: false,
+        oriCreator: "Dummy");
   }
 
   Future searchTweets(String search, String tag, String order_by) async {

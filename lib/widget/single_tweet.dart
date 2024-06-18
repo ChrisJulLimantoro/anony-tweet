@@ -48,7 +48,7 @@ class SingleTweet extends StatelessWidget {
         children: [
           tweet.isReTweet
               ? Row(
-                  children: const [
+                  children:  [
                     Padding(
                       padding: EdgeInsets.only(left: 32, bottom: 5),
                       child: Row(
@@ -60,7 +60,7 @@ class SingleTweet extends StatelessWidget {
                           ),
                           SizedBox(width: 5),
                           Text(
-                            "Reposted from CJ",
+                            "Reposted from ${tweet.oriCreator}",
                             style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
