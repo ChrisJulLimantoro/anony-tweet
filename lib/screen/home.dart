@@ -10,10 +10,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late Future<List<Tweet>> _tweets;
+
+  @override
+  void initState() {
+    super.initState();
+    _tweets = fetchTweets(context);
+  }
+
+  Future<void> _refreshTweets() async {
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      _tweets = fetchTweets(context);
+    });
+  }
+
   final faker = Faker();
+
   final supabase = Supabase.instance.client;
 
   String timeAgo(DateTime timestamp) {
@@ -145,116 +166,114 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            title: const Text(
-              "PCUFess",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            centerTitle: true,
-            floating: true,
-            pinned: true,
-            leading: Builder(
-              builder: (BuildContext context) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: FutureBuilder<String?>(
-                    future: getDisplayPhoto(context),
-                    builder: (context, snapshot) {
-                      Widget displayImage;
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        displayImage = Icon(
-                          CupertinoIcons.person_crop_circle_fill,
-                          size: 32,
-                          color: (theme == Brightness.light
-                              ? Colors.black
-                              : Colors.white),
-                        );
-                      } else if (snapshot.hasData && snapshot.data != null) {
-                        displayImage = Image.network(
-                          snapshot.data!,
-                          width: 32,
-                          height: 32,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Icon(
+      body: RefreshIndicator(
+        onRefresh: _refreshTweets,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              title: const Text(
+                "PCUFess",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              centerTitle: true,
+              floating: true,
+              pinned: true,
+              leading: Builder(
+                builder: (BuildContext context) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: FutureBuilder<String?>(
+                      future: getDisplayPhoto(context),
+                      builder: (context, snapshot) {
+                        Widget displayImage;
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          displayImage = Icon(
                             CupertinoIcons.person_crop_circle_fill,
                             size: 32,
                             color: (theme == Brightness.light
                                 ? Colors.black
                                 : Colors.white),
-                          ),
-                        );
-                      } else {
-                        displayImage = Icon(
-                          CupertinoIcons.person_crop_circle_fill,
-                          size: 32,
-                          color: (theme == Brightness.light
-                              ? Colors.black
-                              : Colors.white),
-                        );
-                      }
+                          );
+                        } else if (snapshot.hasData && snapshot.data != null) {
+                          displayImage = Image.network(
+                            snapshot.data!,
+                            width: 32,
+                            height: 32,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Icon(
+                              CupertinoIcons.person_crop_circle_fill,
+                              size: 32,
+                              color: (theme == Brightness.light
+                                  ? Colors.black
+                                  : Colors.white),
+                            ),
+                          );
+                        } else {
+                          displayImage = Icon(
+                            CupertinoIcons.person_crop_circle_fill,
+                            size: 32,
+                            color: (theme == Brightness.light
+                                ? Colors.black
+                                : Colors.white),
+                          );
+                        }
 
-                      return IconButton(
-                        icon: ClipOval(child: displayImage),
-                        onPressed: () {
-                          Scaffold.of(context).openDrawer();
-                          debugPrint("PRESSED");
-                        },
-                      );
+                        return IconButton(
+                          icon: ClipOval(child: displayImage),
+                          onPressed: () {
+                            Scaffold.of(context).openDrawer();
+                            debugPrint("PRESSED");
+                          },
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              actions: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: IconButton(
+                    icon: const Icon(CupertinoIcons.gear, size: 28),
+                    onPressed: () {
+                      debugPrint("PRESSED");
                     },
                   ),
-                );
-              },
-            ),
-            actions: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: IconButton(
-                  icon: const Icon(CupertinoIcons.gear, size: 28),
-                  onPressed: () {
-                    debugPrint("PRESSED");
-                  },
+                ),
+              ],
+              backgroundColor: theme == Brightness.light
+                  ? Colors.white.withAlpha(200)
+                  : Colors.black.withAlpha(100),
+              shape: Border(
+                bottom: BorderSide(
+                  color: theme == Brightness.light
+                      ? Colors.grey.shade200
+                      : Colors.grey.shade800,
+                  width: 0.5, // Adjust the border width as needed
                 ),
               ),
-            ],
-            backgroundColor: theme == Brightness.light
-                ? Colors.white.withAlpha(200)
-                : Colors.black.withAlpha(100),
-            shape: Border(
-              bottom: BorderSide(
-                color: theme == Brightness.light
-                    ? Colors.grey.shade200
-                    : Colors.grey.shade800,
-                width: 0.5, // Adjust the border width as needed
-              ),
-            ),
-            flexibleSpace: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  color: Colors.transparent,
+              flexibleSpace: ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.transparent,
+                  ),
                 ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: FutureBuilder<List<Tweet>>(
-              future: fetchTweets(context),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (snapshot.data!.isEmpty) {
-                  return Center(child: Text('No tweets found.'));
-                } else {
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      print("refresh");
-                      fetchTweets(context);
-                    },
-                    child: SingleChildScrollView(
+            SliverToBoxAdapter(
+              child: FutureBuilder<List<Tweet>>(
+                future: _tweets,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.data!.isEmpty) {
+                    return Center(child: Text('No tweets found.'));
+                  } else {
+                    return SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       physics: const BouncingScrollPhysics(),
                       child: Column(
@@ -268,13 +287,13 @@ class HomePage extends StatelessWidget {
                           );
                         }).toList(),
                       ),
-                    ),
-                  );
-                }
-              },
+                    );
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: CustomFloatingActionButton(),
       drawer: MyDrawer(),
