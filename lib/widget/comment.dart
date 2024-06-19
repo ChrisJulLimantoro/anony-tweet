@@ -31,12 +31,16 @@ class _CommentState extends State<Comment> {
   bool isLiked = false;
   bool isBookmarked = false;
   int like = 0;
+  int retweet = 0;
+  bool isReTweet = false;
   @override
   void initState() {
     super.initState();
     isLiked = widget.tweet.isLiked;
     like = widget.tweet.like;
+    retweet = widget.tweet.retweet;
     isBookmarked = widget.isBookmarked;
+    isReTweet = widget.tweet.isRetweetedByUser;
     // print(isLiked);
   }
 
@@ -197,12 +201,12 @@ class _CommentState extends State<Comment> {
                             children: [
                               Icon(
                                 CupertinoIcons.repeat,
-                                color: Colors.grey,
+                                color: isReTweet ? Colors.teal[400]: Colors.grey,
                                 size: 14,
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                widget.tweet.retweet.toString(),
+                                retweet.toString(),
                                 style: TextStyle(fontSize: 12),
                               ),
                             ],
