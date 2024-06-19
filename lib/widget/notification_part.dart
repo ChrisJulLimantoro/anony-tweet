@@ -97,8 +97,7 @@ class NotificationPart extends StatelessWidget {
                       SizedBox(
                         height: 8,
                       ),
-                      if (tweet.media.isNotEmpty)
-                        TweetMediaGrid(images: tweet.media),
+                      if (tweet.media.isNotEmpty) TweetMediaGrid(tweet: tweet),
                     ],
                   ),
                 ],

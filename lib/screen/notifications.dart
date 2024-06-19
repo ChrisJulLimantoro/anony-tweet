@@ -41,6 +41,22 @@ class NotificationsPage extends StatelessWidget {
     }
   }
 
+  Future<String?> getDisplayPhoto(BuildContext context) async {
+    try {
+      final userId = context.read<SessionBloc>().id ?? "";
+
+      final response = await supabase
+          .from('user')
+          .select('display_photo')
+          .eq('id', userId)
+          .single();
+      return response['display_photo'];
+    } catch (e) {
+      print('Error fetching display photo: $e');
+      return null;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getNotification(
       BuildContext context) async {
     final userId = context.read<SessionBloc>().id ?? "";
@@ -81,27 +97,59 @@ class NotificationsPage extends StatelessWidget {
             ),
             centerTitle: true,
             floating: true,
-            leading: Builder(builder: (BuildContext context) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: IconButton(
-                    icon: Icon(
-                      CupertinoIcons.person_crop_circle_fill,
-                      size: 32,
-                      color: (theme == Brightness.light
-                          ? Colors.black
-                          : Colors.white),
-                    ),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                      debugPrint("PRESSED");
+            pinned: true,
+            leading: Builder(
+              builder: (BuildContext context) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: FutureBuilder<String?>(
+                    future: getDisplayPhoto(context),
+                    builder: (context, snapshot) {
+                      Widget displayImage;
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        displayImage = Icon(
+                          CupertinoIcons.person_crop_circle_fill,
+                          size: 32,
+                          color: (theme == Brightness.light
+                              ? Colors.black
+                              : Colors.white),
+                        );
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        displayImage = Image.network(
+                          snapshot.data!,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            CupertinoIcons.person_crop_circle_fill,
+                            size: 32,
+                            color: (theme == Brightness.light
+                                ? Colors.black
+                                : Colors.white),
+                          ),
+                        );
+                      } else {
+                        displayImage = Icon(
+                          CupertinoIcons.person_crop_circle_fill,
+                          size: 32,
+                          color: (theme == Brightness.light
+                              ? Colors.black
+                              : Colors.white),
+                        );
+                      }
+
+                      return IconButton(
+                        icon: ClipOval(child: displayImage),
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                          debugPrint("PRESSED");
+                        },
+                      );
                     },
                   ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
             actions: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
@@ -149,64 +197,58 @@ class NotificationsPage extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: Column(
                           children: snapshot.data!.map((notification) {
-                            debugPrint(
-                                "notification ${notification.toString()}");
+                            void openDetail(String id) {
+                              Navigator.pushNamed(
+                                context,
+                                '/comment',
+                                arguments: id,
+                              );
+                            }
+
+                            Tweet tweet = Tweet(
+                              id: notification['tweet']['id'],
+                              username: notification['display_name'],
+                              profilePicture: notification['profile'],
+                              verified: false,
+                              createdAt: timeAgo(notification['created_at']),
+                              content: notification['tweet']['content'],
+                              media: notification['tweet']['media'] != null
+                                  ? List<String>.from(notification['tweet']
+                                          ['media']
+                                      .map((item) => item as String))
+                                  : [],
+                              like: notification['tweet']['like'],
+                              retweet: notification['tweet']['retweet'],
+                              comment: notification['tweet']['comment'],
+                              view: 0,
+                              isLiked: notification['liked'],
+                              isReTweet: notification['label'] == 'retweet',
+                              isComment: false,
+                              oriCreator: "",
+                              isRetweetedByUser:
+                                  notification['label'] == 'retweet',
+                            );
                             if (notification['label'] == "comment") {
-                              return SingleTweet(
-                                tweet: Tweet(
-                                  id: notification['tweet']['id'],
-                                  username: notification['display_name'],
-                                  profilePicture: notification['profile'],
-                                  verified: false,
-                                  createdAt:
-                                      timeAgo(notification['created_at']),
-                                  content: notification['tweet']['content'],
-                                  media: notification['tweet']['media'] != null
-                                      ? List<String>.from(notification['tweet']
-                                              ['media']
-                                          .map((item) => item as String))
-                                      : [],
-                                  like: notification['tweet']['like'],
-                                  retweet: notification['tweet']['retweet'],
-                                  comment: notification['tweet']['comment'],
-                                  view: 0,
+                              return GestureDetector(
+                                onTap: () => openDetail(tweet.id),
+                                child: SingleTweet(
+                                  tweet: tweet,
+                                  isBookmarked: true,
+                                  isLast: false,
                                   isLiked: notification['liked'],
-                                  isReTweet: false,
-                                  isComment: true,
+                                  searchTerm: '',
                                 ),
-                                isBookmarked: true,
-                                isLast: false,
-                                isLiked: notification['liked'],
-                                searchTerm: '',
                               );
                             } else {
-                              return NotificationPart(
-                                  tweet: Tweet(
-                                    id: notification['tweet']['id'],
-                                    username: notification['display_name'],
-                                    profilePicture: notification['profile'],
-                                    verified: false,
-                                    createdAt:
-                                        timeAgo(notification['created_at']),
-                                    content: notification['tweet']['content'],
-                                    media: notification['tweet']['media'] !=
-                                            null
-                                        ? List<String>.from(
-                                            notification['tweet']['media']
-                                                .map((item) => item as String))
-                                        : [],
-                                    like: notification['tweet']['like'],
-                                    retweet: notification['tweet']['retweet'],
-                                    comment: notification['tweet']['comment'],
-                                    view: 0,
-                                    isLiked: notification['liked'],
-                                    isReTweet:
-                                        notification['label'] == 'retweet',
-                                    isComment: false,
-                                  ),
+                              return GestureDetector(
+                                onTap: () => openDetail(tweet.id),
+                                child: NotificationPart(
+                                  tweet: tweet,
                                   action: notification['label'],
                                   isLast: false,
-                                  searchTerm: "");
+                                  searchTerm: "",
+                                ),
+                              );
                             }
                           }).toList(),
                         ),
