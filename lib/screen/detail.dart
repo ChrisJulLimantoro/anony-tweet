@@ -40,9 +40,9 @@ class _DetailPageState extends State<DetailPage> {
         .eq('user_id', userId);
     final likedTweetIds = <String>{};
     // if (likedTweetsResponse != null) {
-      for (var record in likedTweetsResponse) {
-        likedTweetIds.add(record['tweet_id']);
-      }
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
+    }
     // }
     // print(likedTweetsResponse);
     final response = await Supabase.instance.client
@@ -59,6 +59,36 @@ class _DetailPageState extends State<DetailPage> {
         .single();
     DateTime createdAt = DateTime.parse(response['created_at']);
     // print("result: ${likedTweetIds.contains(response['id'])}");
+    final retweetCountResponse = await Supabase.instance.client
+        .from('tweets')
+        .select()
+        .eq('retweet_id', response['id'])
+        .eq('creator_id', userId);
+
+    int retweetCount = retweetCountResponse.length;
+    print(retweetCount);
+
+    bool isRetweetedByUser = false;
+    if (retweetCount > 0) {
+      isRetweetedByUser = true;
+    }
+    bool isReTweet = response['retweet_id'] != null;
+    String oriCreator = "";
+      if (isReTweet) {
+        final originalTweetResponse = await Supabase.instance.client
+            .from('tweets')
+            .select('*')
+            .eq('id', response['retweet_id'])
+            .single();
+        final originalCreatorResponse = await Supabase.instance.client
+            .from('user')
+            .select('display_name')
+            .eq('id', originalTweetResponse['creator_id'])
+            .single();
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
+      }
     return Tweet(
         id: response['id'],
         username: userResponse['display_name'],
@@ -67,38 +97,27 @@ class _DetailPageState extends State<DetailPage> {
         createdAt: customTimeStamp(createdAt),
         content: response['content'],
         media: response['media'] != null
-            ? List<String>.from(
-                response['media'].map((item) => item as String))
+            ? List<String>.from(response['media'].map((item) => item as String))
             : [],
         like: response['like'],
         retweet: response['retweet'],
         comment: response['comment'],
         view: 100,
         isLiked: likedTweetIds.contains(response['id']),
-        isReTweet: Random().nextBool(),
-        oriCreator: "Dummy",
-        isRetweetedByUser: false);
+        isReTweet: isReTweet,
+        oriCreator: oriCreator,
+        isRetweetedByUser: isRetweetedByUser);
   }
 
   List<Tweet> tweets = List.generate(10, (index) {
     return Tweet(
         id: '1',
         username: faker.internet.userName(),
-        profilePicture: faker.image.image(
-          keywords: ['nature', 'mountain', 'waterfall'],
-          random: true,
-        ),
+        profilePicture: "https://randomuser.me/api/portraits/women/18.jpg",
         verified: Random().nextDouble() <= 0.5 ? true : false,
         createdAt: "${Random().nextInt(23)}h ago",
         content: "saya punya babi #anjing #leo",
-        media: List.generate(
-            Random().nextInt(4),
-            (index) => faker.image.image(
-                  keywords: ['nature', 'mountain', 'waterfall'],
-                  height: 200,
-                  width: 200,
-                  random: true,
-                )),
+        media: [],
         like: Random().nextInt(1000),
         retweet: Random().nextInt(1000),
         comment: Random().nextInt(1000),

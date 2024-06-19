@@ -36,6 +36,9 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
   bool isBookmarked = false;
   int like = 0;
   int bookmark = 0;
+  bool isRetweeted = false;
+  int retweetCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +46,89 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
     isBookmarked = widget.isBookmarked;
     like = widget.tweet.like;
     bookmark = widget.tweet.view;
+    isRetweeted = widget.tweet.isRetweetedByUser;
+    retweetCount = widget.tweet.retweet;
+    print(widget.tweet.retweet);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> handleRetweetOperation(String userId) async {
+    try {
+      if (isRetweeted) {
+        var response = await Supabase.instance.client.rpc('unretweet', params: {
+          'original_tweet_id': widget.tweet.id,
+          'session_creator_id': userId
+        });
+
+        setState(() {
+          isRetweeted = false;
+          retweetCount -= 1;
+        });
+      } else {
+        var response = await Supabase.instance.client.rpc('retweet',
+            params: {'creator': userId, 'old_id': widget.tweet.id});
+        print(response);
+        setState(() {
+          isRetweeted = true;
+          retweetCount += 1;
+        });
+      }
+
+      debugPrint('Retweet operation successful');
+    } catch (e) {
+      debugPrint('Error performing retweet operation: $e');
+    }
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(
+                  CupertinoIcons.arrow_2_squarepath,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  isRetweeted ? 'Unrepost' : 'Repost',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onTap: () {
+                  // Toggle retweet status
+                  handleRetweetOperation(context.read<SessionBloc>().id ?? "");
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  CupertinoIcons.clear_circled,
+                  color: Colors.red,
+                ),
+                title:
+                    const Text('Cancel', style: TextStyle(color: Colors.red)),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   String formatNumber(int number) {
@@ -94,6 +180,34 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
       ],
       child: Column(
         children: [
+          widget.tweet.isReTweet
+              ? Row(
+                  children:  [
+                    Padding(
+                      padding: EdgeInsets.only(left: 32, bottom: 5),
+                      child: Row(
+                        children: [
+                          Icon(
+                            CupertinoIcons.repeat,
+                            size: 12,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            "Reposted from ${widget.tweet.oriCreator}",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : SizedBox(
+                  height: 0,
+                ),
           Padding(
             padding: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Row(
@@ -254,19 +368,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      bookmark.toString(),
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: 4,
-                    ),
-                    Text(
-                      "bookmark",
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      widget.tweet.retweet.toString(),
+                      retweetCount.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
@@ -310,38 +412,12 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
                       icon: Icon(
                         CupertinoIcons.arrow_2_squarepath,
-                        color: Colors.grey,
+                        color: isRetweeted ? Colors.teal[400] : Colors.grey,
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (isBookmarked) {
-                            isBookmarked = false;
-                            bookmark--;
-                          } else {
-                            isBookmarked = true;
-                            bookmark++;
-                          }
-                        });
-                      },
-                      icon: Icon(
-                          isBookmarked
-                              ? CupertinoIcons.bookmark_fill
-                              : CupertinoIcons.bookmark,
-                          color:
-                              isBookmarked ? Colors.yellow[600] : Colors.grey),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        CupertinoIcons.share,
-                        color: Colors.grey,
-                      ),
-                    ),
+                      onPressed: () => _showBottomSheet(context),
+                    )
                   ],
                 )
               ],

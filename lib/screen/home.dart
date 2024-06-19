@@ -73,35 +73,53 @@ class HomePage extends StatelessWidget {
       bool isReTweet = tweetData['retweet_id'] != null;
       String oriCreator = "";
       if (isReTweet) {
-        final response2 = await supabase
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweetData['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
             .from('user')
             .select('display_name')
-            .eq('id', tweetData['creator_id'])
+            .eq('id', originalTweetResponse['creator_id'])
             .single();
-        oriCreator = response2['display_name'];
-      }else{
-        final response2= "";
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
       }
-      
+      final retweetCountResponse = await supabase
+          .from('tweets')
+          .select()
+          .eq('retweet_id', tweetData['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
+
       tweets.add(Tweet(
-        id: tweetData['id'],
-        username: userResponse['display_name'],
-        profilePicture: userResponse['display_photo'],
-        verified: false,
-        createdAt: timeAgo(createdAt),
-        content: tweetData['content'],
-        media: tweetData['media'] != null
-            ? List<String>.from(
-                tweetData['media'].map((item) => item as String))
-            : [],
-        like: tweetData['like'],
-        retweet: tweetData['retweet'],
-        comment: tweetData['comment'],
-        view: 100,
-        isLiked: likedTweetIds.contains(tweetData['id']),
-        isReTweet: isReTweet,
-        oriCreator: oriCreator,
-        isRetweetedByUser: false));
+          id: tweetData['id'],
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
+          verified: false,
+          createdAt: timeAgo(createdAt),
+          content: tweetData['content'],
+          media: tweetData['media'] != null
+              ? List<String>.from(
+                  tweetData['media'].map((item) => item as String))
+              : [],
+          like: tweetData['like'],
+          retweet: tweetData['retweet'],
+          comment: tweetData['comment'],
+          view: 100,
+          isLiked: likedTweetIds.contains(tweetData['id']),
+          isReTweet: isReTweet,
+          oriCreator: oriCreator,
+          isRetweetedByUser: isRetweetedByUser));
     }
 
     return tweets;
