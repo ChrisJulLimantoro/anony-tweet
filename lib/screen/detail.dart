@@ -269,7 +269,7 @@ class _DetailPageState extends State<DetailPage> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
+                            return Center();
                           } else if (snapshot.hasError) {
                             return Center(
                                 child: Text("Error: ${snapshot.error}"));
