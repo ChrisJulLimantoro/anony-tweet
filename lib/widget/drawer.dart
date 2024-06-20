@@ -109,20 +109,6 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(CupertinoIcons.bookmark),
-            title: Text('Bookmarks'),
-            onTap: () {
-              Navigator.pushNamed(context, '/bookmarks');
-            },
-          ),
-          ListTile(
-            leading: Icon(CupertinoIcons.gear),
-            title: Text('Settings'),
-            onTap: () {
-              print('Settings pressed');
-            },
-          ),
-          ListTile(
             leading: const Icon(
                 CupertinoIcons.square_arrow_left,
               color: Colors.red,

@@ -1,8 +1,10 @@
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchPage extends StatefulWidget {
@@ -25,7 +27,6 @@ class SearchPageState extends State<SearchPage>
   late PublishSubject<String> _searchSubject;
 
   late FocusNode _focusNode;
-  bool isSearching = false;
   bool tabChanged = false;
   late TabController _tabController;
 
@@ -33,88 +34,131 @@ class SearchPageState extends State<SearchPage>
   List<String> tags = [];
   List<String> recentSearches = [];
 
+  String timeAgo(DateTime timestamp) {
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(timestamp);
+
+    if (difference.inDays >= 365) {
+      int years = (difference.inDays / 365).floor();
+      return "${years}y ago";
+    } else if (difference.inDays >= 30) {
+      int months = (difference.inDays / 30).floor();
+      return "${months}m ago";
+    } else if (difference.inDays >= 7) {
+      int weeks = (difference.inDays / 7).floor();
+      return "${weeks}w ago";
+    } else if (difference.inDays >= 1) {
+      return "${difference.inDays}d ago";
+    } else if (difference.inHours >= 1) {
+      return "${difference.inHours}h ago";
+    } else if (difference.inMinutes >= 1) {
+      return "${difference.inMinutes}m ago";
+    } else {
+      return "${difference.inSeconds}s ago";
+    }
+  }
+
+  Future<String> getDisplayName(String creatorId) async {
+    try {
+      final response = await supabase
+          .from('user')
+          .select('display_name')
+          .eq('id', creatorId)
+          .single();
+
+      return response['display_name'] ?? "";
+    } catch (e) {
+      print('Error getting display name: $e');
+      return "";
+    }
+  }
+
+  Future<String> getDisplayPhoto(String creatorId) async {
+    try {
+      final response = await supabase
+          .from('user')
+          .select('display_photo')
+          .eq('id', creatorId)
+          .single();
+
+      return response['display_photo'] ?? "lib/assets/logo/Logo.png";
+    } catch (e) {
+      print('Error getting display photo: $e');
+      return "lib/assets/logo/Logo.png";
+    }
+  }
+
   Future<Tweet> fromJson(Map<String, dynamic> json) async {
-    String timeAgo(DateTime timestamp) {
-      DateTime now = DateTime.now();
-      Duration difference = now.difference(timestamp);
+    final userId = context.read<SessionBloc>().id ?? "";
 
-      if (difference.inDays >= 365) {
-        int years = (difference.inDays / 365).floor();
-        return "${years}y ago";
-      } else if (difference.inDays >= 30) {
-        int months = (difference.inDays / 30).floor();
-        return "${months}m ago";
-      } else if (difference.inDays >= 7) {
-        int weeks = (difference.inDays / 7).floor();
-        return "${weeks}w ago";
-      } else if (difference.inDays >= 1) {
-        return "${difference.inDays}d ago";
-      } else if (difference.inHours >= 1) {
-        return "${difference.inHours}h ago";
-      } else if (difference.inMinutes >= 1) {
-        return "${difference.inMinutes}m ago";
-      } else {
-        return "${difference.inSeconds}s ago";
-      }
+    print("user ID: $userId");
+
+    final likedTweetsResponse =
+        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
+    final likedTweetIds = <String>{};
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
     }
 
-    Future<String> getDisplayName() async {
-      try {
-        if (json['creator_id'] == null) {
-          return "";
-        }
+    String username = await getDisplayName(json['creator_id']);
+    String profilePicture = await getDisplayPhoto(json['creator_id']);
 
-        final response = await supabase
-            .from('user')
-            .select('display_name')
-            .eq('id', json['creator_id'])
-            .single();
-
-        return response['display_name'] ?? "";
-      } catch (e) {
-        print('Error getting display name: $e');
-        return "";
-      }
+    final userResponse = await supabase
+        .from('user')
+        .select('*')
+        .eq('id', json['creator_id'])
+        .single();
+    bool isReTweet = json['retweet_id'] != null;
+    String oriCreator = "";
+    if (isReTweet) {
+      final originalTweetResponse = await supabase
+          .from('tweets')
+          .select('*')
+          .eq('id', json['retweet_id'])
+          .single();
+      final originalCreatorResponse = await supabase
+          .from('user')
+          .select('display_name')
+          .eq('id', originalTweetResponse['creator_id'])
+          .single();
+      oriCreator = originalCreatorResponse['display_name'];
+    } else {
+      final response2 = "";
     }
+    final retweetCountResponse = await supabase
+        .from('tweets')
+        .select()
+        .eq('retweet_id', json['id'])
+        .eq('creator_id', userId);
 
-    Future<String> getDisplayPhoto() async {
-      try {
-        if (json['creator_id'] == null) {
-          return "";
-        }
+    int retweetCount = retweetCountResponse.length;
+    print(retweetCount);
 
-        final response = await supabase
-            .from('user')
-            .select('display_photo')
-            .eq('id', json['creator_id'])
-            .single();
-
-        return response['display_photo'] ?? "lib/assets/logo/Logo.png";
-      } catch (e) {
-        print('Error getting display photo: $e');
-        return "lib/assets/logo/Logo.png";
-      }
+    bool isRetweetedByUser = false;
+    if (retweetCount > 0) {
+      isRetweetedByUser = true;
     }
-
-    String username = await getDisplayName();
-    String profilePicture = await getDisplayPhoto();
 
     return Tweet(
-        id: '1',
-        username: username,
-        profilePicture: profilePicture,
-        verified: false,
-        createdAt: timeAgo(DateTime.parse(json['created_at'])),
-        content: json['content'],
-        media: json['media'] != null ? List<String>.from(json['media']) : [],
-        like: json['like'],
-        retweet: json['retweet'],
-        comment: json['comment'],
-        view: 0,
-        isLiked: false,
-        isReTweet: false,
-        oriCreator: "Dummy",
-        isRetweetedByUser: false);
+      id: json['id'],
+      username: username,
+      profilePicture: profilePicture,
+      verified: false,
+      createdAt: timeAgo(
+        DateTime.parse(json['created_at']),
+      ),
+      content: json['content'],
+      media: json['media'] != null ? List<String>.from(json['media']) : [],
+      like: json['like'],
+      retweet: json['retweet'],
+      comment: json['comment'],
+      view: 100,
+      isLiked: likedTweetIds.contains(json['id']),
+      isReTweet: isReTweet,
+      oriCreator: oriCreator,
+      isRetweetedByUser: isRetweetedByUser,
+    );
   }
 
   Future searchTweets(String search, String tag, String order_by) async {
@@ -136,9 +180,12 @@ class SearchPageState extends State<SearchPage>
     print(response);
 
     if (response is List<dynamic>) {
-      tweets =
-          await Future.wait(response.map((item) => fromJson(item)).toList());
-      setState(() {});
+      tweets = await Future.wait(
+        response.map((item) => fromJson(item)).toList(),
+      );
+      setState(
+        () {},
+      );
     }
   }
 
@@ -166,15 +213,15 @@ class SearchPageState extends State<SearchPage>
 
     if (widget.initialSearch != null) {
       _searchController.text = widget.initialSearch!;
-      searchTweets(widget.initialSearch!, widget.initialSearch!, "created_at");
+      searchTweets(widget.initialSearch!, widget.initialSearch!, "like");
     }
 
     _searchSubject = PublishSubject<String>();
     _searchSubject.stream
-        .debounceTime(Duration(milliseconds: 600))
+        .debounceTime(Duration(milliseconds: 500))
         .listen((search) {
       if (search.isNotEmpty) {
-        searchTweets(search, search, "created_at");
+        searchTweets(search, search, "like");
       } else {
         setState(() {
           tweets = [];
@@ -190,7 +237,8 @@ class SearchPageState extends State<SearchPage>
     if (_tabController.indexIsChanging) {
       setState(() {
         tabChanged = _tabController.index == 0;
-        String orderBy = _tabController.index == 0 ? "created_at" : "like";
+        String orderBy = _tabController.index == 0 ? "like" : "created_at";
+        tweets = [];
         searchTweets(_searchController.text, _searchController.text, orderBy);
       });
     }
@@ -255,7 +303,7 @@ class SearchPageState extends State<SearchPage>
               });
             }
             if (value.isNotEmpty) {
-              searchTweets(value, value, "created_at");
+              searchTweets(value, value, "like");
               // setState(() {
               // });
             } else {
@@ -268,7 +316,7 @@ class SearchPageState extends State<SearchPage>
             _searchSubject.add(value);
           },
         ),
-        bottom: (tweets.isNotEmpty)
+        bottom: (_searchController.text.isNotEmpty)
             ? TabBar(
                 controller: _tabController,
                 tabs: [
@@ -282,7 +330,7 @@ class SearchPageState extends State<SearchPage>
               )
             : null,
       ),
-      body: (!tweets.isNotEmpty)
+      body: (tweets.isEmpty)
           ? Column(
               children: [
                 Padding(
@@ -323,7 +371,7 @@ class SearchPageState extends State<SearchPage>
                     return GestureDetector(
                       onTap: () {
                         _searchController.text = "#" + tags[index];
-                        searchTweets(tags[index], tags[index], "created_at");
+                        searchTweets(tags[index], tags[index], "like");
                       },
                       child: Chip(
                         label: Text("#${tags[index]}"),

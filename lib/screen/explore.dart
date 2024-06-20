@@ -21,7 +21,6 @@ class _ExplorePageState extends State<ExplorePage> {
     List<Map<String, dynamic>> trends = [];
     for (int i = 0; i < tags.length; i++) {
       trends.add({
-        // 'trend_location': faker.address.country(),
         'title': tags[i],
       });
     }
@@ -45,8 +44,6 @@ class _ExplorePageState extends State<ExplorePage> {
             .map((item) {
               String word = item['randomized_word'] as String;
               word = word.replaceAll(RegExp(r'\s+'), '');
-              // word = word.replaceAll(
-              //     RegExp(r'\W'), '');
               return word;
             })
             .where((word) =>
@@ -218,6 +215,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   ),
                   GestureDetector(
                     onTap: () {
+                      getTags();
                       getRandomizedWords();
                     },
                     child: const Text(
@@ -329,7 +327,6 @@ class _ExplorePageState extends State<ExplorePage> {
         ],
       ),
       drawer: MyDrawer(),
-      // floatingActionButton: CustomFloatingActionButton(),
     );
   }
 }

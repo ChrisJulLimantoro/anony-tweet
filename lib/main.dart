@@ -1,5 +1,4 @@
 import 'package:anony_tweet/blocs/session_bloc.dart';
-import 'package:anony_tweet/screen/bookmarks.dart';
 import 'package:anony_tweet/screen/detail.dart';
 import 'package:anony_tweet/screen/explore.dart';
 import 'package:anony_tweet/screen/search.dart';
@@ -114,7 +113,6 @@ class MyApp extends StatelessWidget {
               ),
           '/comment': (context) => DetailPage(
               id: ModalRoute.of(context)!.settings.arguments as String),
-          '/bookmarks': (context) => BookmarkPage(),
           '/postComment': (context) => PostComment(),
         });
   }

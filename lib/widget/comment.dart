@@ -1,7 +1,11 @@
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
+import 'package:anony_tweet/widget/like_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ignore_for_file: prefer_const_constructors
 
@@ -26,17 +30,44 @@ class Comment extends StatefulWidget {
 class _CommentState extends State<Comment> {
   bool isLiked = false;
   bool isBookmarked = false;
+  int like = 0;
+  int retweet = 0;
+  bool isReTweet = false;
   @override
   void initState() {
     super.initState();
-    isLiked = widget.isLiked;
+    isLiked = widget.tweet.isLiked;
+    like = widget.tweet.like;
+    retweet = widget.tweet.retweet;
     isBookmarked = widget.isBookmarked;
+    isReTweet = widget.tweet.isRetweetedByUser;
     // print(isLiked);
+  }
+
+  Future<void> handleLikeOperation(String userId) async {
+    if (isLiked) {
+      isLiked = false;
+      like--;
+      await Supabase.instance.client.from('likes').delete().match({
+        'user_id': userId,
+        'tweet_id': widget.tweet.id,
+      });
+    } else {
+      isLiked = true;
+      like++;
+      await Supabase.instance.client.from('likes').insert({
+        'user_id': userId,
+        'tweet_id': widget.tweet.id,
+      });
+    }
+    // Update the state only after the async operation is complete
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
+    final userId = context.read<SessionBloc>().id ?? "";
 
     // debugPrint(widget.tweet.verified.toString());
     return Column(
@@ -105,7 +136,7 @@ class _CommentState extends State<Comment> {
                       ],
                     ),
                     HashtagText(
-                      text: "saya punya babi #anjing #leo",
+                      text: widget.tweet.content,
                       searchTerm: "",
                       onTagTap: (String tag) {
                         print("Tapped on $tag");
@@ -125,7 +156,7 @@ class _CommentState extends State<Comment> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
+                            children: [
                               Icon(
                                 CupertinoIcons.chat_bubble_2,
                                 color: Colors.grey,
@@ -133,7 +164,7 @@ class _CommentState extends State<Comment> {
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                "900",
+                                widget.tweet.comment.toString(),
                                 style: TextStyle(fontSize: 12),
                               ),
                             ],
@@ -141,13 +172,7 @@ class _CommentState extends State<Comment> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              if (isLiked) {
-                                isLiked = false;
-                              } else {
-                                isLiked = true;
-                              }
-                            });
+                           handleLikeOperation(userId);
                           },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -162,7 +187,7 @@ class _CommentState extends State<Comment> {
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                "900",
+                                like.toString(),
                                 style: TextStyle(fontSize: 12),
                               ),
                             ],
@@ -170,64 +195,19 @@ class _CommentState extends State<Comment> {
                         ),
                         GestureDetector(
                           onTap: () {},
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                CupertinoIcons.repeat,
-                                color: Colors.grey,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                "900",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              if (isBookmarked) {
-                                isBookmarked = false;
-                              } else {
-                                isBookmarked = true;
-                              }
-                            });
-                          },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                isBookmarked
-                                    ? CupertinoIcons.bookmark_fill
-                                    : CupertinoIcons.bookmark,
-                                color: isBookmarked
-                                    ? Colors.yellow[600]
-                                    : Colors.grey,
+                                CupertinoIcons.repeat,
+                                color: isReTweet ? Colors.teal[400]: Colors.grey,
                                 size: 14,
                               ),
                               const SizedBox(width: 5),
                               Text(
-                                "900",
+                                retweet.toString(),
                                 style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
-                                CupertinoIcons.share,
-                                color: Colors.grey,
-                                size: 14,
                               ),
                             ],
                           ),
