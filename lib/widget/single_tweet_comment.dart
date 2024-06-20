@@ -83,6 +83,13 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
       debugPrint('Error performing retweet operation: $e');
     }
   }
+  void goToPostCommentPage(BuildContext context, String detailId) {
+      Navigator.pushNamed(
+        context,
+        '/postComment',
+        arguments: detailId,
+      );
+    }
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -395,7 +402,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                   children: [
                     IconButton(
                       onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/postComment');
+                        goToPostCommentPage(context, widget.tweet.id);
                       },
                       icon: Icon(
                         CupertinoIcons.bubble_left,

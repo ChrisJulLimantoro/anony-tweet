@@ -119,7 +119,7 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                         ],
                       ),
                       HashtagText(
-                        text: "saya punya babi #anjing #leo",
+                        text: widget.tweet.content,
                         searchTerm: "",
                         onTagTap: (String tag) {
                           print("Tapped on $tag");
@@ -177,7 +177,7 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                           children: [
                             Text("Replying to "),
                             Text(
-                              "@hello",
+                              '@${widget.tweet.username}',
                               style: TextStyle(color: Colors.blue),
                             )
                           ],

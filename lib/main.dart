@@ -113,7 +113,8 @@ class MyApp extends StatelessWidget {
               ),
           '/comment': (context) => DetailPage(
               id: ModalRoute.of(context)!.settings.arguments as String),
-          '/postComment': (context) => PostComment(),
+          '/postComment': (context) => PostComment(
+            id: ModalRoute.of(context)!.settings.arguments as String),
         });
   }
 }
