@@ -28,7 +28,7 @@ class SearchPageState extends State<SearchPage>
   bool tabChanged = false;
   late TabController _tabController;
 
-  List<Tweet> tweets = [];
+  Future<List<Tweet>>? _tweetsFuture;
   List<String> tags = [];
   List<String> recentSearches = [];
 
@@ -159,7 +159,8 @@ class SearchPageState extends State<SearchPage>
     );
   }
 
-  Future searchTweets(String search, String tag, String order_by) async {
+  Future<List<Tweet>> searchTweets(
+      String search, String tag, String order_by) async {
     final response = await supabase.rpc(
       'gettweet2',
       params: {
@@ -178,12 +179,11 @@ class SearchPageState extends State<SearchPage>
     print(response);
 
     if (response is List<dynamic>) {
-      tweets = await Future.wait(
+      return Future.wait(
         response.map((item) => fromJson(item)).toList(),
       );
-      setState(
-        () {},
-      );
+    } else {
+      return [];
     }
   }
 
@@ -193,7 +193,7 @@ class SearchPageState extends State<SearchPage>
     final response = await supabase.rpc('gettags');
     if (response is List<dynamic>) {
       setState(() {
-        tags = response.cast<String>();
+        tags = response.cast<String>().take(9).toList();
       });
     }
   }
@@ -209,11 +209,10 @@ class SearchPageState extends State<SearchPage>
     _focusNode = FocusNode();
     _searchController = TextEditingController();
 
-    // print("INITIAL SEARCH " + widget.initialSearch.toString()!);
-
     if (widget.initialSearch != null) {
       _searchController.text = widget.initialSearch!;
-      searchTweets(widget.initialSearch!, widget.initialSearch!, "like");
+      _tweetsFuture =
+          searchTweets(widget.initialSearch!, widget.initialSearch!, "like");
     }
 
     _searchSubject = PublishSubject<String>();
@@ -221,10 +220,12 @@ class SearchPageState extends State<SearchPage>
         .debounceTime(Duration(milliseconds: 500))
         .listen((search) {
       if (search.isNotEmpty) {
-        searchTweets(search, search, "like");
+        setState(() {
+          _tweetsFuture = searchTweets(search, search, "like");
+        });
       } else {
         setState(() {
-          tweets = [];
+          _tweetsFuture = Future.value([]);
         });
       }
     });
@@ -238,8 +239,8 @@ class SearchPageState extends State<SearchPage>
       setState(() {
         tabChanged = _tabController.index == 0;
         String orderBy = _tabController.index == 0 ? "like" : "created_at";
-        tweets = [];
-        searchTweets(_searchController.text, _searchController.text, orderBy);
+        _tweetsFuture = searchTweets(
+            _searchController.text, _searchController.text, orderBy);
       });
     }
   }
@@ -281,7 +282,7 @@ class SearchPageState extends State<SearchPage>
               onPressed: () {
                 _searchController.clear();
                 setState(() {
-                  tweets = [];
+                  _tweetsFuture = Future.value([]);
                 });
               },
               icon: const Icon(
@@ -303,12 +304,12 @@ class SearchPageState extends State<SearchPage>
               });
             }
             if (value.isNotEmpty) {
-              searchTweets(value, value, "like");
-              // setState(() {
-              // });
+              setState(() {
+                _tweetsFuture = searchTweets(value, value, "like");
+              });
             } else {
               setState(() {
-                tweets = [];
+                _tweetsFuture = Future.value([]);
               });
             }
           },
@@ -330,8 +331,15 @@ class SearchPageState extends State<SearchPage>
               )
             : null,
       ),
-      body: (tweets.isEmpty)
-          ? Column(
+      body: FutureBuilder<List<Tweet>>(
+        future: _tweetsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
@@ -353,10 +361,15 @@ class SearchPageState extends State<SearchPage>
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const Text(
-                            "Refresh tags",
-                            style: TextStyle(
-                              color: Colors.blue,
+                          GestureDetector(
+                            onTap: () {
+                              getTags();
+                            },
+                            child: const Text(
+                              "Refresh tags",
+                              style: TextStyle(
+                                color: Colors.blue,
+                              ),
                             ),
                           )
                         ],
@@ -371,7 +384,10 @@ class SearchPageState extends State<SearchPage>
                     return GestureDetector(
                       onTap: () {
                         _searchController.text = "#" + tags[index];
-                        searchTweets(tags[index], tags[index], "like");
+                        setState(() {
+                          _tweetsFuture =
+                              searchTweets(tags[index], tags[index], "like");
+                        });
                       },
                       child: Chip(
                         label: Text("#${tags[index]}"),
@@ -436,9 +452,11 @@ class SearchPageState extends State<SearchPage>
                   ),
                 ),
               ],
-            )
-          : Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+            );
+          } else {
+            final tweets = snapshot.data!;
+            return Padding(
+              padding: const EdgeInsets.only(top: 20.0),
               child: TabBarView(
                 controller: _tabController,
                 children: [
@@ -465,10 +483,13 @@ class SearchPageState extends State<SearchPage>
                         searchTerm: _searchController.text,
                       );
                     },
-                  )
+                  ),
                 ],
               ),
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 }
