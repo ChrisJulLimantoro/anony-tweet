@@ -9,12 +9,10 @@ import 'package:rxdart/rxdart.dart';
 
 class SearchPage extends StatefulWidget {
   final String? initialSearch;
-  // final Map<String, dynamic> tweetArguments;
 
   SearchPage({
     Key? key,
     required this.initialSearch,
-    // required this.tweetArguments,
   }) : super(key: key);
 
   @override
@@ -163,7 +161,7 @@ class SearchPageState extends State<SearchPage>
 
   Future searchTweets(String search, String tag, String order_by) async {
     final response = await supabase.rpc(
-      'gettweet',
+      'gettweet2',
       params: {
         'search': search,
         'tag': tag,
@@ -188,6 +186,8 @@ class SearchPageState extends State<SearchPage>
       );
     }
   }
+
+  Future searchComments() async {}
 
   Future<void> getTags() async {
     final response = await supabase.rpc('gettags');

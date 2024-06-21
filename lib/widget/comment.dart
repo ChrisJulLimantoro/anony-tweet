@@ -1,5 +1,6 @@
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/like_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,7 @@ class Comment extends StatefulWidget {
   final bool isLast;
   final bool isBookmarked;
   final bool isLiked;
+  final String searchTerm;
 
   const Comment({
     super.key,
@@ -21,6 +23,7 @@ class Comment extends StatefulWidget {
     required this.isLast,
     required this.isBookmarked,
     required this.isLiked,
+    required this.searchTerm,
   });
 
   @override
@@ -137,10 +140,17 @@ class _CommentState extends State<Comment> {
                     ),
                     HashtagText(
                       text: widget.tweet.content,
-                      searchTerm: "",
+                      searchTerm: widget.searchTerm,
                       onTagTap: (String tag) {
-                        print("Tapped on $tag");
-                        // You can add more actions here, like navigating to another page or showing a modal.
+                        // print("Tapped on $tag");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchPage(
+                              initialSearch: tag,
+                            ),
+                          ),
+                        );
                       },
                     ),
                     SizedBox(
@@ -172,7 +182,7 @@ class _CommentState extends State<Comment> {
                         ),
                         GestureDetector(
                           onTap: () {
-                           handleLikeOperation(userId);
+                            handleLikeOperation(userId);
                           },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -201,7 +211,8 @@ class _CommentState extends State<Comment> {
                             children: [
                               Icon(
                                 CupertinoIcons.repeat,
-                                color: isReTweet ? Colors.teal[400]: Colors.grey,
+                                color:
+                                    isReTweet ? Colors.teal[400] : Colors.grey,
                                 size: 14,
                               ),
                               const SizedBox(width: 5),

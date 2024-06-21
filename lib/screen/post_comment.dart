@@ -311,6 +311,7 @@ class _PostCommentState extends State<PostComment> {
                                 isBookmarked: Random().nextDouble() <= 0.5,
                                 isLast: false,
                                 isLiked: snapshot.data!.isLiked,
+                                searchTerm: "",
                               )
                             ],
                           ),
