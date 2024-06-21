@@ -27,7 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'password': Crypt.sha256(passwordController.text.trim()).toString(),
         'display_name': WordPair.random().asPascalCase,
         'display_photo':
-            "https://randomuser.me/api/portraits/men/${Random().nextInt(10000)}.jpg"
+            "https://randomuser.me/api/portraits/lego/${Random().nextInt(10)}.jpg"
       });
       if (response != null && response.error != null) {
         throw Exception(response.error!.message);
