@@ -267,7 +267,13 @@ class _HomePageState extends State<HomePage> {
                 future: _tweets,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return SizedBox(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.78,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (snapshot.data!.isEmpty) {
