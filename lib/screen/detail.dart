@@ -279,6 +279,7 @@ class _DetailPageState extends State<DetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   SingleTweetComment(
+                                    
                                     tweet: snapshot.data!,
                                     isBookmarked: Random().nextDouble() <= 0.5,
                                     isLast: false,
