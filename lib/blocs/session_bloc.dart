@@ -25,10 +25,11 @@ class SessionBloc extends Cubit<void> {
         await Supabase.instance.client.auth.signInAnonymously();
 
     session = authResponse.session;
-
-    //  Future<void> login(BuildContext context) async {
-    final response =
-        await client.from('user').select().eq('username', username.trim());
+//  Future<void> login(BuildContext context) async {
+    final response = await client.from('user').select().eq(
+          'username',
+          username.trim(),
+        );
 
     if (response.isEmpty) {
       return "User not found!";
@@ -41,9 +42,7 @@ class SessionBloc extends Cubit<void> {
 
         print(displayPhoto);
 
-        // store id into shared preferences
         SharedPreferences sharedUser = await SharedPreferences.getInstance();
-
         var loginInfo = {
           "id": id,
           "displayPhoto": response[0]['display_photo'],
@@ -51,7 +50,7 @@ class SessionBloc extends Cubit<void> {
           "displayName": response[0]['display_name'],
           "expiry": DateTime.now().millisecondsSinceEpoch + 60 * 60 * 24 * 7,
         };
-        sharedUser.setString('user', json.encode(loginInfo));
+        sharedUser.setString('user_$id', json.encode(loginInfo));
 
         return "User found";
       } else {
@@ -61,9 +60,21 @@ class SessionBloc extends Cubit<void> {
   }
 
   Future<void> logout() async {
-    SharedPreferences sharedUser = await SharedPreferences.getInstance();
-    sharedUser.remove("user");
+    if (id != null && id!.isNotEmpty) {
+      SharedPreferences sharedUser = await SharedPreferences.getInstance();
+      sharedUser.remove("user_$id");
+    }
 
     await client.auth.signOut();
+  }
+
+  Future<Map<String, dynamic>?> getUserPreferences() async {
+    if (id == null || id!.isEmpty) return null;
+
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    String? userData = sharedUser.getString('user_$id');
+    if (userData == null) return null;
+
+    return json.decode(userData);
   }
 }

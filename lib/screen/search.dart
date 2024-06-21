@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchPage extends StatefulWidget {
   final String? initialSearch;
@@ -173,6 +174,7 @@ class SearchPageState extends State<SearchPage>
     if (!recentSearches.contains(search)) {
       setState(() {
         recentSearches.add(search);
+        saveRecentSearches();
       });
     }
 
@@ -186,8 +188,6 @@ class SearchPageState extends State<SearchPage>
       return [];
     }
   }
-
-  Future searchComments() async {}
 
   Future<void> getTags() async {
     final response = await supabase.rpc('gettags');
@@ -230,8 +230,34 @@ class SearchPageState extends State<SearchPage>
       }
     });
 
+    loadRecentSearches();
+
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => FocusScope.of(context).requestFocus(_focusNode));
+  }
+
+  Future<void> loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final sessionBloc = context.read<SessionBloc>();
+    final userId = sessionBloc.id;
+
+    if (userId != null && userId.isNotEmpty) {
+      final recentSearches =
+          prefs.getStringList('recentSearches_$userId') ?? [];
+      setState(() {
+        this.recentSearches = recentSearches;
+      });
+    }
+  }
+
+  Future<void> saveRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final sessionBloc = context.read<SessionBloc>();
+    final userId = sessionBloc.id;
+
+    if (userId != null && userId.isNotEmpty) {
+      await prefs.setStringList('recentSearches_$userId', recentSearches);
+    }
   }
 
   void _handleTabSelection() {
@@ -310,6 +336,7 @@ class SearchPageState extends State<SearchPage>
             if (!recentSearches.contains(value)) {
               setState(() {
                 recentSearches.add(value);
+                saveRecentSearches();
               });
             }
             if (value.isNotEmpty) {
@@ -340,55 +367,58 @@ class SearchPageState extends State<SearchPage>
               )
             : null,
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshTweets,
-        child: FutureBuilder<List<Tweet>>(
-          future: _tweetsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      top: 16.0,
-                      right: 16.0,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Tags',
+      body: FutureBuilder<List<Tweet>>(
+        future: _tweetsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    top: 16.0,
+                    right: 16.0,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Tags',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              getTags();
+                            },
+                            child: const Text(
+                              "Refresh tags",
                               style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                getTags();
-                              },
-                              child: const Text(
-                                "Refresh tags",
-                                style: TextStyle(
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
+                          )
+                        ],
                       ),
                     ),
                   ),
-                  Wrap(
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
+                  ),
+                  child: Wrap(
                     spacing: 8.0,
                     runSpacing: 4.0,
                     children: List<Widget>.generate(tags.length, (int index) {
@@ -396,8 +426,8 @@ class SearchPageState extends State<SearchPage>
                         onTap: () {
                           _searchController.text = "#" + tags[index];
                           setState(() {
-                            _tweetsFuture =
-                                searchTweets(tags[index], tags[index], "like");
+                            _tweetsFuture = searchTweets(_searchController.text,
+                                _searchController.text, "like");
                           });
                         },
                         child: Chip(
@@ -411,102 +441,110 @@ class SearchPageState extends State<SearchPage>
                       );
                     }),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 16.0,
-                      top: 8.0,
-                      right: 16.0,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Recent searches',
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    top: 16.0,
+                    right: 16.0,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Recent searches',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              recentSearches.clear();
+                              saveRecentSearches();
+                            });
+                          },
+                          child: const Text(
+                            "Clear",
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                recentSearches.clear();
-                              });
-                            },
-                            child: const Text(
-                              "Clear",
-                              style: TextStyle(
-                                color: Colors.blue,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
+                        )
+                      ],
                     ),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: recentSearches.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(recentSearches[index]),
-                          trailing: Transform.rotate(
-                            angle: -135.0 * (3.14159265359 / 180.0),
-                            child: const Icon(
-                              CupertinoIcons.arrow_right,
-                            ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: recentSearches.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(recentSearches[index]),
+                        trailing: Transform.rotate(
+                          angle: -135.0 * (3.14159265359 / 180.0),
+                          child: const Icon(
+                            CupertinoIcons.arrow_right,
                           ),
+                        ),
+                        onTap: () {
+                          _searchController.text = recentSearches[index];
+                          setState(() {
+                            _tweetsFuture = searchTweets(_searchController.text,
+                                _searchController.text, "like");
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          } else {
+            final tweets = snapshot.data!;
+            return Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  RefreshIndicator(
+                    onRefresh: _refreshTweets,
+                    child: ListView.builder(
+                      itemCount: tweets.length,
+                      itemBuilder: (context, index) {
+                        return SingleTweet(
+                          tweet: tweets[index],
+                          isBookmarked: true,
+                          isLast: false,
+                          isLiked: tweets[index].isLiked,
+                          searchTerm: _searchController.text,
+                        );
+                      },
+                    ),
+                  ),
+                  RefreshIndicator(
+                    onRefresh: _refreshTweets,
+                    child: ListView.builder(
+                      itemCount: tweets.length,
+                      itemBuilder: (context, index) {
+                        return SingleTweet(
+                          tweet: tweets[index],
+                          isBookmarked: true,
+                          isLast: false,
+                          isLiked: tweets[index].isLiked,
+                          searchTerm: _searchController.text,
                         );
                       },
                     ),
                   ),
                 ],
-              );
-            } else {
-              final tweets = snapshot.data!;
-              return Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: _refreshTweets,
-                      child: ListView.builder(
-                        itemCount: tweets.length,
-                        itemBuilder: (context, index) {
-                          return SingleTweet(
-                            tweet: tweets[index],
-                            isBookmarked: true,
-                            isLast: false,
-                            isLiked: tweets[index].isLiked,
-                            searchTerm: _searchController.text,
-                          );
-                        },
-                      ),
-                    ),
-                    RefreshIndicator(
-                      onRefresh: _refreshTweets,
-                      child: ListView.builder(
-                        itemCount: tweets.length,
-                        itemBuilder: (context, index) {
-                          return SingleTweet(
-                            tweet: tweets[index],
-                            isBookmarked: true,
-                            isLast: false,
-                            isLiked: tweets[index].isLiked,
-                            searchTerm: _searchController.text,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-          },
-        ),
+              ),
+            );
+          }
+        },
       ),
     );
   }
