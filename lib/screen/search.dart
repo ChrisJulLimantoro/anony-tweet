@@ -164,10 +164,16 @@ class SearchPageState extends State<SearchPage>
 
   Future<List<Tweet>> searchTweets(
       String search, String tag, String order_by) async {
+    var searches = search
+        .toLowerCase()
+        .split(' ')
+        .where((s) => s.trim().isNotEmpty)
+        .toList();
+
     final response = await supabase.rpc(
-      'gettweet2',
+      'gettweet3',
       params: {
-        'search': search,
+        'search': searches,
         'tag': tag,
         'order_by': order_by,
       },
