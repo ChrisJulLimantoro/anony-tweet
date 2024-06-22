@@ -8,6 +8,7 @@ import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:english_words/english_words.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -58,6 +59,17 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> changeProfile(BuildContext context) async{
+    final response = await supabase.rpc('changeprofile',
+    params: {
+      'user_id': context.read<SessionBloc>().id,
+      'new_display_name': WordPair.random().asPascalCase,
+      'new_display_photo' : "https://randomuser.me/api/portraits/lego/${Random().nextInt(10)}.jpg"
+    });
+
+    setState(){};
+  }
+
   Future<int> fetchTweetCountCommentByCreatorId(String creatorId) async {
     try {
       final response = await Supabase.instance.client
@@ -90,7 +102,9 @@ class _ProfilePageState extends State<ProfilePage> {
             actions: [
               IconButton(
                 icon: Icon(CupertinoIcons.search),
-                onPressed: () {},
+                onPressed: () {
+                  changeProfile(context);
+                },
               ),
             ],
             pinned: true,
