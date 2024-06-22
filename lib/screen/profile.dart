@@ -85,6 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
+    final theme = mediaQuery.platformBrightness;
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
     final creatorId = context.read<SessionBloc>().id ?? "";
@@ -98,6 +99,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
+              color: Colors.black,
             ),
             // actions: [
             //   IconButton(
@@ -108,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
             // ],
             pinned: true,
             floating: true,
-            backgroundColor: Colors.grey.shade300,
+            backgroundColor: Colors.grey[theme == Brightness.light ? 200 : 400],
           ),
           SliverToBoxAdapter(
             child: SingleChildScrollView(
@@ -121,7 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Container(
                         width: double.infinity,
                         height: screenHeight * 0.10,
-                        color: Colors.grey.shade300,
+                        color:
+                            Colors.grey[theme == Brightness.light ? 200 : 400],
                       ),
                       Positioned(
                         top: screenHeight * 0.035,
@@ -217,23 +220,31 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                                 border: Border.all(
-                                                  color: Colors.blue,
+                                                  color: theme ==
+                                                          Brightness.light
+                                                      ? Colors.grey.shade300
+                                                      : Colors.grey.shade700,
                                                   width: 1,
                                                 ),
                                               ),
                                               child: CupertinoButton(
                                                 minSize: 30,
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 13,
-                                                    vertical: 5),
+                                                  horizontal: 13,
+                                                  vertical: 5,
+                                                ),
                                                 borderRadius:
                                                     BorderRadius.circular(20),
-                                                color: Colors.white,
+                                                color: Colors.transparent,
                                                 child: Text(
                                                   'Change Profile',
                                                   style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: Colors.blue),
+                                                    fontSize: 12,
+                                                    color: theme ==
+                                                            Brightness.light
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                  ),
                                                 ),
                                                 onPressed: () {
                                                   changeProfile(context);
@@ -261,7 +272,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w400,
                                         fontSize: 12,
-                                        color: Colors.grey.shade700,
                                       ),
                                     ),
                                   ),
@@ -336,7 +346,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
-                                                  color: Colors.black,
+                                                  color:
+                                                      theme == Brightness.light
+                                                          ? Colors.black
+                                                          : Colors.white,
                                                 ),
                                               );
                                             } else if (snapshot.hasError) {
@@ -354,7 +367,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
-                                                  color: Colors.black,
                                                 ),
                                               );
                                             }
@@ -381,7 +393,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
-                                                  color: Colors.black,
+                                                  color:
+                                                      theme == Brightness.light
+                                                          ? Colors.black
+                                                          : Colors.white,
                                                 ),
                                               );
                                             } else if (snapshot.hasError) {
@@ -399,7 +414,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
-                                                  color: Colors.black,
                                                 ),
                                               );
                                             }
@@ -452,6 +466,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildNavItem(int index, String label) {
+    final theme = MediaQuery.of(context).platformBrightness;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -476,7 +492,9 @@ class _ProfilePageState extends State<ProfilePage> {
             fontSize: 14.0,
             fontWeight:
                 _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
-            color: _selectedIndex == index ? Colors.blue : Colors.black,
+            color: _selectedIndex == index
+                ? Colors.blue
+                : (theme == Brightness.light ? Colors.black : Colors.white),
           ),
         ),
       ),

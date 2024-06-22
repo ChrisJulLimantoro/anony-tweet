@@ -36,7 +36,7 @@ class _ExplorePageState extends State<ExplorePage> {
           })
           .where((word) =>
               word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
-          .take(5)
+          .take(10)
           .toList();
     } else {
       throw Exception('Failed to load random words');
@@ -270,10 +270,10 @@ class _ExplorePageState extends State<ExplorePage> {
                       }
                       return Container(
                         decoration: BoxDecoration(
-                          border: const Border(
+                          border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey,
-                              width: 0.3,
+                              color: Colors.grey.shade800,
+                              width: 0.5,
                             ),
                           ),
                         ),
@@ -290,9 +290,12 @@ class _ExplorePageState extends State<ExplorePage> {
                             children: [
                               Text(
                                 isTag ? "#$title" : title,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
+                                  color: theme == Brightness.light
+                                      ? Colors.black
+                                      : Colors.white,
                                 ),
                               ),
                               FutureBuilder<int>(

@@ -236,11 +236,21 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Colors.white,
+            shape: Border(
+              bottom: BorderSide(
+                color: theme == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
+                width: 0.5,
+              ),
+            ),
+            backgroundColor:
+                theme == Brightness.dark ? Colors.black : Colors.white,
             title: const Text(
               "Post",
               style: TextStyle(

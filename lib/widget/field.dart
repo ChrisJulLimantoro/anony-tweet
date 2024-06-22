@@ -15,11 +15,12 @@ class Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Container(
       // height: 48,
       width: 350,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme == Brightness.dark ? Colors.grey[800] : Colors.white,
         borderRadius: BorderRadius.circular(30.0),
         boxShadow: [
           BoxShadow(
@@ -35,7 +36,13 @@ class Field extends StatelessWidget {
         obscureText: isPassword,
         decoration: InputDecoration(
           hintText: text,
-          prefixIcon: Icon(logo, color: Colors.grey),
+          hintStyle: TextStyle(
+            color: theme == Brightness.dark ? Colors.white : Colors.grey[800],
+          ),
+          prefixIcon: Icon(
+            logo,
+            color: theme == Brightness.dark ? Colors.white : Colors.grey[800],
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30.0),
             borderSide: BorderSide.none,

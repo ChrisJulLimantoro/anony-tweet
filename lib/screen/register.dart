@@ -34,7 +34,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('User created successfully'),
+          content: Text(
+            'User created successfully',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -45,7 +50,12 @@ class _RegisterPageState extends State<RegisterPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: Text(
+            e.toString(),
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -54,8 +64,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme == Brightness.dark ? Colors.black : Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -71,7 +82,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     SizedBox(
                       width: 200,
                       height: 200,
-                      child: Image.asset('lib/assets/logo/Logo.png'),
+                      child: theme == Brightness.light
+                          ? Image.asset('lib/assets/logo/Logo.png')
+                          : Image.asset('lib/assets/logo/logo_dark.png'),
                     ),
                     const SizedBox(height: 16),
                     Field(
@@ -92,9 +105,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     Field(
                       con: confirmPasswordController,
                       isPassword: true,
-                      text: 'Confirm Password',
+                      text: 'Confirm password',
                       logo: Icons.lock,
                     ),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -111,16 +125,18 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: ElevatedButton(
                   onPressed: () {
                     insertData(context);
                   },
                   style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: Colors.deepPurple,
-                      textStyle: const TextStyle(
-                        color: Colors.white,
+                      backgroundColor: Colors.grey[800],
+                      textStyle: TextStyle(
+                        color: theme == Brightness.light
+                            ? Colors.white
+                            : Colors.black,
                       )),
                   child: const Padding(
                     padding: EdgeInsets.all(10.0),
@@ -133,7 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         SizedBox(width: 10),
                         Text(
-                          'SignUp',
+                          'Sign Up',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

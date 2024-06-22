@@ -159,23 +159,24 @@ class _PostCommentState extends State<PostComment> {
       final response2 = "";
     }
     return Tweet(
-        id: response['id'],
-        username: userResponse['display_name'],
-        profilePicture: userResponse['display_photo'],
-        verified: Random().nextBool(),
-        createdAt: customTimeStamp(createdAt),
-        content: response['content'],
-        media: response['media'] != null
-            ? List<String>.from(response['media'].map((item) => item as String))
-            : [],
-        like: response['like'],
-        retweet: response['retweet'],
-        comment: response['comment'],
-        view: 100,
-        isLiked: likedTweetIds.contains(response['id']),
-        isReTweet: isReTweet,
-        oriCreator: oriCreator,
-        isRetweetedByUser: isRetweetedByUser);
+      id: response['id'],
+      username: userResponse['display_name'],
+      profilePicture: userResponse['display_photo'],
+      verified: Random().nextBool(),
+      createdAt: customTimeStamp(createdAt),
+      content: response['content'],
+      media: response['media'] != null
+          ? List<String>.from(response['media'].map((item) => item as String))
+          : [],
+      like: response['like'],
+      retweet: response['retweet'],
+      comment: response['comment'],
+      view: 100,
+      isLiked: likedTweetIds.contains(response['id']),
+      isReTweet: isReTweet,
+      oriCreator: oriCreator,
+      isRetweetedByUser: isRetweetedByUser,
+    );
   }
 
   @override
@@ -183,109 +184,121 @@ class _PostCommentState extends State<PostComment> {
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme == Brightness.light ? Colors.white : Colors.black,
       appBar: AppBar(
         // leading: Padding(
         //   padding: const EdgeInsets.only(left: 5),
         //   child: Center(child: Text("Cancel", style: TextStyle(fontSize: 16),)),
         // ),
+        shape: Border(
+          bottom: BorderSide(
+            color: theme == Brightness.light
+                ? Colors.grey.shade200
+                : Colors.grey.shade800,
+            width: 0.5,
+          ),
+        ),
         title: TextButton(
           child: Text(
             "Cancel",
-            style: TextStyle(color: Colors.black, fontSize: 18),
+            style: TextStyle(
+              color: theme == Brightness.light ? Colors.black : Colors.white,
+              fontSize: 18,
+            ),
           ),
           onPressed: () {
             Navigator.popAndPushNamed(context, "/comment");
           },
         ),
         centerTitle: false,
-        backgroundColor: Colors.white,
+        backgroundColor:
+            theme == Brightness.light ? Colors.white : Colors.black,
         elevation: 1,
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: ElevatedButton(
-                  onPressed: isLoading || tweetController.text.isEmpty
-                      ? null
-                      : () async {
-                          setState(() => isLoading = true);
-                          bool success = await postComment(
-                              context.read<SessionBloc>().username ?? "");
-                          debugPrint("success : $success");
+              onPressed: isLoading || tweetController.text.isEmpty
+                  ? null
+                  : () async {
+                      setState(() => isLoading = true);
+                      bool success = await postComment(
+                          context.read<SessionBloc>().username ?? "");
+                      debugPrint("success : $success");
 
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  "Comment posted!",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                elevation: 0,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 40,
-                                  vertical: 24,
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                padding: const EdgeInsets.all(16),
-                                duration: const Duration(seconds: 2),
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Comment posted!",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
+                              textAlign: TextAlign.center,
+                            ),
+                            elevation: 0,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 24,
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            padding: const EdgeInsets.all(16),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                        );
 
-                            setState(() => isLoading = false);
-                            Navigator.pop(context);
-                          } else {
-                            setState(() => isLoading = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  "Error posting tweet!",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                elevation: 0,
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 40,
-                                  vertical: 24,
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                padding: const EdgeInsets.all(16),
-                                duration: const Duration(seconds: 2),
-                                backgroundColor: Colors.red,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(50),
-                                ),
+                        setState(() => isLoading = false);
+                        Navigator.pop(context);
+                      } else {
+                        setState(() => isLoading = false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text(
+                              "Error posting tweet!",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
-                            );
-                            Navigator.pop(context);
-                          }
-                        },
-                  style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(isLoading || isTextEmpty
-                            ? Colors.grey
-                            : theme == Brightness.light
-                                ? Colors.black
-                                : Colors.white),
-                  ),
-                  child: Text(
-                    "Post",
-                    style: TextStyle(
-                        color: theme == Brightness.light
-                            ? Colors.white
-                            : Colors.black),
-                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            elevation: 0,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 40,
+                              vertical: 24,
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                            padding: const EdgeInsets.all(16),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+              style: ButtonStyle(
+                backgroundColor:
+                    MaterialStateProperty.all(isLoading || isTextEmpty
+                        ? Colors.grey
+                        : theme == Brightness.light
+                            ? Colors.black
+                            : Colors.white),
+              ),
+              child: Text(
+                "Post",
+                style: TextStyle(
+                  color:
+                      Colors.white,
                 ),
+              ),
+            ),
           ),
         ],
       ),
@@ -303,6 +316,7 @@ class _PostCommentState extends State<PostComment> {
                         return Center(child: Text("Error: ${snapshot.error}"));
                       } else if (snapshot.hasData) {
                         return SingleChildScrollView(
+                          padding: const EdgeInsets.only(top: 16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -322,6 +336,9 @@ class _PostCommentState extends State<PostComment> {
                     }),
                 SizedBox(
                   height: 10,
+                ),
+                Divider(
+                  height: 1,
                 ),
                 Row(
                   children: [

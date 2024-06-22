@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login(BuildContext context) async {
+    final Brightness theme = MediaQuery.of(context).platformBrightness;
     final response = await context
         .read<SessionBloc>()
         .login(usernameController.text, passwordController.text);
@@ -22,7 +23,12 @@ class _LoginPageState extends State<LoginPage> {
     if (response.toString() == "User found") {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('User found'),
+          content: Text(
+            'User found',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 1),
         ),
@@ -32,7 +38,12 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(response.toString()),
+          content: Text(
+            response.toString(),
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 1),
         ),
@@ -42,8 +53,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme == Brightness.dark ? Colors.black : Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -56,27 +68,32 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: 200,
                       height: 200,
-                      child: Image.asset('lib/assets/logo/Logo.png'),
+                      child: theme == Brightness.light
+                          ? Image.asset('lib/assets/logo/Logo.png')
+                          : Image.asset('lib/assets/logo/logo_dark.png'),
                     ),
                     const SizedBox(height: 50),
                     Field(
-                        con: usernameController,
-                        isPassword: false,
-                        text: "Username",
-                        logo: Icons.person),
+                      con: usernameController,
+                      isPassword: false,
+                      text: "Username",
+                      logo: Icons.person,
+                    ),
                     const SizedBox(height: 20),
                     Field(
                         con: passwordController,
                         isPassword: true,
                         text: "Password",
                         logo: Icons.lock),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         const Text("Don't have an account?"),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/register');
+                            Navigator.pushReplacementNamed(
+                                context, '/register');
                           },
                           child: const Text('Sign Up'),
                         ),
@@ -86,16 +103,18 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                padding: const EdgeInsets.symmetric(horizontal: 30.0),
                 child: ElevatedButton(
                   onPressed: () {
                     login(context);
                   },
                   style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor: Colors.deepPurple,
-                      textStyle: const TextStyle(
-                        color: Colors.white,
+                      backgroundColor: Colors.grey[800],
+                      textStyle: TextStyle(
+                        color: theme == Brightness.light
+                            ? Colors.white
+                            : Colors.black,
                       )),
                   child: const Padding(
                     padding: EdgeInsets.all(10.0),
