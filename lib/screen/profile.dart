@@ -347,8 +347,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                         SizedBox(width: screenWidth * 0.02),
                                         FutureBuilder<int>(
-                                          future: fetchTweetCountCommentByCreatorId(
-                                              creatorId),
+                                          future:
+                                              fetchTweetCountCommentByCreatorId(
+                                                  creatorId),
                                           builder: (context, snapshot) {
                                             if (snapshot.connectionState ==
                                                 ConnectionState.waiting) {
@@ -511,22 +512,22 @@ class PostsPage extends StatelessWidget {
 
     for (var tweet in data) {
       tweets.add(Tweet(
-        id: userId,
-        username: displayName,
-        profilePicture: profilePicture,
-        verified: Random().nextBool(),
-        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
-        content: tweet['content'] ?? '',
-        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
-        like: tweet['like'] ?? 0,
-        retweet: tweet['retweet'] ?? 0,
-        comment: tweet['comment'] ?? 0,
-        view: 100,
-        isLiked: Random().nextBool(),
-        isReTweet: Random().nextBool(),
-        oriCreator: "Dummy",
-        isRetweetedByUser: false
-      ));
+          id: userId,
+          username: displayName,
+          profilePicture: profilePicture,
+          verified: Random().nextBool(),
+          createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+          content: tweet['content'] ?? '',
+          media:
+              tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+          like: tweet['like'] ?? 0,
+          retweet: tweet['retweet'] ?? 0,
+          comment: tweet['comment'] ?? 0,
+          view: 100,
+          isLiked: Random().nextBool(),
+          isReTweet: Random().nextBool(),
+          oriCreator: "Dummy",
+          isRetweetedByUser: false));
     }
 
     print(tweets[0]);
@@ -607,23 +608,22 @@ class RepliesPage extends StatelessWidget {
           .eq('id', tweet['creator_id'])
           .single();
       tweets.add(Tweet(
-        id: tweet['id'],
-        username: userResponse['display_name'],
-        profilePicture: userResponse['display_photo'],
-        verified: Random().nextBool(),
-        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
-        content: tweet['content'],
-        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
-        like: tweet['like'],
-        retweet: tweet['retweet'],
-        comment: tweet['comment'],
-        view: 0,
-        isLiked: true,
-        isReTweet: false,
-        oriCreator: "",
-        isRetweetedByUser: false
-        
-      ));
+          id: tweet['id'],
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
+          verified: Random().nextBool(),
+          createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+          content: tweet['content'],
+          media:
+              tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+          like: tweet['like'],
+          retweet: tweet['retweet'],
+          comment: tweet['comment'],
+          view: 0,
+          isLiked: true,
+          isReTweet: false,
+          oriCreator: "",
+          isRetweetedByUser: false));
     }
     return tweets;
   }
@@ -702,23 +702,22 @@ class LikedPage extends StatelessWidget {
           .eq('id', tweet['creator_id'])
           .single();
       tweets.add(Tweet(
-        id: tweet['id'],
-        username: userResponse['display_name'],
-        profilePicture: userResponse['display_photo'],
-        verified: Random().nextBool(),
-        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
-        content: tweet['content'],
-        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
-        like: tweet['like'],
-        retweet: tweet['retweet'],
-        comment: tweet['comment'],
-        view: 0,
-        isLiked: true,
-        isReTweet: false,
-        oriCreator: "Dummy",
-        isRetweetedByUser: false
-        
-      ));
+          id: tweet['id'],
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
+          verified: Random().nextBool(),
+          createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+          content: tweet['content'],
+          media:
+              tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+          like: tweet['like'],
+          retweet: tweet['retweet'],
+          comment: tweet['comment'],
+          view: 0,
+          isLiked: true,
+          isReTweet: false,
+          oriCreator: "Dummy",
+          isRetweetedByUser: false));
     }
     return tweets;
   }
