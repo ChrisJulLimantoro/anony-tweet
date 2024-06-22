@@ -468,14 +468,11 @@ class PostsPage extends StatelessWidget {
       Duration difference = now.difference(timestamp);
 
       if (difference.inDays >= 365) {
-        int years = (difference.inDays / 365).floor();
-        return "${years}y ago";
+        return "${(difference.inDays / 365).floor()}y ago";
       } else if (difference.inDays >= 30) {
-        int months = (difference.inDays / 30).floor();
-        return "${months}m ago";
+        return "${(difference.inDays / 30).floor()}m ago";
       } else if (difference.inDays >= 7) {
-        int weeks = (difference.inDays / 7).floor();
-        return "${weeks}w ago";
+        return "${(difference.inDays / 7).floor()}w ago";
       } else if (difference.inDays >= 1) {
         return "${difference.inDays}d ago";
       } else if (difference.inHours >= 1) {
@@ -489,86 +486,36 @@ class PostsPage extends StatelessWidget {
 
     final userId = context.read<SessionBloc>().id ?? "";
 
-    // Fetch user data
-    final userResponse = await Supabase.instance.client
-        .from('user')
-        .select('display_name, display_photo')
-        .eq('id', userId)
-        .single();
+    final response = await Supabase.instance.client
+        .rpc('get_posted_tweets', params: {'userid': userId});
 
-    final displayName = userResponse['display_name'] ?? 'Unknown';
-    final profilePicture = userResponse['display_photo'] ?? '';
-
-    // Fetch tweets data
-    final tweetResponse = await Supabase.instance.client
-        .from('tweets')
-        .select('*')
-        .eq('creator_id', userId)
-        .eq('is_comment', false);
-
-    List<Map<String, dynamic>> data =
-        List<Map<String, dynamic>>.from(tweetResponse);
-
+    List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
     List<Tweet> tweets = [];
-    final likedTweetsResponse =
-        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
-    final likedTweetIds = <String>{};
-
-    for (var record in likedTweetsResponse) {
-      likedTweetIds.add(record['tweet_id']);
-    }
 
     for (var tweet in data) {
-      bool isReTweet = tweet['retweet_id'] != null;
-      String oriCreator = "";
-      if (isReTweet) {
-        final originalTweetResponse = await supabase
-            .from('tweets')
-            .select('*')
-            .eq('id', tweet['retweet_id'])
-            .single();
-        final originalCreatorResponse = await supabase
-            .from('user')
-            .select('display_name')
-            .eq('id', originalTweetResponse['creator_id'])
-            .single();
-        oriCreator = originalCreatorResponse['display_name'];
-      } else {
-        final response2 = "";
-      }
-      final retweetCountResponse = await supabase
-          .from('tweets')
-          .select()
-          .eq('retweet_id', tweet['id'])
-          .eq('creator_id', userId);
-
-      int retweetCount = retweetCountResponse.length;
-      print(retweetCount);
-
-      bool isRetweetedByUser = false;
-      if (retweetCount > 0) {
-        isRetweetedByUser = true;
-      }
+      final userResponse = await Supabase.instance.client
+          .from('user')
+          .select('display_name, display_photo')
+          .eq('id', tweet['creator_id'])
+          .single();
       tweets.add(Tweet(
           id: tweet['id'],
-          username: displayName,
-          profilePicture: profilePicture,
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
           verified: Random().nextBool(),
           createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
-          content: tweet['content'] ?? '',
+          content: tweet['content'],
           media:
               tweet['media'] != null ? List<String>.from(tweet['media']) : [],
-          like: tweet['like'] ?? 0,
-          retweet: tweet['retweet'] ?? 0,
-          comment: tweet['comment'] ?? 0,
-          view: 100,
-          isLiked: likedTweetIds.contains(tweet['id']),
-          isReTweet: isReTweet,
-          oriCreator: oriCreator,
-          isRetweetedByUser: isRetweetedByUser));
+          like: tweet['like'],
+          retweet: tweet['retweet'],
+          comment: tweet['comment'],
+          view: 0,
+          isLiked: true,
+          isReTweet: false,
+          oriCreator: "",
+          isRetweetedByUser: false));
     }
-
-    print(tweets[0]);
     return tweets;
   }
 
@@ -593,12 +540,12 @@ class PostsPage extends StatelessWidget {
                   NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
               children: snapshot.data!.map((tweet) {
                 return SingleTweet(
-                  tweet: tweet,
-                  isBookmarked: true,
-                  isLast: false,
-                  isLiked: tweet.isLiked,
-                  searchTerm: '',
-                );
+                            tweet: tweet,
+                            isBookmarked: true,
+                            isLast: false,
+                            isLiked: tweet.isLiked,
+                            searchTerm: '',
+                          );
               }).toList(),
             );
           }
