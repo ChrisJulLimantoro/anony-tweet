@@ -67,10 +67,93 @@ class _CommentState extends State<Comment> {
     setState(() {});
   }
 
+  Future<void> handleRetweetOperation(String userId) async {
+    try {
+      if (isReTweet) {
+        var response = await Supabase.instance.client.rpc('unretweet', params: {
+          'original_tweet_id': widget.tweet.id,
+          'session_creator_id': userId
+        });
+
+        setState(() {
+          isReTweet = false;
+          retweet -= 1;
+        });
+      } else {
+        var response = await Supabase.instance.client.rpc('retweet',
+            params: {'creator': userId, 'old_id': widget.tweet.id});
+        print(response);
+        setState(() {
+          isReTweet = true;
+          retweet += 1;
+        });
+      }
+
+      debugPrint('Retweet operation successful');
+    } catch (e) {
+      debugPrint('Error performing retweet operation: $e');
+    }
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(
+                  CupertinoIcons.arrow_2_squarepath,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  isReTweet ? 'Unrepost' : 'Repost',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onTap: () {
+                  // Toggle retweet status
+                  handleRetweetOperation(context.read<SessionBloc>().id ?? "");
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  CupertinoIcons.clear_circled,
+                  color: Colors.red,
+                ),
+                title:
+                    const Text('Cancel', style: TextStyle(color: Colors.red)),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     final userId = context.read<SessionBloc>().id ?? "";
+
+    void goToDetailPage(BuildContext context, String detailId) {
+      Navigator.pushNamed(
+        context,
+        '/comment',
+        arguments: detailId,
+      );
+    }
 
     // debugPrint(widget.tweet.verified.toString());
     return Column(
@@ -161,7 +244,7 @@ class _CommentState extends State<Comment> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            // print("comment");
+                            goToDetailPage(context, widget.tweet.id);
                           },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -204,7 +287,9 @@ class _CommentState extends State<Comment> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            _showBottomSheet(context);
+                          },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
