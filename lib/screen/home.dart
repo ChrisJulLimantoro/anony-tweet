@@ -172,7 +172,7 @@ class _HomePageState extends State<HomePage> {
           slivers: [
             SliverAppBar(
               title: const Text(
-                "PCUFess",
+                "anonytweet",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               centerTitle: true,

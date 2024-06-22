@@ -59,15 +59,15 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> changeProfile(BuildContext context) async{
-    final response = await supabase.rpc('changeprofile',
-    params: {
+  Future<void> changeProfile(BuildContext context) async {
+    final response = await supabase.rpc('changeprofile', params: {
       'user_id': context.read<SessionBloc>().id,
       'new_display_name': WordPair.random().asPascalCase,
-      'new_display_photo' : "https://randomuser.me/api/portraits/lego/${Random().nextInt(10)}.jpg"
+      'new_display_photo':
+          "https://randomuser.me/api/portraits/lego/${Random().nextInt(10)}.jpg"
     });
-
-    setState(){};
+    Navigator.pushReplacementNamed(context, '/profile');
+    ;
   }
 
   Future<int> fetchTweetCountCommentByCreatorId(String creatorId) async {
@@ -103,7 +103,6 @@ class _ProfilePageState extends State<ProfilePage> {
               IconButton(
                 icon: Icon(CupertinoIcons.search),
                 onPressed: () {
-                  changeProfile(context);
                 },
               ),
             ],
@@ -176,38 +175,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
-                      Positioned(
-                        top: screenHeight * 0.11,
-                        right: screenWidth * 0.03,
-                        child: TextButton(
-                          child: Text(
-                            "Edit profile",
-                            style: TextStyle(
-                              color: Colors.grey.shade900,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () {
-                            debugPrint("PRESSED");
-                          },
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.07),
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.085),
@@ -227,13 +194,55 @@ class _ProfilePageState extends State<ProfilePage> {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: screenWidth * 0.06),
                                   child: Container(
-                                    width: screenWidth * 0.7,
-                                    child: Text(
-                                      snapshot.data!,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
+                                    width: screenWidth * 0.88,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text(
+                                              snapshot.data!,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                border: Border.all(
+                                                  color: Colors.blue,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: CupertinoButton(
+                                                minSize: 30,
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 13,
+                                                    vertical: 5),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: Colors.white,
+                                                child: Text(
+                                                  'Change Profile',
+                                                  style: TextStyle(
+                                                      fontSize: 13,
+                                                      color: Colors.blue),
+                                                ),
+                                                onPressed: () {
+                                                  changeProfile(context);
+                                                },
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -514,7 +523,6 @@ class PostsPage extends StatelessWidget {
       likedTweetIds.add(record['tweet_id']);
     }
 
-
     for (var tweet in data) {
       final userResponse = await Supabase.instance.client
           .from('user')
@@ -593,12 +601,12 @@ class PostsPage extends StatelessWidget {
                   NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
               children: snapshot.data!.map((tweet) {
                 return SingleTweet(
-                            tweet: tweet,
-                            isBookmarked: true,
-                            isLast: false,
-                            isLiked: tweet.isLiked,
-                            searchTerm: '',
-                          );
+                  tweet: tweet,
+                  isBookmarked: true,
+                  isLast: false,
+                  isLiked: tweet.isLiked,
+                  searchTerm: '',
+                );
               }).toList(),
             );
           }
