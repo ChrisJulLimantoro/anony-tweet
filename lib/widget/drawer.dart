@@ -55,12 +55,15 @@ class MyDrawer extends StatelessWidget {
     Brightness theme = MediaQuery.of(context).platformBrightness;
 
     return Drawer(
+      backgroundColor: theme == Brightness.light ? Colors.white : Colors.black,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: theme == Brightness.light
+                  ? Colors.blue
+                  : Colors.blueGrey[800],
             ),
             accountName: FutureBuilder<String?>(
               future: getDisplayName(context),
@@ -76,7 +79,9 @@ class MyDrawer extends StatelessWidget {
                 }
               },
             ),
-            accountEmail: Text('@' + faker.internet.userName()),
+            accountEmail: Text("Anonymous"
+                // '@' + context.read<SessionBloc>().username.toString(),
+                ),
             currentAccountPicture: GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
@@ -110,7 +115,7 @@ class MyDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(
-                CupertinoIcons.square_arrow_left,
+              CupertinoIcons.square_arrow_left,
               color: Colors.red,
             ),
             title: const Text(

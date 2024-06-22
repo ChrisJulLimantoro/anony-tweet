@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
+import 'package:anony_tweet/widget/drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
@@ -206,82 +207,83 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
             SliverToBoxAdapter(
               child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _notificationsFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (snapshot.data!.isEmpty) {
-                      return const Center(
-                          child: Text('No Notification found.'));
-                    } else {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 16.0),
-                        child: Column(
-                          children: snapshot.data!.map((notification) {
-                            void openDetail(String id) {
-                              Navigator.pushNamed(
-                                context,
-                                '/comment',
-                                arguments: id,
-                              );
-                            }
-
-                            Tweet tweet = Tweet(
-                              id: notification['tweet']['id'],
-                              username: notification['display_name'],
-                              profilePicture: notification['profile'],
-                              verified: false,
-                              createdAt: timeAgo(notification['created_at']),
-                              content: notification['tweet']['content'],
-                              media: notification['tweet']['media'] != null
-                                  ? List<String>.from(notification['tweet']
-                                          ['media']
-                                      .map((item) => item as String))
-                                  : [],
-                              like: notification['tweet']['like'],
-                              retweet: notification['tweet']['retweet'],
-                              comment: notification['tweet']['comment'],
-                              view: 0,
-                              isLiked: notification['liked'],
-                              isReTweet: notification['label'] == 'retweet',
-                              isComment: false,
-                              oriCreator: "",
-                              isRetweetedByUser:
-                                  notification['label'] == 'retweet',
+                future: _notificationsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No Notification found.'));
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Column(
+                        children: snapshot.data!.map((notification) {
+                          void openDetail(String id) {
+                            Navigator.pushNamed(
+                              context,
+                              '/comment',
+                              arguments: id,
                             );
-                            if (notification['label'] == "comment") {
-                              return GestureDetector(
-                                onTap: () => openDetail(tweet.id),
-                                child: SingleTweet(
-                                  tweet: tweet,
-                                  isBookmarked: true,
-                                  isLast: false,
-                                  isLiked: notification['liked'],
-                                  searchTerm: '',
-                                ),
-                              );
-                            } else {
-                              return GestureDetector(
-                                onTap: () => openDetail(tweet.id),
-                                child: NotificationPart(
-                                  tweet: tweet,
-                                  action: notification['label'],
-                                  isLast: false,
-                                  searchTerm: "",
-                                ),
-                              );
-                            }
-                          }).toList(),
-                        ),
-                      );
-                    }
-                  }),
+                          }
+
+                          Tweet tweet = Tweet(
+                            id: notification['tweet']['id'],
+                            username: notification['display_name'],
+                            profilePicture: notification['profile'],
+                            verified: false,
+                            createdAt: timeAgo(notification['created_at']),
+                            content: notification['tweet']['content'],
+                            media: notification['tweet']['media'] != null
+                                ? List<String>.from(notification['tweet']
+                                        ['media']
+                                    .map((item) => item as String))
+                                : [],
+                            like: notification['tweet']['like'],
+                            retweet: notification['tweet']['retweet'],
+                            comment: notification['tweet']['comment'],
+                            view: 0,
+                            isLiked: notification['liked'],
+                            isReTweet: notification['label'] == 'retweet',
+                            isComment: false,
+                            oriCreator: "",
+                            isRetweetedByUser:
+                                notification['label'] == 'retweet',
+                          );
+                          if (notification['label'] == "comment") {
+                            return GestureDetector(
+                              onTap: () => openDetail(tweet.id),
+                              child: SingleTweet(
+                                tweet: tweet,
+                                isBookmarked: true,
+                                isLast: false,
+                                isLiked: notification['liked'],
+                                searchTerm: '',
+                              ),
+                            );
+                          } else {
+                            return GestureDetector(
+                              onTap: () => openDetail(tweet.id),
+                              child: NotificationPart(
+                                tweet: tweet,
+                                action: notification['label'],
+                                isLast: false,
+                                searchTerm: "",
+                              ),
+                            );
+                          }
+                        }).toList(),
+                      ),
+                    );
+                  }
+                },
+              ),
             ),
           ],
         ),
       ),
+      drawer: MyDrawer(),
     );
   }
 }

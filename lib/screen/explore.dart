@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/screen/search.dart';
@@ -105,7 +107,6 @@ class _ExplorePageState extends State<ExplorePage> {
                     hintText: "Search Anony Tweets",
                     hintStyle: const TextStyle(
                       fontSize: 16,
-                      color: Colors.black54,
                     ),
                     focusColor: Colors.blue,
                     border: const OutlineInputBorder(
@@ -182,6 +183,24 @@ class _ExplorePageState extends State<ExplorePage> {
                     size: 28,
                   ))
             ],
+            backgroundColor:
+                theme == Brightness.light ? Colors.white : Colors.black,
+            shape: Border(
+              bottom: BorderSide(
+                color: theme == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
+                width: 0.5, 
+              ),
+            ),
+            flexibleSpace: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -273,7 +292,6 @@ class _ExplorePageState extends State<ExplorePage> {
                                 isTag ? "#$title" : title,
                                 style: const TextStyle(
                                   fontSize: 14,
-                                  color: Colors.black,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -293,15 +311,15 @@ class _ExplorePageState extends State<ExplorePage> {
                               )
                             ],
                           ),
-                          trailing: IconButton(
-                            alignment: Alignment.centerRight,
-                            onPressed: () {},
-                            icon: const Icon(
-                              CupertinoIcons.ellipsis_vertical,
-                              color: Colors.grey,
-                              size: 14,
-                            ),
-                          ),
+                          // trailing: IconButton(
+                          //   alignment: Alignment.centerRight,
+                          //   onPressed: () {},
+                          //   icon: const Icon(
+                          //     CupertinoIcons.ellipsis_vertical,
+                          //     color: Colors.grey,
+                          //     size: 14,
+                          //   ),
+                          // ),
                         ),
                       );
                     },

@@ -293,6 +293,7 @@ class SearchPageState extends State<SearchPage>
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -309,7 +310,6 @@ class SearchPageState extends State<SearchPage>
             hintText: "Search Anony Tweets",
             hintStyle: const TextStyle(
               fontSize: 16,
-              color: Colors.black54,
             ),
             focusColor: Colors.blue,
             border: const OutlineInputBorder(
@@ -324,7 +324,6 @@ class SearchPageState extends State<SearchPage>
               },
               icon: const Icon(
                 CupertinoIcons.clear,
-                color: Colors.black54,
               ),
             ),
           ),
@@ -367,7 +366,20 @@ class SearchPageState extends State<SearchPage>
                   ),
                 ],
               )
-            : null,
+            : PreferredSize(
+                preferredSize: Size.fromHeight(1.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: theme == Brightness.light
+                            ? Colors.grey.shade200
+                            : Colors.grey.shade800,
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                )),
       ),
       body: FutureBuilder<List<Tweet>>(
         future: _tweetsFuture,
