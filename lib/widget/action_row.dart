@@ -50,16 +50,16 @@ class _ActionRowState extends State<ActionRow> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(CupertinoIcons.repeat, color: Colors.black),
-                title: Text(
-                    isRetweeted ? 'Unrepost' : 'Repost',
+                title: Text(isRetweeted ? 'Unrepost' : 'Repost',
                     style: TextStyle(color: Colors.black)),
                 onTap: () {
-                  if (isRetweeted){
-                    unretweet(widget.tweet.id, context.read<SessionBloc>().id ?? "");
-                  }else{
+                  if (isRetweeted) {
+                    unretweet(
+                        widget.tweet.id, context.read<SessionBloc>().id ?? "");
+                  } else {
                     retweet(creator, oldId);
                   }
-                  
+
                   Navigator.pop(context);
                 },
               ),
@@ -79,9 +79,10 @@ class _ActionRowState extends State<ActionRow> {
 
   void unretweet(String tweetID, String creatorID) async {
     try {
-      var response = await supabase
-          .rpc('unretweet', params: {'original_tweet_id': tweetID,
-          'session_creator_id': creatorID});
+      var response = await supabase.rpc('unretweet', params: {
+        'original_tweet_id': tweetID,
+        'session_creator_id': creatorID
+      });
 
       debugPrint(response);
       setState(() {
@@ -139,8 +140,7 @@ class _ActionRowState extends State<ActionRow> {
             ),
             const SizedBox(width: 5),
             Text(widget.tweet.comment.toString(),
-                style: TextStyle(
-                    color: widget.isCarousel ? Colors.white : Colors.black)),
+                style: TextStyle(color: Colors.grey)),
           ],
         ),
         const SizedBox(width: 5),
@@ -152,9 +152,7 @@ class _ActionRowState extends State<ActionRow> {
               },
               child: Icon(
                 CupertinoIcons.repeat,
-                color: isRetweeted
-                    ? Colors.teal[400]
-                    : Colors.grey,
+                color: isRetweeted ? Colors.teal[400] : Colors.grey,
                 size: 16,
               ),
             ),
@@ -162,11 +160,8 @@ class _ActionRowState extends State<ActionRow> {
             Text(
               retweetCount.toString(),
               style: TextStyle(
-                  color: isRetweeted
-                      ? Colors.teal[400]
-                      : widget.isCarousel
-                          ? Colors.white
-                          : Colors.black),
+                color: Colors.grey,
+              ),
             ),
           ],
         ),

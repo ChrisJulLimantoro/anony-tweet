@@ -272,7 +272,9 @@ class _ExplorePageState extends State<ExplorePage> {
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.shade800,
+                              color: theme == Brightness.light
+                                  ? Colors.grey.shade200
+                                  : Colors.grey.shade800,
                               width: 0.5,
                             ),
                           ),

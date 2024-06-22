@@ -108,7 +108,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       text: 'Confirm password',
                       logo: Icons.lock,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 80),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -125,7 +125,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                padding: const EdgeInsets.symmetric(horizontal: 22.0),
                 child: ElevatedButton(
                   onPressed: () {
                     insertData(context);

@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                         isPassword: true,
                         text: "Password",
                         logo: Icons.lock),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 80),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -103,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                padding: const EdgeInsets.symmetric(horizontal: 22.0),
                 child: ElevatedButton(
                   onPressed: () {
                     login(context);
