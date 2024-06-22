@@ -53,10 +53,10 @@ class _ExplorePageState extends State<ExplorePage> {
         (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF);
   }
 
-  Future<int> getCount(String word) async {
+  Future<int> getCount(String word, String count_mode) async {
     final response = await supabase.rpc('gettweetcount', params: {
-      'word_to_search': word,
-      'tag': word,
+      'search': word,
+      'count_mode': count_mode,
     });
     return response;
   }
@@ -281,7 +281,7 @@ class _ExplorePageState extends State<ExplorePage> {
                                 ),
                               ),
                               FutureBuilder<int>(
-                                future: getCount(title),
+                                future: getCount(title, isTag ? "tag" : "word"),
                                 builder: (BuildContext context,
                                     AsyncSnapshot<int> snapshot) {
                                   if (snapshot.connectionState ==
