@@ -157,6 +157,8 @@ class SearchPageState extends State<SearchPage>
       isReTweet: isReTweet,
       oriCreator: oriCreator,
       isRetweetedByUser: isRetweetedByUser,
+      isComment: json['comment_id'] != null,
+      commentId: json['comment_id'],
     );
   }
 

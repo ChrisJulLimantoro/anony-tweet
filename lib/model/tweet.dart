@@ -15,6 +15,7 @@ class Tweet {
   bool isComment;
   String oriCreator;
   bool isRetweetedByUser;
+  String? commentId;
 
   Tweet({
     required this.id,
@@ -33,5 +34,6 @@ class Tweet {
     this.isComment = false,
     required this.oriCreator,
     required this.isRetweetedByUser,
+    this.commentId,
   });
 }
