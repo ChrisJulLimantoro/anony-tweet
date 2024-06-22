@@ -492,12 +492,51 @@ class PostsPage extends StatelessWidget {
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
     List<Tweet> tweets = [];
 
+    final likedTweetsResponse =
+        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
+    final likedTweetIds = <String>{};
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
+    }
+
+
     for (var tweet in data) {
       final userResponse = await Supabase.instance.client
           .from('user')
           .select('display_name, display_photo')
           .eq('id', tweet['creator_id'])
           .single();
+      bool isReTweet = tweet['retweet_id'] != null;
+      String oriCreator = "";
+      if (isReTweet) {
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweet['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', originalTweetResponse['creator_id'])
+            .single();
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
+      }
+      final retweetCountResponse = await supabase
+          .from('tweets')
+          .select()
+          .eq('retweet_id', tweet['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
       tweets.add(Tweet(
           id: tweet['id'],
           username: userResponse['display_name'],
@@ -511,10 +550,10 @@ class PostsPage extends StatelessWidget {
           retweet: tweet['retweet'],
           comment: tweet['comment'],
           view: 0,
-          isLiked: true,
-          isReTweet: false,
-          oriCreator: "",
-          isRetweetedByUser: false));
+          isLiked: likedTweetIds.contains(tweet['id']),
+          isReTweet: isReTweet,
+          oriCreator: oriCreator,
+          isRetweetedByUser: isRetweetedByUser));
     }
     return tweets;
   }
