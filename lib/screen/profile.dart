@@ -503,16 +503,54 @@ class PostsPage extends StatelessWidget {
     final tweetResponse = await Supabase.instance.client
         .from('tweets')
         .select('*')
-        .eq('creator_id', userId);
+        .eq('creator_id', userId)
+        .eq('is_comment', false);
 
     List<Map<String, dynamic>> data =
         List<Map<String, dynamic>>.from(tweetResponse);
 
     List<Tweet> tweets = [];
+    final likedTweetsResponse =
+        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
+    final likedTweetIds = <String>{};
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
+    }
 
     for (var tweet in data) {
+      bool isReTweet = tweet['retweet_id'] != null;
+      String oriCreator = "";
+      if (isReTweet) {
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweet['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', originalTweetResponse['creator_id'])
+            .single();
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
+      }
+      final retweetCountResponse = await supabase
+          .from('tweets')
+          .select()
+          .eq('retweet_id', tweet['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
       tweets.add(Tweet(
-          id: userId,
+          id: tweet['id'],
           username: displayName,
           profilePicture: profilePicture,
           verified: Random().nextBool(),
@@ -524,10 +562,10 @@ class PostsPage extends StatelessWidget {
           retweet: tweet['retweet'] ?? 0,
           comment: tweet['comment'] ?? 0,
           view: 100,
-          isLiked: Random().nextBool(),
-          isReTweet: Random().nextBool(),
-          oriCreator: "Dummy",
-          isRetweetedByUser: false));
+          isLiked: likedTweetIds.contains(tweet['id']),
+          isReTweet: isReTweet,
+          oriCreator: oriCreator,
+          isRetweetedByUser: isRetweetedByUser));
     }
 
     print(tweets[0]);
