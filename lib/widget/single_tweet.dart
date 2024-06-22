@@ -161,13 +161,10 @@ class SingleTweet extends StatelessWidget {
                           text: tweet.content,
                           searchTerm: searchTerm,
                           onTagTap: (String tag) {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => SearchPage(
-                                  initialSearch: tag,
-                                ),
-                              ),
+                              '/search',
+                              arguments: tag,
                             );
                           },
                         ),

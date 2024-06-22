@@ -129,13 +129,10 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                         text: widget.tweet.content,
                         searchTerm: searchTerm,
                         onTagTap: (String tag) {
-                          Navigator.push(
+                          Navigator.pushNamed(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => SearchPage(
-                                initialSearch: tag,
-                              ),
-                            ),
+                            '/search',
+                            arguments: tag,
                           );
                         },
                       ),

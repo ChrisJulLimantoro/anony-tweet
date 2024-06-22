@@ -260,13 +260,10 @@ class _ExplorePageState extends State<ExplorePage> {
                         ),
                         child: ListTile(
                           onTap: () {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => SearchPage(
-                                  initialSearch: isTag ? "#$title" : title,
-                                ),
-                              ),
+                              '/search',
+                              arguments: isTag ? "#$title" : title,
                             );
                           },
                           subtitle: Column(

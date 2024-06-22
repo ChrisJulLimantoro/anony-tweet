@@ -225,14 +225,10 @@ class _CommentState extends State<Comment> {
                       text: widget.tweet.content,
                       searchTerm: widget.searchTerm,
                       onTagTap: (String tag) {
-                        // print("Tapped on $tag");
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchPage(
-                              initialSearch: tag,
-                            ),
-                          ),
+                          '/search',
+                          arguments: tag,
                         );
                       },
                     ),

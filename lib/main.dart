@@ -116,7 +116,8 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => ProfilePage(),
           '/explore': (context) => ExplorePage(),
           '/search': (context) => SearchPage(
-                initialSearch: null,
+                initialSearch:
+                    ModalRoute.of(context)!.settings.arguments as String?,
               ),
           '/comment': (context) => DetailPage(
               id: ModalRoute.of(context)!.settings.arguments as String),
