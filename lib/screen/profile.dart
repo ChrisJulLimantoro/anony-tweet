@@ -99,13 +99,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.pop(context);
               },
             ),
-            actions: [
-              IconButton(
-                icon: Icon(CupertinoIcons.search),
-                onPressed: () {
-                },
-              ),
-            ],
+            // actions: [
+            //   IconButton(
+            //     icon: Icon(CupertinoIcons.search),
+            //     onPressed: () {
+            //     },
+            //   ),
+            // ],
             pinned: true,
             floating: true,
             backgroundColor: Colors.grey.shade300,
