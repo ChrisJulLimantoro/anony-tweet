@@ -204,7 +204,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 future: _notificationsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return SizedBox(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.78,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(
                         child: Text('You are not connected to the internet.'));
