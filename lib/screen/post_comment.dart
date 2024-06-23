@@ -320,7 +320,7 @@ class _PostCommentState extends State<PostComment> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SingleTweetReply(
+                              SingleTweetComment(
                                 tweet: snapshot.data!,
                                 isBookmarked: Random().nextDouble() <= 0.5,
                                 isLast: false,
@@ -429,6 +429,105 @@ class _PostCommentState extends State<PostComment> {
                               ),
                             ),
                           ]),
+                          // Image Preview
+                      images.length > 1 && images.isNotEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 24.0),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                clipBehavior: Clip.none,
+                                physics: const BouncingScrollPhysics(),
+                                child: Row(
+                                    children: images.map(
+                                  (image) {
+                                    double imageWidth = images.length == 1
+                                        ? MediaQuery.of(context).size.width -
+                                            MediaQuery.of(context)
+                                                .padding
+                                                .horizontal -
+                                            64
+                                        : MediaQuery.of(context).size.width / 3;
+                                    double imageHeight = imageWidth * 4 / 3;
+
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Stack(
+                                          alignment: Alignment.topRight,
+                                          children: [
+                                            Image.file(
+                                              File(image.path),
+                                              width: imageWidth,
+                                              height: imageHeight,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  right: 8.0, top: 8.0),
+                                              child: CircleAvatar(
+                                                radius: 13,
+                                                backgroundColor: Colors.black,
+                                                child: IconButton(
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      images.remove(image);
+                                                    });
+                                                  },
+                                                  icon: const Icon(
+                                                    CupertinoIcons.xmark,
+                                                    size: 12,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ).toList()),
+                              ),
+                            )
+                          : images.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.only(top: 24.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Stack(
+                                      alignment: Alignment.topRight,
+                                      children: [
+                                        Image.file(
+                                          File(images[0].path),
+                                          fit: BoxFit.cover,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 8.0, top: 8.0),
+                                          child: CircleAvatar(
+                                            radius: 13,
+                                            backgroundColor: Colors.black,
+                                            child: IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  images = [];
+                                                });
+                                              },
+                                              icon: const Icon(
+                                                CupertinoIcons.xmark,
+                                                size: 12,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : Container(),
                         ],
                       ),
                     ),
