@@ -81,9 +81,31 @@ class _ExplorePageState extends State<ExplorePage> {
   Future<Map<String, List<String>>> fetchTrends() async {
     final tags = await getTags();
     final words = await getRandomizedWords();
+
+    Future<int> getCountForTrend(String trend, bool isTag) async {
+      return await getCount(trend, isTag ? "tag" : "word");
+    }
+
+    final tagCounts =
+        await Future.wait(tags.map((tag) => getCountForTrend(tag, true)));
+
+    final wordCounts =
+        await Future.wait(words.map((word) => getCountForTrend(word, false)));
+
+    List<MapEntry<String, int>> tagEntries = List.generate(
+        tags.length, (index) => MapEntry(tags[index], tagCounts[index]));
+    List<MapEntry<String, int>> wordEntries = List.generate(
+        words.length, (index) => MapEntry(words[index], wordCounts[index]));
+
+    tagEntries.sort((a, b) => b.value.compareTo(a.value));
+    wordEntries.sort((a, b) => b.value.compareTo(a.value));
+
+    final sortedTags = tagEntries.map((entry) => entry.key).toList();
+    final sortedWords = wordEntries.map((entry) => entry.key).toList();
+
     return {
-      'tags': tags,
-      'words': words,
+      'tags': sortedTags,
+      'words': sortedWords,
     };
   }
 
