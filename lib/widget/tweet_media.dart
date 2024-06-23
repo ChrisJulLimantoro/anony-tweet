@@ -109,7 +109,7 @@ class TweetMediaGrid extends StatelessWidget {
                   );
                 },
                 child: Hero(
-                  tag: images[0].toString(),
+                  tag: "${tweet.id}_${images[0].toString()}",
                   child: CachedNetworkImage(
                     imageUrl: getImageUrl("tweet_medias", images[0].toString())
                         .toString(),
@@ -144,7 +144,7 @@ class TweetMediaGrid extends StatelessWidget {
                         );
                       },
                       child: Hero(
-                        tag: images[1].toString(),
+                        tag: "${tweet.id}_${images[1].toString()}",
                         child: CachedNetworkImage(
                           imageUrl:
                               getImageUrl("tweet_medias", images[1].toString())
@@ -179,7 +179,7 @@ class TweetMediaGrid extends StatelessWidget {
                         );
                       },
                       child: Hero(
-                        tag: images[2].toString(),
+                        tag: "${tweet.id}_${images[2].toString()}",
                         child: CachedNetworkImage(
                           imageUrl:
                               getImageUrl("tweet_medias", images[2].toString())
