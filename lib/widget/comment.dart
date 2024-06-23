@@ -3,6 +3,7 @@ import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/like_button.dart';
+import 'package:anony_tweet/widget/tweet_media.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:anony_tweet/helpers/storage.dart';
 import 'package:flutter/material.dart';
@@ -237,40 +238,42 @@ class _CommentState extends State<Comment> {
                       height: 5,
                     ),
                     if (widget.tweet.media.isNotEmpty)
-                      SizedBox(
-                        height: 200,
-                        width: widget.tweet.media.length * 200.0 >
-                                MediaQuery.of(context).size.width
-                            ? MediaQuery.of(context).size.width
-                            : widget.tweet.media.length * 200.0,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: ListView(
-                            clipBehavior: Clip.none,
-                            physics: PageScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            children: widget.tweet.media.map((e) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                        right: BorderSide(
-                                            color: MediaQuery.of(context)
-                                                        .platformBrightness ==
-                                                    Brightness.light
-                                                ? Colors.white
-                                                : Colors.black,
-                                            width: 2))),
-                                child: Image.network(
-                                  getImageUrl("tweet_medias", e),
-                                  height: 200,
-                                  width: 200,
-                                  fit: BoxFit.cover,
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
+                      TweetMediaGrid(
+                          tweet: widget.tweet, images: widget.tweet.media),
+                      // SizedBox(
+                      //   height: 200,
+                      //   width: widget.tweet.media.length * 200.0 >
+                      //           MediaQuery.of(context).size.width
+                      //       ? MediaQuery.of(context).size.width
+                      //       : widget.tweet.media.length * 200.0,
+                      //   child: ClipRRect(
+                      //     borderRadius: BorderRadius.circular(10),
+                      //     child: ListView(
+                      //       clipBehavior: Clip.none,
+                      //       physics: PageScrollPhysics(),
+                      //       scrollDirection: Axis.horizontal,
+                      //       children: widget.tweet.media.map((e) {
+                      //         return Container(
+                      //           decoration: BoxDecoration(
+                      //               border: Border(
+                      //                   right: BorderSide(
+                      //                       color: MediaQuery.of(context)
+                      //                                   .platformBrightness ==
+                      //                               Brightness.light
+                      //                           ? Colors.white
+                      //                           : Colors.black,
+                      //                       width: 2))),
+                      //           child: Image.network(
+                      //             getImageUrl("tweet_medias", e),
+                      //             height: 200,
+                      //             width: 200,
+                      //             fit: BoxFit.cover,
+                      //           ),
+                      //         );
+                      //       }).toList(),
+                      //     ),
+                      //   ),
+                      // ),
                     SizedBox(
                       height: 5,
                     ),
