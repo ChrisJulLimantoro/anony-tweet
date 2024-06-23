@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverAppBar(
             title: const Text(
@@ -225,15 +225,15 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-            actions: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: IconButton(
-                  icon: const Icon(CupertinoIcons.gear, size: 28),
-                  onPressed: () {},
-                ),
-              ),
-            ],
+            // actions: [
+            //   ClipRRect(
+            //     borderRadius: BorderRadius.circular(50),
+            //     child: IconButton(
+            //       icon: const Icon(CupertinoIcons.gear, size: 28),
+            //       onPressed: () {},
+            //     ),
+            //   ),
+            // ],
             backgroundColor: theme == Brightness.light
                 ? Colors.white.withAlpha(200)
                 : Colors.black.withAlpha(300),

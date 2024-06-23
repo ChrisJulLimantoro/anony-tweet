@@ -168,15 +168,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 );
               },
             ),
-            actions: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: IconButton(
-                  icon: const Icon(CupertinoIcons.gear, size: 28),
-                  onPressed: () {},
-                ),
-              ),
-            ],
+            // actions: [
+            //   ClipRRect(
+            //     borderRadius: BorderRadius.circular(50),
+            //     child: IconButton(
+            //       icon: const Icon(CupertinoIcons.gear, size: 28),
+            //       onPressed: () {},
+            //     ),
+            //   ),
+            // ],
             backgroundColor: theme == Brightness.light
                 ? Colors.white.withAlpha(200)
                 : Colors.black.withAlpha(100),
@@ -209,7 +209,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               refreshState,
             ) {
               if (Theme.of(context).platform == TargetPlatform.iOS) {
-                return Center(
+                return const Center(
                   child: CupertinoActivityIndicator(
                     radius: 14.0,
                     key: Key('refresh-indicator'),
@@ -217,7 +217,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                 );
               } else {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(
                     color: Colors.black,
                   ),

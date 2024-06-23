@@ -35,7 +35,10 @@ class _ExplorePageState extends State<ExplorePage> {
             return word;
           })
           .where((word) =>
-              word.isNotEmpty && !isEmoji(word) && !word.startsWith('#') && word.length > 2)
+              word.isNotEmpty &&
+              !isEmoji(word) &&
+              !word.startsWith('#') &&
+              word.length > 2)
           .take(10)
           .toList();
     } else {
@@ -171,14 +174,14 @@ class _ExplorePageState extends State<ExplorePage> {
                 );
               },
             ),
-            actions: [
-              IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    CupertinoIcons.gear,
-                    size: 28,
-                  ))
-            ],
+            // actions: [
+            //   IconButton(
+            //       onPressed: () {},
+            //       icon: const Icon(
+            //         CupertinoIcons.gear,
+            //         size: 28,
+            //       ))
+            // ],
             backgroundColor:
                 theme == Brightness.light ? Colors.white : Colors.black,
             shape: Border(

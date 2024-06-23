@@ -303,7 +303,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 radius: 14.0,
                                               );
                                             } else if (snapshot.hasError) {
-                                              return Text(
+                                              return const Text(
                                                   'You are not connected to the internet');
                                             } else if (!snapshot.hasData ||
                                                 snapshot.data!.isEmpty) {
