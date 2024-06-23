@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
             .single();
         oriCreator = originalCreatorResponse['display_name'];
       } else {
-        final response2 = "";
+        // final response2 = "";
       }
       final retweetCountResponse = await supabase
           .from('tweets')
@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage> {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             title: const Text(

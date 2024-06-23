@@ -263,6 +263,10 @@ class SearchPageState extends State<SearchPage>
     final sessionBloc = context.read<SessionBloc>();
     final userId = sessionBloc.id;
 
+    if (recentSearches.length > 10) {
+      recentSearches.removeAt(0);
+    }
+
     if (userId != null && userId.isNotEmpty) {
       await prefs.setStringList('recentSearches_$userId', recentSearches);
     }
@@ -343,6 +347,7 @@ class SearchPageState extends State<SearchPage>
             if (!recentSearches.contains(value)) {
               setState(() {
                 recentSearches.add(value);
+
                 saveRecentSearches();
               });
             }

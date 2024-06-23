@@ -1,19 +1,13 @@
-import 'dart:math';
 import 'dart:ui';
-import 'package:anony_tweet/SessionProvider.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/widget/drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/model/notificationModel.dart';
-import 'package:anony_tweet/widget/custom_fab.dart';
 import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:anony_tweet/widget/notification_part.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});

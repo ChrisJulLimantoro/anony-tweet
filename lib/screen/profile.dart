@@ -260,24 +260,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),
                             SizedBox(height: screenHeight * 0.01),
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: screenWidth * 0.06),
-                                  child: Container(
-                                    width: screenWidth * 0.7,
-                                    child: Text(
-                                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec odio vitae nunc.",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                             SizedBox(height: screenHeight * 0.02),
                             Row(
                               children: [

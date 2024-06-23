@@ -1,3 +1,4 @@
+import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
 import 'package:anony_tweet/widget/action_row.dart';
@@ -5,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PhotoCarouselScreen extends StatefulWidget {
   final Tweet tweet;
@@ -64,7 +66,8 @@ class _PhotoCarouselScreenState extends State<PhotoCarouselScreen> {
             CarouselSlider(
               items: widget.tweet.media.map((image) {
                 return Hero(
-                  tag: image.toString(),
+                  tag:
+                      "${widget.tweet.id}_${image.toString()}",
                   child: CachedNetworkImage(
                     imageUrl: getImageUrl("tweet_medias", image.toString()),
                     width: MediaQuery.of(context).size.width,
