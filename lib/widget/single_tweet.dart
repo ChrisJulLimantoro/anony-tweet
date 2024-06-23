@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 // ignore_for_file: prefer_const_constructors
 
@@ -39,8 +40,10 @@ class SingleTweet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final supabase = Supabase.instance.client;
     Brightness theme = MediaQuery.of(context).platformBrightness;
     final userId = context.read<SessionBloc>().id ?? "";
+    final userName = context.read<SessionBloc>().displayName ?? "";
     // debugPrint(tweet.verified.toString());
     return MultiBlocProvider(
       providers: [
@@ -106,55 +109,78 @@ class SingleTweet extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Text(tweet.username,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              )),
-                          SizedBox(
-                            width: 5,
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(tweet.username,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  if (tweet.verified)
+                                    Icon(
+                                      Icons.verified,
+                                      color: (theme == Brightness.light
+                                          ? Colors.black
+                                          : Colors.white),
+                                      size: 18.0,
+                                    ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    tweet.createdAt,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade500,
+                                        fontSize: 12.0),
+                                  ),
+                                ],
+                              ),
+                              tweet.isComment
+                                  ? Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "Replying to ",
+                                          style: TextStyle(
+                                              color: Colors.grey[600]),
+                                        ),
+                                        GestureDetector(
+                                          child: Text(
+                                            'this post',
+                                            style: TextStyle(
+                                              color: Colors.blue,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: Colors.blue,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            goToDetailPage(
+                                                context, tweet.commentId!);
+                                          },
+                                        )
+                                      ],
+                                    )
+                                  : SizedBox(height: 0),
+                            ],
                           ),
-                          if (tweet.verified)
-                            Icon(
-                              Icons.verified,
-                              color: (theme == Brightness.light
-                                  ? Colors.black
-                                  : Colors.white),
-                              size: 18.0,
-                            ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            tweet.createdAt,
-                            style: TextStyle(
-                                color: Colors.grey.shade500, fontSize: 12.0),
-                          )
+                          // Spacer(),
+                          // if (tweet.username == userName)
+                          //   IconButton(
+                          //     icon: Icon(Icons.close, color: Colors.red),
+                          //     onPressed: () async {
+                          //       // print(tweet.id);
+                          //       await supabase.rpc('deletetweet',
+                          //           params: {'v_id': tweet.id});
+                          //     },
+                          //   ),
                         ],
                       ),
-                      tweet.isComment
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  "Replying to ",
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                                GestureDetector(
-                                  child: Text(
-                                    'this post',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: Colors.blue,
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    goToDetailPage(context, tweet.commentId!);
-                                  },
-                                )
-                              ],
-                            )
-                          : SizedBox(height: 0),
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: HashtagText(
@@ -169,12 +195,6 @@ class SingleTweet extends StatelessWidget {
                           },
                         ),
                       ),
-                      // Text(
-                      //   tweet.content,
-                      //   style: TextStyle(
-                      //     fontSize: 16.0,
-                      //   ),
-                      // ),
                       SizedBox(
                         height: 8,
                       ),
@@ -183,45 +203,6 @@ class SingleTweet extends StatelessWidget {
                           tweet: tweet,
                           images: tweet.media,
                         ),
-                      // SizedBox(
-                      //   height: 200,
-                      //   width: tweet.media.length * 200.0 >
-                      //           MediaQuery.of(context).size.width
-                      //       ? MediaQuery.of(context).size.width
-                      //       : tweet.media.length * 200.0,
-                      //   child: ClipRRect(
-                      //     borderRadius: BorderRadius.circular(10),
-                      //     child: ListView(
-                      //       clipBehavior: Clip.none,
-                      //       physics: PageScrollPhysics(),
-                      //       scrollDirection: Axis.horizontal,
-                      //       children: tweet.media.map((e) {
-                      //         return Container(
-                      //           decoration: BoxDecoration(
-                      //               border: Border(
-                      //                   right: BorderSide(
-                      //                       color: MediaQuery.of(context)
-                      //                                   .platformBrightness ==
-                      //                               Brightness.light
-                      //                           ? Colors.white
-                      //                           : Colors.black,
-                      //                       width: 2))),
-                      //           child: CachedNetworkImage(
-                      //             imageUrl: getImageUrl(
-                      //                     "tweet_medias", e.toString())
-                      //                 .toString(),
-                      //             height: 200,
-                      //             width: 200,
-                      //             fit: BoxFit.cover,
-                      //             placeholder: (context, url) => Center(
-                      //               child: CircularProgressIndicator(),
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }).toList(),
-                      //     ),
-                      //   ),
-                      // ),
                       SizedBox(
                         height: 8,
                       ),

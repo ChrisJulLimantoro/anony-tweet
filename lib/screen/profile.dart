@@ -504,7 +504,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-class PostsPage extends StatelessWidget {
+class PostsPage extends StatefulWidget {
+  @override
+  State<PostsPage> createState() => _PostsPageState();
+}
+
+class _PostsPageState extends State<PostsPage> {
   Future<List<Tweet>> fetchPost(BuildContext context) async {
     String timeAgo(DateTime timestamp) {
       DateTime now = DateTime.now();
@@ -622,12 +627,67 @@ class PostsPage extends StatelessWidget {
               child: Column(
                 // Disable scrolling inside the ListView
                 children: snapshot.data!.map((tweet) {
-                  return SingleTweet(
-                    tweet: tweet,
-                    isBookmarked: true,
-                    isLast: false,
-                    isLiked: tweet.isLiked,
-                    searchTerm: '',
+                  return Dismissible(
+                    key: Key(tweet.id),
+                    background: Container(
+                      color: Colors.red,
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    secondaryBackground: Container(
+                      color: Colors.red,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                    onDismissed: (direction) async {
+                      setState(() {
+                        snapshot.data!.remove(tweet);
+                      });
+                      await supabase.rpc(params: {
+                        "v_id": tweet.id,
+                      }, 'deletetweet');
+                      if (tweet.media.isNotEmpty) {
+                        await supabase.storage
+                            .from('tweet_medias')
+                            .remove(tweet.media);
+                      }
+                    },
+                    child: SingleTweet(
+                      tweet: tweet,
+                      isBookmarked: true,
+                      isLast: false,
+                      isLiked: tweet.isLiked,
+                      searchTerm: '',
+                    ),
                   );
                 }).toList(),
               ),
@@ -639,7 +699,12 @@ class PostsPage extends StatelessWidget {
   }
 }
 
-class RepliesPage extends StatelessWidget {
+class RepliesPage extends StatefulWidget {
+  @override
+  State<RepliesPage> createState() => _RepliesPageState();
+}
+
+class _RepliesPageState extends State<RepliesPage> {
   Future<List<Tweet>> fetchPost(BuildContext context) async {
     String timeAgo(DateTime timestamp) {
       DateTime now = DateTime.now();
@@ -761,12 +826,67 @@ class RepliesPage extends StatelessWidget {
               child: Column(
                 // Disable scrolling inside the ListView
                 children: snapshot.data!.map((tweet) {
-                  return SingleTweet(
-                    tweet: tweet,
-                    isBookmarked: true,
-                    isLast: false,
-                    isLiked: tweet.isLiked,
-                    searchTerm: '',
+                  return Dismissible(
+                    key: Key(tweet.id),
+                    background: Container(
+                      color: Colors.red,
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    secondaryBackground: Container(
+                      color: Colors.red,
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Delete',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                    onDismissed: (direction) async {
+                      setState(() {
+                        snapshot.data!.remove(tweet);
+                      });
+                      await supabase.rpc(params: {
+                        "v_id": tweet.id,
+                      }, 'deletetweet');
+                      if (tweet.media.isNotEmpty) {
+                        await supabase.storage
+                            .from('tweet_medias')
+                            .remove(tweet.media);
+                      }
+                    },
+                    child: SingleTweet(
+                      tweet: tweet,
+                      isBookmarked: true,
+                      isLast: false,
+                      isLiked: tweet.isLiked,
+                      searchTerm: '',
+                    ),
                   );
                 }).toList(),
               ),

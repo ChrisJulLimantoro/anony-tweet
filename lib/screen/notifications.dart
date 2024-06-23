@@ -107,7 +107,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
+        // physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             title: const Text(

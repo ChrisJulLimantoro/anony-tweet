@@ -159,6 +159,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final userName = context.read<SessionBloc>().displayName ?? "";
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
@@ -308,13 +309,76 @@ class _HomePageState extends State<HomePage> {
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: snapshot.data!.map((tweet) {
-                        return SingleTweet(
-                          tweet: tweet,
-                          isBookmarked: true,
-                          isLast: false,
-                          isLiked: tweet.isLiked,
-                          searchTerm: '',
-                        );
+                        return tweet.username == userName
+                            ? Dismissible(
+                                key: Key(tweet.id),
+                                background: Container(
+                                  color: Colors.red,
+                                  child: const Row(
+                                    children: [
+                                      Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                      ),
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                secondaryBackground: Container(
+                                  color: Colors.red,
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.delete,
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onDismissed: (direction) async {
+                                  setState(() {
+                                    snapshot.data!.remove(tweet);
+                                  });
+                                  await supabase.rpc(params: {
+                                    "v_id": tweet.id,
+                                  }, 'deletetweet');
+                                  if (tweet.media.isNotEmpty) {
+                                    await supabase.storage
+                                        .from('tweet_medias')
+                                        .remove(tweet.media);
+                                  }
+                                },
+                                child: SingleTweet(
+                                  tweet: tweet,
+                                  isBookmarked: true,
+                                  isLast: false,
+                                  isLiked: tweet.isLiked,
+                                  searchTerm: '',
+                                ),
+                              )
+                            : SingleTweet(
+                                tweet: tweet,
+                                isBookmarked: true,
+                                isLast: false,
+                                isLiked: tweet.isLiked,
+                                searchTerm: '',
+                              );
                       }).toList(),
                     ),
                   );
