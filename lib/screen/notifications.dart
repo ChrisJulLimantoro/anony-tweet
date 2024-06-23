@@ -106,177 +106,194 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _refreshNotifications,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              title: const Text(
-                "PCUFess",
-                style: TextStyle(fontWeight: FontWeight.bold),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            title: const Text(
+              "PCUFess",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            centerTitle: true,
+            floating: true,
+            pinned: true,
+            leading: Builder(
+              builder: (BuildContext context) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: FutureBuilder<String?>(
+                    future: getDisplayPhoto(context),
+                    builder: (context, snapshot) {
+                      Widget displayImage;
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        displayImage = Icon(
+                          CupertinoIcons.person_crop_circle_fill,
+                          size: 32,
+                          color: (theme == Brightness.light
+                              ? Colors.black
+                              : Colors.white),
+                        );
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        displayImage = Image.network(
+                          snapshot.data!,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            CupertinoIcons.person_crop_circle_fill,
+                            size: 32,
+                            color: (theme == Brightness.light
+                                ? Colors.black
+                                : Colors.white),
+                          ),
+                        );
+                      } else {
+                        displayImage = Icon(
+                          CupertinoIcons.person_crop_circle_fill,
+                          size: 32,
+                          color: (theme == Brightness.light
+                              ? Colors.black
+                              : Colors.white),
+                        );
+                      }
+
+                      return IconButton(
+                        icon: ClipOval(child: displayImage),
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            actions: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: IconButton(
+                  icon: const Icon(CupertinoIcons.gear, size: 28),
+                  onPressed: () {},
+                ),
               ),
-              centerTitle: true,
-              floating: true,
-              pinned: true,
-              leading: Builder(
-                builder: (BuildContext context) {
+            ],
+            backgroundColor: theme == Brightness.light
+                ? Colors.white.withAlpha(200)
+                : Colors.black.withAlpha(100),
+            shape: Border(
+              bottom: BorderSide(
+                color: theme == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
+                width: 0.5, // Adjust the border width as needed
+              ),
+            ),
+            flexibleSpace: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+          ),
+          CupertinoSliverRefreshControl(
+            onRefresh: _refreshNotifications,
+            refreshIndicatorExtent: 100,
+            refreshTriggerPullDistance: 100,
+            builder: (
+              context,
+              refreshIndicatorExtent,
+              refreshTriggerPullDistance,
+              pulledExtent,
+              refreshState,
+            ) {
+              return const Center(
+                child: CupertinoActivityIndicator(
+                  radius: 14.0,
+                  key: Key('refresh-indicator'),
+                  animating: true,
+                ),
+              );
+            },
+          ),
+          SliverToBoxAdapter(
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: _notificationsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child: CupertinoActivityIndicator(
+                    radius: 14,
+                  ));
+                } else if (snapshot.hasError) {
+                  return Center(
+                      child: Text('You are not connected to the internet.'));
+                } else if (snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No Notification found.'));
+                } else {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: FutureBuilder<String?>(
-                      future: getDisplayPhoto(context),
-                      builder: (context, snapshot) {
-                        Widget displayImage;
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          displayImage = Icon(
-                            CupertinoIcons.person_crop_circle_fill,
-                            size: 32,
-                            color: (theme == Brightness.light
-                                ? Colors.black
-                                : Colors.white),
-                          );
-                        } else if (snapshot.hasData && snapshot.data != null) {
-                          displayImage = Image.network(
-                            snapshot.data!,
-                            width: 32,
-                            height: 32,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Icon(
-                              CupertinoIcons.person_crop_circle_fill,
-                              size: 32,
-                              color: (theme == Brightness.light
-                                  ? Colors.black
-                                  : Colors.white),
-                            ),
-                          );
-                        } else {
-                          displayImage = Icon(
-                            CupertinoIcons.person_crop_circle_fill,
-                            size: 32,
-                            color: (theme == Brightness.light
-                                ? Colors.black
-                                : Colors.white),
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Column(
+                      children: snapshot.data!.map((notification) {
+                        void openDetail(String id) {
+                          Navigator.pushNamed(
+                            context,
+                            '/comment',
+                            arguments: id,
                           );
                         }
 
-                        return IconButton(
-                          icon: ClipOval(child: displayImage),
-                          onPressed: () {
-                            Scaffold.of(context).openDrawer();
-                          },
+                        Tweet tweet = Tweet(
+                          id: notification['tweet']['id'],
+                          username: notification['display_name'],
+                          profilePicture: notification['profile'],
+                          verified: false,
+                          createdAt: timeAgo(notification['created_at']),
+                          content: notification['tweet']['content'],
+                          media: notification['tweet']['media'] != null
+                              ? List<String>.from(notification['tweet']['media']
+                                  .map((item) => item as String))
+                              : [],
+                          like: notification['tweet']['like'],
+                          retweet: notification['tweet']['retweet'],
+                          comment: notification['tweet']['comment'],
+                          view: 0,
+                          isLiked: notification['liked'],
+                          isReTweet: notification['label'] == 'retweet',
+                          isComment: false,
+                          oriCreator: "",
+                          isRetweetedByUser: notification['label'] == 'retweet',
                         );
-                      },
+                        if (notification['label'] == "comment") {
+                          return GestureDetector(
+                            onTap: () => openDetail(tweet.id),
+                            child: SingleTweet(
+                              tweet: tweet,
+                              isBookmarked: true,
+                              isLast: false,
+                              isLiked: notification['liked'],
+                              searchTerm: '',
+                            ),
+                          );
+                        } else {
+                          return GestureDetector(
+                            onTap: () => openDetail(tweet.id),
+                            child: NotificationPart(
+                              tweet: tweet,
+                              action: notification['label'],
+                              isLast: false,
+                              searchTerm: "",
+                            ),
+                          );
+                        }
+                      }).toList(),
                     ),
                   );
-                },
-              ),
-              actions: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: IconButton(
-                    icon: const Icon(CupertinoIcons.gear, size: 28),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-              backgroundColor: theme == Brightness.light
-                  ? Colors.white.withAlpha(200)
-                  : Colors.black.withAlpha(100),
-              shape: Border(
-                bottom: BorderSide(
-                  color: theme == Brightness.light
-                      ? Colors.grey.shade200
-                      : Colors.grey.shade800,
-                  width: 0.5, // Adjust the border width as needed
-                ),
-              ),
-              flexibleSpace: ClipRRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    color: Colors.transparent,
-                  ),
-                ),
-              ),
+                }
+              },
             ),
-            SliverToBoxAdapter(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: _notificationsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                        child: Text('You are not connected to the internet.'));
-                  } else if (snapshot.data!.isEmpty) {
-                    return const Center(child: Text('No Notification found.'));
-                  } else {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: Column(
-                        children: snapshot.data!.map((notification) {
-                          void openDetail(String id) {
-                            Navigator.pushNamed(
-                              context,
-                              '/comment',
-                              arguments: id,
-                            );
-                          }
-
-                          Tweet tweet = Tweet(
-                            id: notification['tweet']['id'],
-                            username: notification['display_name'],
-                            profilePicture: notification['profile'],
-                            verified: false,
-                            createdAt: timeAgo(notification['created_at']),
-                            content: notification['tweet']['content'],
-                            media: notification['tweet']['media'] != null
-                                ? List<String>.from(notification['tweet']
-                                        ['media']
-                                    .map((item) => item as String))
-                                : [],
-                            like: notification['tweet']['like'],
-                            retweet: notification['tweet']['retweet'],
-                            comment: notification['tweet']['comment'],
-                            view: 0,
-                            isLiked: notification['liked'],
-                            isReTweet: notification['label'] == 'retweet',
-                            isComment: false,
-                            oriCreator: "",
-                            isRetweetedByUser:
-                                notification['label'] == 'retweet',
-                          );
-                          if (notification['label'] == "comment") {
-                            return GestureDetector(
-                              onTap: () => openDetail(tweet.id),
-                              child: SingleTweet(
-                                tweet: tweet,
-                                isBookmarked: true,
-                                isLast: false,
-                                isLiked: notification['liked'],
-                                searchTerm: '',
-                              ),
-                            );
-                          } else {
-                            return GestureDetector(
-                              onTap: () => openDetail(tweet.id),
-                              child: NotificationPart(
-                                tweet: tweet,
-                                action: notification['label'],
-                                isLast: false,
-                                searchTerm: "",
-                              ),
-                            );
-                          }
-                        }).toList(),
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
       drawer: MyDrawer(),
     );

@@ -68,7 +68,9 @@ class TweetMediaGrid extends StatelessWidget {
                           width: imageWidth,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(),
+                            child: CupertinoActivityIndicator(
+                              radius: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -115,7 +117,9 @@ class TweetMediaGrid extends StatelessWidget {
                     width: imageWidth,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => const Center(
-                      child: CircularProgressIndicator(),
+                      child: CupertinoActivityIndicator(
+                        radius: 14,
+                      ),
                     ),
                   ),
                 ),
@@ -149,7 +153,9 @@ class TweetMediaGrid extends StatelessWidget {
                           width: imageWidth,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(),
+                            child: CupertinoActivityIndicator(
+                              radius: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -182,7 +188,9 @@ class TweetMediaGrid extends StatelessWidget {
                           width: imageWidth,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(),
+                            child: CupertinoActivityIndicator(
+                              radius: 14,
+                            ),
                           ),
                         ),
                       ),

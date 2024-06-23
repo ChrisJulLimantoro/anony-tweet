@@ -69,7 +69,9 @@ class MyDrawer extends StatelessWidget {
               future: getDisplayName(context),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
+                  return const CupertinoActivityIndicator(
+                    radius: 14,
+                  );
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -93,7 +95,9 @@ class MyDrawer extends StatelessWidget {
                   future: getDisplayPhoto(context),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return const CupertinoActivityIndicator(
+                        radius: 14,
+                      );
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

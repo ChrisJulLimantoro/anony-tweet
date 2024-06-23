@@ -233,16 +233,19 @@ class _ExplorePageState extends State<ExplorePage> {
             builder: (BuildContext context,
                 AsyncSnapshot<Map<String, List<String>>> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
+                return const SliverFillRemaining(
+                  child: Center(
+                      child: CupertinoActivityIndicator(
+                    radius: 14,
+                  )),
                 );
               } else if (snapshot.hasError) {
-                return SliverFillRemaining(
+                return const SliverFillRemaining(
                   child: Center(
                       child: Text('You are not connected to the internet')),
                 );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return SliverFillRemaining(
+                return const SliverFillRemaining(
                   child: Center(child: Text('No data found')),
                 );
               } else {

@@ -151,7 +151,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
-                                      return CircularProgressIndicator();
+                                      return const CupertinoActivityIndicator(
+                                        radius: 14,
+                                      );
                                     } else if (snapshot.hasError) {
                                       return Icon(Icons.error);
                                     } else if (snapshot.hasData) {
@@ -181,7 +183,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     future: getName(context),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return const CupertinoActivityIndicator(
+                          radius: 14,
+                        );
                       } else if (snapshot.hasError) {
                         return Text('You are not connected to the internet');
                       } else if (snapshot.hasData) {
@@ -601,7 +605,10 @@ class PostsPage extends StatelessWidget {
         future: fetchPost(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CupertinoActivityIndicator(
+              radius: 14,
+            ));
           } else if (snapshot.hasError) {
             return Center(
                 child: Text('You are not connected to the internet.'));
@@ -738,7 +745,10 @@ class RepliesPage extends StatelessWidget {
         future: fetchPost(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CupertinoActivityIndicator(
+              radius: 14,
+            ));
           } else if (snapshot.hasError) {
             return Center(child: Text('You are not connected to the internet'));
           } else if (snapshot.data!.isEmpty) {
@@ -869,7 +879,10 @@ class LikedPage extends StatelessWidget {
         future: fetchPost(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CupertinoActivityIndicator(
+              radius: 14,
+            ));
           } else if (snapshot.hasError) {
             return Center(
                 child: Text('You are not connected to the internet.'));

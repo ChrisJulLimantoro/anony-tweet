@@ -312,7 +312,10 @@ class _DetailPageState extends State<DetailPage> {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
+                              return const Center(
+                                  child: CupertinoActivityIndicator(
+                                radius: 14,
+                              ));
                             } else if (snapshot.hasError) {
                               return Text("Error: ${snapshot.error}");
                             } else if (snapshot.hasData &&
