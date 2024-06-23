@@ -709,7 +709,8 @@ class RepliesPage extends StatelessWidget {
       if (retweetCount > 0) {
         isRetweetedByUser = true;
       }
-      tweets.add(Tweet(
+      tweets.add(
+        Tweet(
           id: tweet['id'],
           username: userResponse['display_name'],
           profilePicture: userResponse['display_photo'],
@@ -725,7 +726,11 @@ class RepliesPage extends StatelessWidget {
           isLiked: likedTweetIds.contains(tweet['id']),
           isReTweet: isReTweet,
           oriCreator: oriCreator,
-          isRetweetedByUser: isRetweetedByUser));
+          isRetweetedByUser: isRetweetedByUser,
+          isComment: true,
+          commentId: tweet['comment_id'],
+        ),
+      );
     }
     return tweets;
   }
