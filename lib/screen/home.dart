@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                   return Center(child: Text('No tweets found.'));
                 } else {
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(vertical: 0.0),
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: snapshot.data!.map((tweet) {
@@ -313,6 +313,7 @@ class _HomePageState extends State<HomePage> {
                             ? Dismissible(
                                 key: Key(tweet.id),
                                 background: Container(
+                                  // padding: EdgeInsets.only(bottom: 16),
                                   color: Colors.red,
                                   child: const Row(
                                     children: [

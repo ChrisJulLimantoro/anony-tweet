@@ -62,7 +62,7 @@ class SingleTweet extends StatelessWidget {
               ? Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(left: 32, bottom: 5),
+                      padding: EdgeInsets.only(left: 32, top: 16),
                       child: Row(
                         children: [
                           Icon(
@@ -87,7 +87,7 @@ class SingleTweet extends StatelessWidget {
                   height: 0,
                 ),
           Padding(
-            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            padding: const EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -214,15 +214,12 @@ class SingleTweet extends StatelessWidget {
             ),
           ),
           !isLast
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  child: Divider(
-                    height: 0.1,
-                    color: MediaQuery.of(context).platformBrightness ==
-                            Brightness.light
-                        ? Colors.grey.shade300
-                        : Colors.grey.shade800,
-                  ),
+              ? Divider(
+                  height: 0.1,
+                  color: MediaQuery.of(context).platformBrightness ==
+                          Brightness.light
+                      ? Colors.grey.shade300
+                      : Colors.grey.shade800,
                 )
               : SizedBox(height: 150),
         ],
