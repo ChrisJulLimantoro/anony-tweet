@@ -183,7 +183,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return CircularProgressIndicator();
                       } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
+                        return Text('You are not connected to the internet');
                       } else if (snapshot.hasData) {
                         return Column(
                           children: [
@@ -298,7 +298,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                               return CircularProgressIndicator();
                                             } else if (snapshot.hasError) {
                                               return Text(
-                                                  'Error: ${snapshot.error}');
+                                                  'You are not connected to the internet');
                                             } else if (!snapshot.hasData ||
                                                 snapshot.data!.isEmpty) {
                                               return Image.asset(
@@ -603,7 +603,8 @@ class PostsPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+                child: Text('You are not connected to the internet.'));
           } else if (snapshot.data!.isEmpty) {
             return Center(child: Text('No tweets found.'));
           } else {
@@ -739,7 +740,7 @@ class RepliesPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('You are not connected to the internet'));
           } else if (snapshot.data!.isEmpty) {
             return Center(child: Text('No tweets found.'));
           } else {
@@ -870,7 +871,8 @@ class LikedPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+                child: Text('You are not connected to the internet.'));
           } else if (snapshot.data!.isEmpty) {
             return Center(child: Text('No tweets found.'));
           } else {

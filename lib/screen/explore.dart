@@ -238,7 +238,8 @@ class _ExplorePageState extends State<ExplorePage> {
                 );
               } else if (snapshot.hasError) {
                 return SliverFillRemaining(
-                  child: Center(child: Text('Error: ${snapshot.error}')),
+                  child: Center(
+                      child: Text('You are not connected to the internet')),
                 );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return SliverFillRemaining(

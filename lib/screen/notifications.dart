@@ -206,7 +206,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                        child: Text('You are not connected to the internet.'));
                   } else if (snapshot.data!.isEmpty) {
                     return const Center(child: Text('No Notification found.'));
                   } else {

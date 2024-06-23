@@ -272,7 +272,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     );
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                        child: Text('You are not connected to the internet'));
+                    ;
                   } else if (snapshot.data!.isEmpty) {
                     return Center(child: Text('No tweets found.'));
                   } else {
