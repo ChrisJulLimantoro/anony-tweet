@@ -4,6 +4,7 @@ import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/search.dart';
 // import 'package:anony_tweet/widget/action_row.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class SingleTweetComment extends StatefulWidget {
   final bool isBookmarked;
   final bool isLiked;
   final bool isLast;
+  final String searchTerm;
 
   const SingleTweetComment({
     super.key,
@@ -25,6 +27,7 @@ class SingleTweetComment extends StatefulWidget {
     required this.isBookmarked,
     required this.isLast,
     required this.isLiked,
+    required this.searchTerm,
   });
 
   @override
@@ -83,13 +86,14 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
       debugPrint('Error performing retweet operation: $e');
     }
   }
+
   void goToPostCommentPage(BuildContext context, String detailId) {
-      Navigator.pushNamed(
-        context,
-        '/postComment',
-        arguments: detailId,
-      );
-    }
+    Navigator.pushNamed(
+      context,
+      '/postComment',
+      arguments: detailId,
+    );
+  }
 
   void _showBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -189,7 +193,7 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
         children: [
           widget.tweet.isReTweet
               ? Row(
-                  children:  [
+                  children: [
                     Padding(
                       padding: EdgeInsets.only(left: 32, bottom: 5),
                       child: Row(
@@ -264,8 +268,11 @@ class _SingleTweetCommentState extends State<SingleTweetComment> {
                         text: widget.tweet.content,
                         searchTerm: '',
                         onTagTap: (String tag) {
-                          print("Tapped on $tag");
-                          // You can add more actions here, like navigating to another page or showing a modal.
+                          Navigator.pushNamed(
+                            context,
+                            '/search',
+                            arguments: tag,
+                          );
                         },
                       ),
                       // Text(

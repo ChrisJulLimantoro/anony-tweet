@@ -1,8 +1,11 @@
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:anony_tweet/widget/like_button.dart';
+import 'package:anony_tweet/widget/tweet_media.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:anony_tweet/helpers/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +17,7 @@ class Comment extends StatefulWidget {
   final bool isLast;
   final bool isBookmarked;
   final bool isLiked;
+  final String searchTerm;
 
   const Comment({
     super.key,
@@ -21,6 +25,7 @@ class Comment extends StatefulWidget {
     required this.isLast,
     required this.isBookmarked,
     required this.isLiked,
+    required this.searchTerm,
   });
 
   @override
@@ -64,10 +69,93 @@ class _CommentState extends State<Comment> {
     setState(() {});
   }
 
+  Future<void> handleRetweetOperation(String userId) async {
+    try {
+      if (isReTweet) {
+        var response = await Supabase.instance.client.rpc('unretweet', params: {
+          'original_tweet_id': widget.tweet.id,
+          'session_creator_id': userId
+        });
+
+        setState(() {
+          isReTweet = false;
+          retweet -= 1;
+        });
+      } else {
+        var response = await Supabase.instance.client.rpc('retweet',
+            params: {'creator': userId, 'old_id': widget.tweet.id});
+        print(response);
+        setState(() {
+          isReTweet = true;
+          retweet += 1;
+        });
+      }
+
+      debugPrint('Retweet operation successful');
+    } catch (e) {
+      debugPrint('Error performing retweet operation: $e');
+    }
+  }
+
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(
+                  CupertinoIcons.arrow_2_squarepath,
+                  color: Colors.black,
+                ),
+                title: Text(
+                  isReTweet ? 'Unrepost' : 'Repost',
+                  style: TextStyle(color: Colors.black),
+                ),
+                onTap: () {
+                  // Toggle retweet status
+                  handleRetweetOperation(context.read<SessionBloc>().id ?? "");
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  CupertinoIcons.clear_circled,
+                  color: Colors.red,
+                ),
+                title:
+                    const Text('Cancel', style: TextStyle(color: Colors.red)),
+                onTap: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     final userId = context.read<SessionBloc>().id ?? "";
+
+    void goToDetailPage(BuildContext context, String detailId) {
+      Navigator.pushNamed(
+        context,
+        '/comment',
+        arguments: detailId,
+      );
+    }
 
     // debugPrint(widget.tweet.verified.toString());
     return Column(
@@ -137,12 +225,55 @@ class _CommentState extends State<Comment> {
                     ),
                     HashtagText(
                       text: widget.tweet.content,
-                      searchTerm: "",
+                      searchTerm: widget.searchTerm,
                       onTagTap: (String tag) {
-                        print("Tapped on $tag");
-                        // You can add more actions here, like navigating to another page or showing a modal.
+                        Navigator.pushNamed(
+                          context,
+                          '/search',
+                          arguments: tag,
+                        );
                       },
                     ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    if (widget.tweet.media.isNotEmpty)
+                      TweetMediaGrid(
+                          tweet: widget.tweet, images: widget.tweet.media),
+                      // SizedBox(
+                      //   height: 200,
+                      //   width: widget.tweet.media.length * 200.0 >
+                      //           MediaQuery.of(context).size.width
+                      //       ? MediaQuery.of(context).size.width
+                      //       : widget.tweet.media.length * 200.0,
+                      //   child: ClipRRect(
+                      //     borderRadius: BorderRadius.circular(10),
+                      //     child: ListView(
+                      //       clipBehavior: Clip.none,
+                      //       physics: PageScrollPhysics(),
+                      //       scrollDirection: Axis.horizontal,
+                      //       children: widget.tweet.media.map((e) {
+                      //         return Container(
+                      //           decoration: BoxDecoration(
+                      //               border: Border(
+                      //                   right: BorderSide(
+                      //                       color: MediaQuery.of(context)
+                      //                                   .platformBrightness ==
+                      //                               Brightness.light
+                      //                           ? Colors.white
+                      //                           : Colors.black,
+                      //                       width: 2))),
+                      //           child: Image.network(
+                      //             getImageUrl("tweet_medias", e),
+                      //             height: 200,
+                      //             width: 200,
+                      //             fit: BoxFit.cover,
+                      //           ),
+                      //         );
+                      //       }).toList(),
+                      //     ),
+                      //   ),
+                      // ),
                     SizedBox(
                       height: 5,
                     ),
@@ -151,7 +282,7 @@ class _CommentState extends State<Comment> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            // print("comment");
+                            goToDetailPage(context, widget.tweet.id);
                           },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -172,7 +303,7 @@ class _CommentState extends State<Comment> {
                         ),
                         GestureDetector(
                           onTap: () {
-                           handleLikeOperation(userId);
+                            handleLikeOperation(userId);
                           },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -194,14 +325,17 @@ class _CommentState extends State<Comment> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            _showBottomSheet(context);
+                          },
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
                                 CupertinoIcons.repeat,
-                                color: isReTweet ? Colors.teal[400]: Colors.grey,
+                                color:
+                                    isReTweet ? Colors.teal[400] : Colors.grey,
                                 size: 14,
                               ),
                               const SizedBox(width: 5),

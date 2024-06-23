@@ -7,6 +7,7 @@ class CustomFloatingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return FloatingActionButton(
       elevation: 1,
       onPressed: () {
@@ -20,10 +21,10 @@ class CustomFloatingActionButton extends StatelessWidget {
           builder: (BuildContext context) => AddPostSheet(),
         );
       },
-      backgroundColor: Colors.black,
-      child: const Icon(
+      backgroundColor: theme == Brightness.light ? Colors.black : Colors.white,
+      child: Icon(
         Icons.add,
-        color: Colors.white,
+        color: theme == Brightness.light ? Colors.white : Colors.black,
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
 import 'package:anony_tweet/screen/search.dart';
@@ -14,45 +16,31 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  List<String> tags = [];
-  List<String> words = [];
-
-  List<Map<String, dynamic>> generateTrends() {
-    List<Map<String, dynamic>> trends = [];
-    for (int i = 0; i < tags.length; i++) {
-      trends.add({
-        'title': tags[i],
-      });
-    }
-    return trends;
-  }
-
-  Future<void> getTags() async {
+  Future<List<String>> getTags() async {
     final response = await supabase.rpc('gettags');
     if (response is List<dynamic>) {
-      setState(() {
-        tags = response.cast<String>();
-      });
+      return response.cast<String>();
+    } else {
+      throw Exception('Failed to load tags');
     }
   }
 
-  Future<void> getRandomizedWords() async {
+  Future<List<String>> getRandomizedWords() async {
     final response = await supabase.rpc("getrandomwords");
     if (response is List<dynamic>) {
-      setState(() {
-        words = response
-            .map((item) {
-              String word = item['randomized_word'] as String;
-              word = word.replaceAll(RegExp(r'\s+'), '');
-              return word;
-            })
-            .where((word) =>
-                word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
-            .take(5)
-            .toList();
-      });
+      return response
+          .map((item) {
+            String word = item['randomized_word'] as String;
+            word = word.replaceAll(RegExp(r'\s+'), '');
+            return word;
+          })
+          .where((word) =>
+              word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
+          .take(10)
+          .toList();
+    } else {
+      throw Exception('Failed to load random words');
     }
-    print(words);
   }
 
   bool isEmoji(String s) {
@@ -67,26 +55,17 @@ class _ExplorePageState extends State<ExplorePage> {
         (codePoint >= 0x1F1E6 && codePoint <= 0x1F1FF);
   }
 
-  Future<int> getCount(String word) async {
+  Future<int> getCount(String word, String count_mode) async {
     final response = await supabase.rpc('gettweetcount', params: {
-      'word_to_search': word,
-      'tag': word,
+      'search': word,
+      'count_mode': count_mode,
     });
-    // print("TOTAL COUNT" + response.toString());
     return response;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getTags();
-    getRandomizedWords();
   }
 
   Future<String?> getDisplayPhoto(BuildContext context) async {
     try {
       final userId = context.read<SessionBloc>().id ?? "";
-
       final response = await supabase
           .from('user')
           .select('display_photo')
@@ -97,6 +76,15 @@ class _ExplorePageState extends State<ExplorePage> {
       print('Error fetching display photo: $e');
       return null;
     }
+  }
+
+  Future<Map<String, List<String>>> fetchTrends() async {
+    final tags = await getTags();
+    final words = await getRandomizedWords();
+    return {
+      'tags': tags,
+      'words': words,
+    };
   }
 
   @override
@@ -116,10 +104,9 @@ class _ExplorePageState extends State<ExplorePage> {
                 child: TextField(
                   enabled: false,
                   decoration: InputDecoration(
-                    hintText: "Search Anony Tweets",
+                    hintText: "Search tweets",
                     hintStyle: const TextStyle(
                       fontSize: 16,
-                      color: Colors.black54,
                     ),
                     focusColor: Colors.blue,
                     border: const OutlineInputBorder(
@@ -131,7 +118,6 @@ class _ExplorePageState extends State<ExplorePage> {
                     fontSize: 16,
                     color: Colors.blue,
                   ),
-                  // controller: _searchController,
                 ),
               ),
             ),
@@ -197,6 +183,24 @@ class _ExplorePageState extends State<ExplorePage> {
                     size: 28,
                   ))
             ],
+            backgroundColor:
+                theme == Brightness.light ? Colors.white : Colors.black,
+            shape: Border(
+              bottom: BorderSide(
+                color: theme == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
+                width: 0.5, 
+              ),
+            ),
+            flexibleSpace: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -215,8 +219,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      getTags();
-                      getRandomizedWords();
+                      setState(() {});
                     },
                     child: const Text(
                       "Refresh trends",
@@ -229,100 +232,107 @@ class _ExplorePageState extends State<ExplorePage> {
               ),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (index == tags.length + words.length) {
-                  return const Padding(
-                    padding: EdgeInsets.only(bottom: 10.0),
-                  );
-                }
-                String title;
-                bool isTag;
-                if (index < tags.length) {
-                  title = tags[index];
-                  isTag = true;
-                } else {
-                  title = words[index - tags.length];
-                  isTag = false;
-                }
-                return Container(
-                  decoration: BoxDecoration(
-                    border: const Border(
-                      bottom: BorderSide(
-                        color: Colors.grey,
-                        width: 0.3,
-                      ),
-                    ),
-                  ),
-                  child: ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SearchPage(
-                            initialSearch: isTag ? "#$title" : title,
+          FutureBuilder<Map<String, List<String>>>(
+            future: fetchTrends(),
+            builder: (BuildContext context,
+                AsyncSnapshot<Map<String, List<String>>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (snapshot.hasError) {
+                return SliverFillRemaining(
+                  child: Center(child: Text('Error: ${snapshot.error}')),
+                );
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return SliverFillRemaining(
+                  child: Center(child: Text('No data found')),
+                );
+              } else {
+                final tags = snapshot.data!['tags']!;
+                final words = snapshot.data!['words']!;
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      if (index == tags.length + words.length) {
+                        return const Padding(
+                          padding: EdgeInsets.only(bottom: 10.0),
+                        );
+                      }
+                      String title;
+                      bool isTag;
+                      if (index < tags.length) {
+                        title = tags[index];
+                        isTag = true;
+                      } else {
+                        title = words[index - tags.length];
+                        isTag = false;
+                      }
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: theme == Brightness.light
+                                  ? Colors.grey.shade200
+                                  : Colors.grey.shade800,
+                              width: 0.5,
+                            ),
                           ),
+                        ),
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/search',
+                              arguments: isTag ? "#$title" : title,
+                            );
+                          },
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isTag ? "#$title" : title,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme == Brightness.light
+                                      ? Colors.black
+                                      : Colors.white,
+                                ),
+                              ),
+                              FutureBuilder<int>(
+                                future: getCount(title, isTag ? "tag" : "word"),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<int> snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Text("Loading...");
+                                  } else if (snapshot.hasError) {
+                                    return Text("Error: ${snapshot.error}");
+                                  } else {
+                                    return Text("${snapshot.data} posts");
+                                  }
+                                },
+                              )
+                            ],
+                          ),
+                          // trailing: IconButton(
+                          //   alignment: Alignment.centerRight,
+                          //   onPressed: () {},
+                          //   icon: const Icon(
+                          //     CupertinoIcons.ellipsis_vertical,
+                          //     color: Colors.grey,
+                          //     size: 14,
+                          //   ),
+                          // ),
                         ),
                       );
                     },
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isTag ? "#$title" : title,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (isTag)
-                          FutureBuilder<int>(
-                            future: getCount(title),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<int> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Text("Loading...");
-                              } else if (snapshot.hasError) {
-                                return Text("Error: ${snapshot.error}");
-                              } else {
-                                return Text("${snapshot.data} posts");
-                              }
-                            },
-                          )
-                        else
-                          FutureBuilder<int>(
-                            future: getCount(title),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<int> snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Text("Loading...");
-                              } else if (snapshot.hasError) {
-                                return Text("Error: ${snapshot.error}");
-                              } else {
-                                return Text("${snapshot.data} posts");
-                              }
-                            },
-                          )
-                      ],
-                    ),
-                    trailing: IconButton(
-                      alignment: Alignment.centerRight,
-                      onPressed: () {},
-                      icon: const Icon(
-                        CupertinoIcons.ellipsis_vertical,
-                        color: Colors.grey,
-                        size: 14,
-                      ),
-                    ),
+                    childCount: tags.length + words.length + 1,
                   ),
                 );
-              },
-              childCount: tags.length + words.length + 1,
-            ),
+              }
+            },
           ),
         ],
       ),

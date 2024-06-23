@@ -8,6 +8,7 @@ import 'package:anony_tweet/widget/tweet_media.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // ignore_for_file: prefer_const_constructors
@@ -27,6 +28,14 @@ class SingleTweet extends StatelessWidget {
     required this.isLiked,
     required this.searchTerm,
   });
+
+  void goToDetailPage(BuildContext context, String detailId) {
+    Navigator.pushNamed(
+      context,
+      '/comment',
+      arguments: detailId,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +57,7 @@ class SingleTweet extends StatelessWidget {
         children: [
           tweet.isReTweet
               ? Row(
-                  children:  [
+                  children: [
                     Padding(
                       padding: EdgeInsets.only(left: 32, bottom: 5),
                       child: Row(
@@ -130,9 +139,18 @@ class SingleTweet extends StatelessWidget {
                                   "Replying to ",
                                   style: TextStyle(color: Colors.grey[600]),
                                 ),
-                                Text(
-                                  '@${context.read<SessionBloc>().username!}',
-                                  style: TextStyle(color: Colors.blue),
+                                GestureDetector(
+                                  child: Text(
+                                    'this post',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.blue,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    goToDetailPage(context, tweet.commentId!);
+                                  },
                                 )
                               ],
                             )
@@ -143,13 +161,10 @@ class SingleTweet extends StatelessWidget {
                           text: tweet.content,
                           searchTerm: searchTerm,
                           onTagTap: (String tag) {
-                            Navigator.push(
+                            Navigator.pushNamed(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => SearchPage(
-                                  initialSearch: tag,
-                                ),
-                              ),
+                              '/search',
+                              arguments: tag,
                             );
                           },
                         ),

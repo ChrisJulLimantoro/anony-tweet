@@ -9,10 +9,12 @@ import 'package:flutter/widgets.dart';
 class TweetMediaGrid extends StatelessWidget {
   final Tweet tweet;
 
-  const TweetMediaGrid({super.key, required this.tweet, required List<String> images});
+  const TweetMediaGrid(
+      {super.key, required this.tweet, required List<String> images});
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     final images = tweet.media;
 
     var imageWidth = (MediaQuery.of(context).size.width - 32 - 60) /
@@ -26,7 +28,12 @@ class TweetMediaGrid extends StatelessWidget {
           padding: EdgeInsets.zero,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.shade300, width: 0.5),
+            border: Border.all(
+              color: theme == Brightness.dark
+                  ? Colors.grey.shade800
+                  : Colors.grey.shade300,
+              width: 0.5,
+            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
@@ -76,7 +83,12 @@ class TweetMediaGrid extends StatelessWidget {
       return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.grey.shade300, width: 0.5),
+          border: Border.all(
+            color: theme == Brightness.dark
+                ? Colors.grey.shade800
+                : Colors.grey.shade300,
+            width: 0.5,
+          ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(10),

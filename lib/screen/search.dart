@@ -6,15 +6,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchPage extends StatefulWidget {
   final String? initialSearch;
-  // final Map<String, dynamic> tweetArguments;
 
   SearchPage({
     Key? key,
     required this.initialSearch,
-    // required this.tweetArguments,
   }) : super(key: key);
 
   @override
@@ -30,7 +29,7 @@ class SearchPageState extends State<SearchPage>
   bool tabChanged = false;
   late TabController _tabController;
 
-  List<Tweet> tweets = [];
+  Future<List<Tweet>>? _tweetsFuture;
   List<String> tags = [];
   List<String> recentSearches = [];
 
@@ -158,14 +157,23 @@ class SearchPageState extends State<SearchPage>
       isReTweet: isReTweet,
       oriCreator: oriCreator,
       isRetweetedByUser: isRetweetedByUser,
+      isComment: json['comment_id'] != null,
+      commentId: json['comment_id'],
     );
   }
 
-  Future searchTweets(String search, String tag, String order_by) async {
+  Future<List<Tweet>> searchTweets(
+      String search, String tag, String order_by) async {
+    var searches = search
+        .toLowerCase()
+        .split(' ')
+        .where((s) => s.trim().isNotEmpty)
+        .toList();
+
     final response = await supabase.rpc(
-      'gettweet',
+      'gettweet3',
       params: {
-        'search': search,
+        'search': searches,
         'tag': tag,
         'order_by': order_by,
       },
@@ -174,18 +182,18 @@ class SearchPageState extends State<SearchPage>
     if (!recentSearches.contains(search)) {
       setState(() {
         recentSearches.add(search);
+        saveRecentSearches();
       });
     }
 
     print(response);
 
     if (response is List<dynamic>) {
-      tweets = await Future.wait(
+      return Future.wait(
         response.map((item) => fromJson(item)).toList(),
       );
-      setState(
-        () {},
-      );
+    } else {
+      return [];
     }
   }
 
@@ -193,7 +201,7 @@ class SearchPageState extends State<SearchPage>
     final response = await supabase.rpc('gettags');
     if (response is List<dynamic>) {
       setState(() {
-        tags = response.cast<String>();
+        tags = response.cast<String>().take(9).toList();
       });
     }
   }
@@ -209,11 +217,10 @@ class SearchPageState extends State<SearchPage>
     _focusNode = FocusNode();
     _searchController = TextEditingController();
 
-    // print("INITIAL SEARCH " + widget.initialSearch.toString()!);
-
     if (widget.initialSearch != null) {
       _searchController.text = widget.initialSearch!;
-      searchTweets(widget.initialSearch!, widget.initialSearch!, "like");
+      _tweetsFuture =
+          searchTweets(widget.initialSearch!, widget.initialSearch!, "like");
     }
 
     _searchSubject = PublishSubject<String>();
@@ -221,16 +228,44 @@ class SearchPageState extends State<SearchPage>
         .debounceTime(Duration(milliseconds: 500))
         .listen((search) {
       if (search.isNotEmpty) {
-        searchTweets(search, search, "like");
+        setState(() {
+          _tweetsFuture = searchTweets(search, search, "like");
+        });
       } else {
         setState(() {
-          tweets = [];
+          _tweetsFuture = Future.value([]);
         });
       }
     });
 
+    loadRecentSearches();
+
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => FocusScope.of(context).requestFocus(_focusNode));
+  }
+
+  Future<void> loadRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final sessionBloc = context.read<SessionBloc>();
+    final userId = sessionBloc.id;
+
+    if (userId != null && userId.isNotEmpty) {
+      final recentSearches =
+          prefs.getStringList('recentSearches_$userId') ?? [];
+      setState(() {
+        this.recentSearches = recentSearches;
+      });
+    }
+  }
+
+  Future<void> saveRecentSearches() async {
+    final prefs = await SharedPreferences.getInstance();
+    final sessionBloc = context.read<SessionBloc>();
+    final userId = sessionBloc.id;
+
+    if (userId != null && userId.isNotEmpty) {
+      await prefs.setStringList('recentSearches_$userId', recentSearches);
+    }
   }
 
   void _handleTabSelection() {
@@ -238,8 +273,8 @@ class SearchPageState extends State<SearchPage>
       setState(() {
         tabChanged = _tabController.index == 0;
         String orderBy = _tabController.index == 0 ? "like" : "created_at";
-        tweets = [];
-        searchTweets(_searchController.text, _searchController.text, orderBy);
+        _tweetsFuture = searchTweets(
+            _searchController.text, _searchController.text, orderBy);
       });
     }
   }
@@ -253,8 +288,18 @@ class SearchPageState extends State<SearchPage>
     super.dispose();
   }
 
+  Future<void> _refreshTweets() async {
+    var order_by = _tabController.index == 0 ? "like" : "created_at";
+    setState(() {
+      _tweetsFuture = searchTweets(
+          _searchController.text, _searchController.text, order_by);
+    });
+    await _tweetsFuture;
+  }
+
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -268,10 +313,9 @@ class SearchPageState extends State<SearchPage>
         title: TextField(
           focusNode: _focusNode,
           decoration: InputDecoration(
-            hintText: "Search Anony Tweets",
+            hintText: "Search tweets",
             hintStyle: const TextStyle(
               fontSize: 16,
-              color: Colors.black54,
             ),
             focusColor: Colors.blue,
             border: const OutlineInputBorder(
@@ -281,12 +325,11 @@ class SearchPageState extends State<SearchPage>
               onPressed: () {
                 _searchController.clear();
                 setState(() {
-                  tweets = [];
+                  _tweetsFuture = Future.value([]);
                 });
               },
               icon: const Icon(
                 CupertinoIcons.clear,
-                color: Colors.black54,
               ),
             ),
           ),
@@ -300,15 +343,16 @@ class SearchPageState extends State<SearchPage>
             if (!recentSearches.contains(value)) {
               setState(() {
                 recentSearches.add(value);
+                saveRecentSearches();
               });
             }
             if (value.isNotEmpty) {
-              searchTweets(value, value, "like");
-              // setState(() {
-              // });
+              setState(() {
+                _tweetsFuture = searchTweets(value, value, "like");
+              });
             } else {
               setState(() {
-                tweets = [];
+                _tweetsFuture = Future.value([]);
               });
             }
           },
@@ -328,10 +372,30 @@ class SearchPageState extends State<SearchPage>
                   ),
                 ],
               )
-            : null,
+            : PreferredSize(
+                preferredSize: Size.fromHeight(1.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: theme == Brightness.light
+                            ? Colors.grey.shade200
+                            : Colors.grey.shade800,
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                )),
       ),
-      body: (tweets.isEmpty)
-          ? Column(
+      body: FutureBuilder<List<Tweet>>(
+        future: _tweetsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Column(
               children: [
                 Padding(
                   padding: const EdgeInsets.only(
@@ -353,10 +417,15 @@ class SearchPageState extends State<SearchPage>
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const Text(
-                            "Refresh tags",
-                            style: TextStyle(
-                              color: Colors.blue,
+                          GestureDetector(
+                            onTap: () {
+                              getTags();
+                            },
+                            child: const Text(
+                              "Refresh tags",
+                              style: TextStyle(
+                                color: Colors.blue,
+                              ),
                             ),
                           )
                         ],
@@ -364,30 +433,39 @@ class SearchPageState extends State<SearchPage>
                     ),
                   ),
                 ),
-                Wrap(
-                  spacing: 8.0,
-                  runSpacing: 4.0,
-                  children: List<Widget>.generate(tags.length, (int index) {
-                    return GestureDetector(
-                      onTap: () {
-                        _searchController.text = "#" + tags[index];
-                        searchTweets(tags[index], tags[index], "like");
-                      },
-                      child: Chip(
-                        label: Text("#${tags[index]}"),
-                        onDeleted: () {
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 12.0,
+                    right: 12.0,
+                  ),
+                  child: Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: List<Widget>.generate(tags.length, (int index) {
+                      return GestureDetector(
+                        onTap: () {
+                          _searchController.text = "#" + tags[index];
                           setState(() {
-                            tags.removeAt(index);
+                            _tweetsFuture = searchTweets(_searchController.text,
+                                _searchController.text, "like");
                           });
                         },
-                      ),
-                    );
-                  }),
+                        child: Chip(
+                          label: Text("#${tags[index]}"),
+                          onDeleted: () {
+                            setState(() {
+                              tags.removeAt(index);
+                            });
+                          },
+                        ),
+                      );
+                    }),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
                     left: 16.0,
-                    top: 8.0,
+                    top: 16.0,
                     right: 16.0,
                   ),
                   child: Align(
@@ -406,6 +484,7 @@ class SearchPageState extends State<SearchPage>
                           onTap: () {
                             setState(() {
                               recentSearches.clear();
+                              saveRecentSearches();
                             });
                           },
                           child: const Text(
@@ -431,44 +510,62 @@ class SearchPageState extends State<SearchPage>
                             CupertinoIcons.arrow_right,
                           ),
                         ),
+                        onTap: () {
+                          _searchController.text = recentSearches[index];
+                          setState(() {
+                            _tweetsFuture = searchTweets(_searchController.text,
+                                _searchController.text, "like");
+                          });
+                        },
                       );
                     },
                   ),
                 ),
               ],
-            )
-          : Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+            );
+          } else {
+            final tweets = snapshot.data!;
+            return Padding(
+              padding: const EdgeInsets.only(top: 20.0),
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  ListView.builder(
-                    itemCount: tweets.length,
-                    itemBuilder: (context, index) {
-                      return SingleTweet(
-                        tweet: tweets[index],
-                        isBookmarked: true,
-                        isLast: false,
-                        isLiked: tweets[index].isLiked,
-                        searchTerm: _searchController.text,
-                      );
-                    },
+                  RefreshIndicator(
+                    onRefresh: _refreshTweets,
+                    child: ListView.builder(
+                      itemCount: tweets.length,
+                      itemBuilder: (context, index) {
+                        return SingleTweet(
+                          tweet: tweets[index],
+                          isBookmarked: true,
+                          isLast: false,
+                          isLiked: tweets[index].isLiked,
+                          searchTerm: _searchController.text,
+                        );
+                      },
+                    ),
                   ),
-                  ListView.builder(
-                    itemCount: tweets.length,
-                    itemBuilder: (context, index) {
-                      return SingleTweet(
-                        tweet: tweets[index],
-                        isBookmarked: true,
-                        isLast: false,
-                        isLiked: tweets[index].isLiked,
-                        searchTerm: _searchController.text,
-                      );
-                    },
-                  )
+                  RefreshIndicator(
+                    onRefresh: _refreshTweets,
+                    child: ListView.builder(
+                      itemCount: tweets.length,
+                      itemBuilder: (context, index) {
+                        return SingleTweet(
+                          tweet: tweets[index],
+                          isBookmarked: true,
+                          isLast: false,
+                          isLiked: tweets[index].isLiked,
+                          searchTerm: _searchController.text,
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 }

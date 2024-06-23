@@ -166,6 +166,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
+      // backgroundColor: theme == Brightness.light
+      //     ? Colors.white.withAlpha(200)
+      //     : Colors.black.withAlpha(200),
       body: RefreshIndicator(
         onRefresh: _refreshTweets,
         child: CustomScrollView(
@@ -173,7 +176,9 @@ class _HomePageState extends State<HomePage> {
             SliverAppBar(
               title: const Text(
                 "PCUFess",
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               centerTitle: true,
               floating: true,
@@ -244,7 +249,7 @@ class _HomePageState extends State<HomePage> {
               ],
               backgroundColor: theme == Brightness.light
                   ? Colors.white.withAlpha(200)
-                  : Colors.black.withAlpha(100),
+                  : Colors.black.withAlpha(300),
               shape: Border(
                 bottom: BorderSide(
                   color: theme == Brightness.light
@@ -267,7 +272,13 @@ class _HomePageState extends State<HomePage> {
                 future: _tweets,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return SizedBox(
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.78,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (snapshot.data!.isEmpty) {

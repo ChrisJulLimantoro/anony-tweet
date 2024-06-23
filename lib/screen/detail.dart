@@ -154,8 +154,10 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<List<Tweet>> fetchComments(String id) async {
     final userId = context.read<SessionBloc>().id ?? "";
-    final response = await Supabase.instance.client
-        .rpc('getcomment', params: {'idtweets': id});
+    final response = await Supabase.instance.client.rpc(
+      'getcomment',
+      params: {'idtweets': id},
+    );
 
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
     debugPrint("data ${data.toString()}");
@@ -206,7 +208,8 @@ class _DetailPageState extends State<DetailPage> {
       if (retweetCount > 0) {
         isRetweetedByUser = true;
       }
-      comments.add(Tweet(
+      comments.add(
+        Tweet(
           id: commentData['id'],
           username: userResponse['display_name'],
           profilePicture: userResponse['display_photo'],
@@ -224,21 +227,36 @@ class _DetailPageState extends State<DetailPage> {
           isLiked: likedTweetIds.contains(commentData['id']),
           isReTweet: isReTweet,
           oriCreator: oriCreator,
-          isRetweetedByUser: isRetweetedByUser));
+          isRetweetedByUser: isRetweetedByUser,
+        ),
+      );
     }
     return comments;
   }
 
   @override
   Widget build(BuildContext context) {
+    Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Colors.white,
+            shape: Border(
+              bottom: BorderSide(
+                color: theme == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800,
+                width: 0.5,
+              ),
+            ),
+            backgroundColor:
+                theme == Brightness.dark ? Colors.black : Colors.white,
             title: const Text(
               "Post",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
             ),
             centerTitle: true,
             floating: true,
@@ -248,7 +266,6 @@ class _DetailPageState extends State<DetailPage> {
                 child: IconButton(
                   icon: const Icon(
                     CupertinoIcons.arrow_left,
-                    size: 32,
                   ),
                   onPressed: () {
                     Navigator.pop(context, '/home');
@@ -279,11 +296,11 @@ class _DetailPageState extends State<DetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   SingleTweetComment(
-                                    
                                     tweet: snapshot.data!,
                                     isBookmarked: Random().nextDouble() <= 0.5,
                                     isLast: false,
                                     isLiked: snapshot.data!.isLiked,
+                                    searchTerm: "",
                                   ),
                                 ],
                               ),
@@ -318,6 +335,7 @@ class _DetailPageState extends State<DetailPage> {
                                             isLiked: Random().nextBool(),
                                             isLast: index ==
                                                 snapshot.data!.length - 1,
+                                            searchTerm: "",
                                           ),
                                         )
                                       : Comment(
@@ -326,6 +344,7 @@ class _DetailPageState extends State<DetailPage> {
                                           isLiked: Random().nextBool(),
                                           isLast: index ==
                                               snapshot.data!.length - 1,
+                                          searchTerm: "",
                                         );
                                 }).toList(),
                               );

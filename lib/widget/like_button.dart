@@ -39,11 +39,7 @@ class LikeButton extends StatelessWidget {
                 const SizedBox(width: 5),
                 Text("${state[0]}",
                     style: TextStyle(
-                        color: tweet.isLiked
-                            ? Colors.red
-                            : isCarousel
-                                ? Colors.white
-                                : Colors.black)),
+                        color: tweet.isLiked ? Colors.red : Colors.grey)),
               ],
             ),
           );

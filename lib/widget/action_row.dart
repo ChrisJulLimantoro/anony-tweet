@@ -33,14 +33,15 @@ class _ActionRowState extends State<ActionRow> {
   }
 
   void _showBottomSheet(BuildContext context, String creator, String oldId) {
+    final theme = MediaQuery.of(context).platformBrightness;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme == Brightness.dark ? Colors.black : Colors.white,
       builder: (context) {
         return Container(
           height: 150,
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: theme == Brightness.dark ? Colors.black : Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -49,25 +50,37 @@ class _ActionRowState extends State<ActionRow> {
           child: Wrap(
             children: <Widget>[
               ListTile(
-                leading: const Icon(CupertinoIcons.repeat, color: Colors.black),
+                leading: Icon(
+                  CupertinoIcons.repeat,
+                  color: theme == Brightness.dark ? Colors.white : Colors.black,
+                ),
                 title: Text(
-                    isRetweeted ? 'Unrepost' : 'Repost',
-                    style: TextStyle(color: Colors.black)),
+                  isRetweeted ? 'Unrepost' : 'Repost',
+                  style: TextStyle(
+                    color:
+                        theme == Brightness.dark ? Colors.white : Colors.black,
+                  ),
+                ),
                 onTap: () {
-                  if (isRetweeted){
-                    unretweet(widget.tweet.id, context.read<SessionBloc>().id ?? "");
-                  }else{
+                  if (isRetweeted) {
+                    unretweet(
+                        widget.tweet.id, context.read<SessionBloc>().id ?? "");
+                  } else {
                     retweet(creator, oldId);
                   }
-                  
+
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading:
-                    const Icon(CupertinoIcons.clear_circled, color: Colors.red),
-                title:
-                    const Text('Cancel', style: TextStyle(color: Colors.red)),
+                leading: const Icon(
+                  CupertinoIcons.clear_circled,
+                  color: Colors.red,
+                ),
+                title: const Text('Cancel',
+                    style: TextStyle(
+                      color: Colors.red,
+                    )),
                 onTap: () => Navigator.pop(context),
               ),
             ],
@@ -79,9 +92,10 @@ class _ActionRowState extends State<ActionRow> {
 
   void unretweet(String tweetID, String creatorID) async {
     try {
-      var response = await supabase
-          .rpc('unretweet', params: {'original_tweet_id': tweetID,
-          'session_creator_id': creatorID});
+      var response = await supabase.rpc('unretweet', params: {
+        'original_tweet_id': tweetID,
+        'session_creator_id': creatorID
+      });
 
       debugPrint(response);
       setState(() {
@@ -139,8 +153,7 @@ class _ActionRowState extends State<ActionRow> {
             ),
             const SizedBox(width: 5),
             Text(widget.tweet.comment.toString(),
-                style: TextStyle(
-                    color: widget.isCarousel ? Colors.white : Colors.black)),
+                style: TextStyle(color: Colors.grey)),
           ],
         ),
         const SizedBox(width: 5),
@@ -152,9 +165,7 @@ class _ActionRowState extends State<ActionRow> {
               },
               child: Icon(
                 CupertinoIcons.repeat,
-                color: isRetweeted
-                    ? Colors.teal[400]
-                    : Colors.grey,
+                color: isRetweeted ? Colors.teal[400] : Colors.grey,
                 size: 16,
               ),
             ),
@@ -162,11 +173,8 @@ class _ActionRowState extends State<ActionRow> {
             Text(
               retweetCount.toString(),
               style: TextStyle(
-                  color: isRetweeted
-                      ? Colors.teal[400]
-                      : widget.isCarousel
-                          ? Colors.white
-                          : Colors.black),
+                color: Colors.grey,
+              ),
             ),
           ],
         ),

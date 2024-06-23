@@ -8,6 +8,7 @@ import 'package:anony_tweet/widget/single_tweet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:english_words/english_words.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -58,9 +59,33 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> changeProfile(BuildContext context) async {
+    final response = await supabase.rpc('changeprofile', params: {
+      'user_id': context.read<SessionBloc>().id,
+      'new_display_name': WordPair.random().asPascalCase,
+      'new_display_photo':
+          "https://randomuser.me/api/portraits/lego/${Random().nextInt(10)}.jpg"
+    });
+    Navigator.pushReplacementNamed(context, '/profile');
+    ;
+  }
+
+  Future<int> fetchTweetCountCommentByCreatorId(String creatorId) async {
+    try {
+      final response = await Supabase.instance.client
+          .rpc('count_user_replies', params: {'p_creator_id': creatorId});
+      print(response);
+      return response as int;
+    } catch (e) {
+      print('Error fetching tweet count: $e');
+      return 0;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
+    final theme = mediaQuery.platformBrightness;
     final screenWidth = mediaQuery.size.width;
     final screenHeight = mediaQuery.size.height;
     final creatorId = context.read<SessionBloc>().id ?? "";
@@ -74,16 +99,18 @@ class _ProfilePageState extends State<ProfilePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
+              color: Colors.black,
             ),
-            actions: [
-              IconButton(
-                icon: Icon(CupertinoIcons.search),
-                onPressed: () {},
-              ),
-            ],
+            // actions: [
+            //   IconButton(
+            //     icon: Icon(CupertinoIcons.search),
+            //     onPressed: () {
+            //     },
+            //   ),
+            // ],
             pinned: true,
             floating: true,
-            backgroundColor: Colors.grey.shade300,
+            backgroundColor: Colors.grey[theme == Brightness.light ? 200 : 400],
           ),
           SliverToBoxAdapter(
             child: SingleChildScrollView(
@@ -96,7 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       Container(
                         width: double.infinity,
                         height: screenHeight * 0.10,
-                        color: Colors.grey.shade300,
+                        color:
+                            Colors.grey[theme == Brightness.light ? 200 : 400],
                       ),
                       Positioned(
                         top: screenHeight * 0.035,
@@ -150,38 +178,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                       ),
-                      Positioned(
-                        top: screenHeight * 0.11,
-                        right: screenWidth * 0.03,
-                        child: TextButton(
-                          child: Text(
-                            "Edit profile",
-                            style: TextStyle(
-                              color: Colors.grey.shade900,
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          onPressed: () {
-                            debugPrint("PRESSED");
-                          },
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                              EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.07),
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.085),
@@ -201,13 +197,63 @@ class _ProfilePageState extends State<ProfilePage> {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: screenWidth * 0.06),
                                   child: Container(
-                                    width: screenWidth * 0.7,
-                                    child: Text(
-                                      snapshot.data!,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
+                                    width: screenWidth * 0.88,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          children: [
+                                            Text(
+                                              snapshot.data!,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                border: Border.all(
+                                                  color: theme ==
+                                                          Brightness.light
+                                                      ? Colors.grey.shade300
+                                                      : Colors.grey.shade700,
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: CupertinoButton(
+                                                minSize: 30,
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 13,
+                                                  vertical: 5,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                color: Colors.transparent,
+                                                child: Text(
+                                                  'Change Profile',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: theme ==
+                                                            Brightness.light
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                  ),
+                                                ),
+                                                onPressed: () {
+                                                  changeProfile(context);
+                                                },
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -226,7 +272,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                       style: TextStyle(
                                         fontWeight: FontWeight.w400,
                                         fontSize: 12,
-                                        color: Colors.grey.shade700,
                                       ),
                                     ),
                                   ),
@@ -301,7 +346,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
-                                                  color: Colors.black,
+                                                  color:
+                                                      theme == Brightness.light
+                                                          ? Colors.black
+                                                          : Colors.white,
                                                 ),
                                               );
                                             } else if (snapshot.hasError) {
@@ -319,7 +367,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.w500,
                                                   fontSize: 13,
-                                                  color: Colors.black,
                                                 ),
                                               );
                                             }
@@ -334,13 +381,43 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                         ),
                                         SizedBox(width: screenWidth * 0.02),
-                                        Text(
-                                          "120",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13,
-                                            color: Colors.black,
-                                          ),
+                                        FutureBuilder<int>(
+                                          future:
+                                              fetchTweetCountCommentByCreatorId(
+                                                  creatorId),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return Text(
+                                                "Loading...",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                  color:
+                                                      theme == Brightness.light
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                ),
+                                              );
+                                            } else if (snapshot.hasError) {
+                                              return Text(
+                                                "Error",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                  color: Colors.red,
+                                                ),
+                                              );
+                                            } else {
+                                              return Text(
+                                                snapshot.data.toString(),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                ),
+                                              );
+                                            }
+                                          },
                                         ),
                                         Text(
                                           " Replies",
@@ -389,6 +466,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildNavItem(int index, String label) {
+    final theme = MediaQuery.of(context).platformBrightness;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -413,7 +492,9 @@ class _ProfilePageState extends State<ProfilePage> {
             fontSize: 14.0,
             fontWeight:
                 _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
-            color: _selectedIndex == index ? Colors.blue : Colors.black,
+            color: _selectedIndex == index
+                ? Colors.blue
+                : (theme == Brightness.light ? Colors.black : Colors.white),
           ),
         ),
       ),
@@ -428,14 +509,11 @@ class PostsPage extends StatelessWidget {
       Duration difference = now.difference(timestamp);
 
       if (difference.inDays >= 365) {
-        int years = (difference.inDays / 365).floor();
-        return "${years}y ago";
+        return "${(difference.inDays / 365).floor()}y ago";
       } else if (difference.inDays >= 30) {
-        int months = (difference.inDays / 30).floor();
-        return "${months}m ago";
+        return "${(difference.inDays / 30).floor()}m ago";
       } else if (difference.inDays >= 7) {
-        int weeks = (difference.inDays / 7).floor();
-        return "${weeks}w ago";
+        return "${(difference.inDays / 7).floor()}w ago";
       } else if (difference.inDays >= 1) {
         return "${difference.inDays}d ago";
       } else if (difference.inHours >= 1) {
@@ -449,48 +527,74 @@ class PostsPage extends StatelessWidget {
 
     final userId = context.read<SessionBloc>().id ?? "";
 
-    // Fetch user data
-    final userResponse = await Supabase.instance.client
-        .from('user')
-        .select('display_name, display_photo')
-        .eq('id', userId)
-        .single();
+    final response = await Supabase.instance.client
+        .rpc('get_posted_tweets', params: {'userid': userId});
 
-    final displayName = userResponse['display_name'] ?? 'Unknown';
-    final profilePicture = userResponse['display_photo'] ?? '';
-
-    // Fetch tweets data
-    final tweetResponse = await Supabase.instance.client
-        .from('tweets')
-        .select('*')
-        .eq('creator_id', userId);
-
-    List<Map<String, dynamic>> data =
-        List<Map<String, dynamic>>.from(tweetResponse);
-
+    List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
     List<Tweet> tweets = [];
 
-    for (var tweet in data) {
-      tweets.add(Tweet(
-        id: userId,
-        username: displayName,
-        profilePicture: profilePicture,
-        verified: Random().nextBool(),
-        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
-        content: tweet['content'] ?? '',
-        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
-        like: tweet['like'] ?? 0,
-        retweet: tweet['retweet'] ?? 0,
-        comment: tweet['comment'] ?? 0,
-        view: 100,
-        isLiked: Random().nextBool(),
-        isReTweet: Random().nextBool(),
-        oriCreator: "Dummy",
-        isRetweetedByUser: false
-      ));
+    final likedTweetsResponse =
+        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
+    final likedTweetIds = <String>{};
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
     }
 
-    print(tweets[0]);
+    for (var tweet in data) {
+      final userResponse = await Supabase.instance.client
+          .from('user')
+          .select('display_name, display_photo')
+          .eq('id', tweet['creator_id'])
+          .single();
+      bool isReTweet = tweet['retweet_id'] != null;
+      String oriCreator = "";
+      if (isReTweet) {
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweet['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', originalTweetResponse['creator_id'])
+            .single();
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
+      }
+      final retweetCountResponse = await supabase
+          .from('tweets')
+          .select()
+          .eq('retweet_id', tweet['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
+      tweets.add(Tweet(
+          id: tweet['id'],
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
+          verified: Random().nextBool(),
+          createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+          content: tweet['content'],
+          media:
+              tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+          like: tweet['like'],
+          retweet: tweet['retweet'],
+          comment: tweet['comment'],
+          view: 0,
+          isLiked: likedTweetIds.contains(tweet['id']),
+          isReTweet: isReTweet,
+          oriCreator: oriCreator,
+          isRetweetedByUser: isRetweetedByUser));
+    }
     return tweets;
   }
 
@@ -531,12 +635,132 @@ class PostsPage extends StatelessWidget {
 }
 
 class RepliesPage extends StatelessWidget {
+  Future<List<Tweet>> fetchPost(BuildContext context) async {
+    String timeAgo(DateTime timestamp) {
+      DateTime now = DateTime.now();
+      Duration difference = now.difference(timestamp);
+
+      if (difference.inDays >= 365) {
+        return "${(difference.inDays / 365).floor()}y ago";
+      } else if (difference.inDays >= 30) {
+        return "${(difference.inDays / 30).floor()}m ago";
+      } else if (difference.inDays >= 7) {
+        return "${(difference.inDays / 7).floor()}w ago";
+      } else if (difference.inDays >= 1) {
+        return "${difference.inDays}d ago";
+      } else if (difference.inHours >= 1) {
+        return "${difference.inHours}h ago";
+      } else if (difference.inMinutes >= 1) {
+        return "${difference.inMinutes}m ago";
+      } else {
+        return "${difference.inSeconds}s ago";
+      }
+    }
+
+    final userId = context.read<SessionBloc>().id ?? "";
+
+    final response = await Supabase.instance.client
+        .rpc('find_comments_by_user', params: {'userid': userId});
+
+    List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+    List<Tweet> tweets = [];
+
+    final likedTweetsResponse =
+        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
+    final likedTweetIds = <String>{};
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
+    }
+
+    for (var tweet in data) {
+      final userResponse = await Supabase.instance.client
+          .from('user')
+          .select('display_name, display_photo')
+          .eq('id', tweet['creator_id'])
+          .single();
+      bool isReTweet = tweet['retweet_id'] != null;
+      String oriCreator = "";
+      if (isReTweet) {
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweet['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', originalTweetResponse['creator_id'])
+            .single();
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
+      }
+      final retweetCountResponse = await supabase
+          .from('tweets')
+          .select()
+          .eq('retweet_id', tweet['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
+      tweets.add(Tweet(
+          id: tweet['id'],
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
+          verified: Random().nextBool(),
+          createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+          content: tweet['content'],
+          media:
+              tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+          like: tweet['like'],
+          retweet: tweet['retweet'],
+          comment: tweet['comment'],
+          view: 0,
+          isLiked: likedTweetIds.contains(tweet['id']),
+          isReTweet: isReTweet,
+          oriCreator: oriCreator,
+          isRetweetedByUser: isRetweetedByUser));
+    }
+    return tweets;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Liked Content',
-        style: TextStyle(fontSize: 20.0),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(0.0),
+      child: FutureBuilder<List<Tweet>>(
+        future: fetchPost(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.data!.isEmpty) {
+            return Center(child: Text('No tweets found.'));
+          } else {
+            return ListView(
+              shrinkWrap:
+                  true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
+              physics:
+                  NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
+              children: snapshot.data!.map((tweet) {
+                return SingleTweet(
+                  tweet: tweet,
+                  isBookmarked: true,
+                  isLast: false,
+                  isLiked: tweet.isLiked,
+                  searchTerm: '',
+                );
+              }).toList(),
+            );
+          }
+        },
       ),
     );
   }
@@ -573,30 +797,67 @@ class LikedPage extends StatelessWidget {
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
     List<Tweet> tweets = [];
 
+    final likedTweetsResponse =
+        await supabase.from('likes').select('tweet_id').eq('user_id', userId);
+    final likedTweetIds = <String>{};
+
+    for (var record in likedTweetsResponse) {
+      likedTweetIds.add(record['tweet_id']);
+    }
+
     for (var tweet in data) {
       final userResponse = await Supabase.instance.client
           .from('user')
           .select('display_name, display_photo')
           .eq('id', tweet['creator_id'])
           .single();
+      bool isReTweet = tweet['retweet_id'] != null;
+      String oriCreator = "";
+      if (isReTweet) {
+        final originalTweetResponse = await supabase
+            .from('tweets')
+            .select('*')
+            .eq('id', tweet['retweet_id'])
+            .single();
+        final originalCreatorResponse = await supabase
+            .from('user')
+            .select('display_name')
+            .eq('id', originalTweetResponse['creator_id'])
+            .single();
+        oriCreator = originalCreatorResponse['display_name'];
+      } else {
+        final response2 = "";
+      }
+      final retweetCountResponse = await supabase
+          .from('tweets')
+          .select()
+          .eq('retweet_id', tweet['id'])
+          .eq('creator_id', userId);
+
+      int retweetCount = retweetCountResponse.length;
+      print(retweetCount);
+
+      bool isRetweetedByUser = false;
+      if (retweetCount > 0) {
+        isRetweetedByUser = true;
+      }
       tweets.add(Tweet(
-        id: tweet['id'],
-        username: userResponse['display_name'],
-        profilePicture: userResponse['display_photo'],
-        verified: Random().nextBool(),
-        createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
-        content: tweet['content'],
-        media: tweet['media'] != null ? List<String>.from(tweet['media']) : [],
-        like: tweet['like'],
-        retweet: tweet['retweet'],
-        comment: tweet['comment'],
-        view: 0,
-        isLiked: true,
-        isReTweet: false,
-        oriCreator: "Dummy",
-        isRetweetedByUser: false
-        
-      ));
+          id: tweet['id'],
+          username: userResponse['display_name'],
+          profilePicture: userResponse['display_photo'],
+          verified: Random().nextBool(),
+          createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
+          content: tweet['content'],
+          media:
+              tweet['media'] != null ? List<String>.from(tweet['media']) : [],
+          like: tweet['like'],
+          retweet: tweet['retweet'],
+          comment: tweet['comment'],
+          view: 0,
+          isLiked: likedTweetIds.contains(tweet['id']),
+          isReTweet: isReTweet,
+          oriCreator: oriCreator,
+          isRetweetedByUser: isRetweetedByUser));
     }
     return tweets;
   }

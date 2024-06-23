@@ -42,23 +42,30 @@ Future<void> main() async {
         await savedUser.remove('user');
       } else {
         print("user found!");
-        runApp(BlocProvider(
-          create: (context) => SessionBloc(
-            session: session,
-            id: id,
-            displayName: displayName,
-            displayPhoto: displayPhoto,
-            username: username,
+        runApp(
+          BlocProvider(
+            create: (context) => SessionBloc(
+              session: session,
+              id: id,
+              displayName: displayName,
+              displayPhoto: displayPhoto,
+              username: username,
+            ),
+            child: const MyApp(),
           ),
-          child: const MyApp(),
-        ));
+        );
         return;
       }
     }
-    runApp(BlocProvider(
-      create: (context) => SessionBloc(session: session, id: ''),
-      child: const MyApp(),
-    ));
+    runApp(
+      BlocProvider(
+        create: (context) => SessionBloc(
+          session: session,
+          id: '',
+        ),
+        child: const MyApp(),
+      ),
+    );
   } catch (e) {
     print('error $e');
   }
@@ -109,12 +116,13 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => ProfilePage(),
           '/explore': (context) => ExplorePage(),
           '/search': (context) => SearchPage(
-                initialSearch: null,
+                initialSearch:
+                    ModalRoute.of(context)!.settings.arguments as String?,
               ),
           '/comment': (context) => DetailPage(
               id: ModalRoute.of(context)!.settings.arguments as String),
           '/postComment': (context) => PostComment(
-            id: ModalRoute.of(context)!.settings.arguments as String),
+              id: ModalRoute.of(context)!.settings.arguments as String),
         });
   }
 }

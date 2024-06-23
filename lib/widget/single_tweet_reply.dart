@@ -3,6 +3,7 @@ import 'package:anony_tweet/blocs/like_button_bloc.dart';
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/model/tweet.dart';
+import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/hashtag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +16,7 @@ class SingleTweetReply extends StatefulWidget {
   final bool isBookmarked;
   final bool isLiked;
   final bool isLast;
+  final String searchTerm;
 
   const SingleTweetReply({
     super.key,
@@ -22,6 +24,7 @@ class SingleTweetReply extends StatefulWidget {
     required this.isBookmarked,
     required this.isLast,
     required this.isLiked,
+    required this.searchTerm,
   });
 
   @override
@@ -33,6 +36,8 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
   bool isBookmarked = false;
   int like = 0;
   int bookmark = 0;
+  String searchTerm = "";
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +45,7 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
     isBookmarked = widget.isBookmarked;
     like = widget.tweet.like;
     bookmark = widget.tweet.view;
+    searchTerm = widget.searchTerm;
   }
 
   String formatNumber(int number) {
@@ -62,10 +68,11 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
       providers: [
         BlocProvider<LikeButtonBloc>(
           create: (context) => LikeButtonBloc(
-              likeCount: widget.tweet.like,
-              isLiked: widget.tweet.isLiked,
-              userId: userId,
-              tweetId: widget.tweet.id),
+            likeCount: widget.tweet.like,
+            isLiked: widget.tweet.isLiked,
+            userId: userId,
+            tweetId: widget.tweet.id,
+          ),
         ),
         BlocProvider<BookmarkBloc>(
           create: (context) => BookmarkBloc(widget.isBookmarked),
@@ -120,10 +127,13 @@ class _SingleTweetReplyState extends State<SingleTweetReply> {
                       ),
                       HashtagText(
                         text: widget.tweet.content,
-                        searchTerm: "",
+                        searchTerm: searchTerm,
                         onTagTap: (String tag) {
-                          print("Tapped on $tag");
-                          // You can add more actions here, like navigating to another page or showing a modal.
+                          Navigator.pushNamed(
+                            context,
+                            '/search',
+                            arguments: tag,
+                          );
                         },
                       ),
                       // Text(
