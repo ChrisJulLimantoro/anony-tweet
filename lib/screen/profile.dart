@@ -51,10 +51,8 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final response = await Supabase.instance.client
           .rpc('count_user_tweets', params: {'p_creator_id': creatorId});
-      print(response);
       return response as int;
     } catch (e) {
-      print('Error fetching tweet count: $e');
       return 0;
     }
   }
@@ -74,10 +72,8 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final response = await Supabase.instance.client
           .rpc('count_user_replies', params: {'p_creator_id': creatorId});
-      print(response);
       return response as int;
     } catch (e) {
-      print('Error fetching tweet count: $e');
       return 0;
     }
   }
@@ -571,7 +567,6 @@ class PostsPage extends StatelessWidget {
           .eq('creator_id', userId);
 
       int retweetCount = retweetCountResponse.length;
-      print(retweetCount);
 
       bool isRetweetedByUser = false;
       if (retweetCount > 0) {
@@ -581,7 +576,7 @@ class PostsPage extends StatelessWidget {
           id: tweet['id'],
           username: userResponse['display_name'],
           profilePicture: userResponse['display_photo'],
-          verified: Random().nextBool(),
+          verified: false,
           createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
           content: tweet['content'],
           media:
@@ -612,20 +607,20 @@ class PostsPage extends StatelessWidget {
           } else if (snapshot.data!.isEmpty) {
             return Center(child: Text('No tweets found.'));
           } else {
-            return ListView(
-              shrinkWrap:
-                  true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
-              physics:
-                  NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
-              children: snapshot.data!.map((tweet) {
-                return SingleTweet(
-                  tweet: tweet,
-                  isBookmarked: true,
-                  isLast: false,
-                  isLiked: tweet.isLiked,
-                  searchTerm: '',
-                );
-              }).toList(),
+            return Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Column(
+                // Disable scrolling inside the ListView
+                children: snapshot.data!.map((tweet) {
+                  return SingleTweet(
+                    tweet: tweet,
+                    isBookmarked: true,
+                    isLast: false,
+                    isLiked: tweet.isLiked,
+                    searchTerm: '',
+                  );
+                }).toList(),
+              ),
             );
           }
         },
@@ -703,7 +698,6 @@ class RepliesPage extends StatelessWidget {
           .eq('creator_id', userId);
 
       int retweetCount = retweetCountResponse.length;
-      print(retweetCount);
 
       bool isRetweetedByUser = false;
       if (retweetCount > 0) {
@@ -713,7 +707,7 @@ class RepliesPage extends StatelessWidget {
           id: tweet['id'],
           username: userResponse['display_name'],
           profilePicture: userResponse['display_photo'],
-          verified: Random().nextBool(),
+          verified: false,
           createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
           content: tweet['content'],
           media:
@@ -744,20 +738,20 @@ class RepliesPage extends StatelessWidget {
           } else if (snapshot.data!.isEmpty) {
             return Center(child: Text('No tweets found.'));
           } else {
-            return ListView(
-              shrinkWrap:
-                  true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
-              physics:
-                  NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
-              children: snapshot.data!.map((tweet) {
-                return SingleTweet(
-                  tweet: tweet,
-                  isBookmarked: true,
-                  isLast: false,
-                  isLiked: tweet.isLiked,
-                  searchTerm: '',
-                );
-              }).toList(),
+            return Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Column(
+                // Disable scrolling inside the ListView
+                children: snapshot.data!.map((tweet) {
+                  return SingleTweet(
+                    tweet: tweet,
+                    isBookmarked: true,
+                    isLast: false,
+                    isLiked: tweet.isLiked,
+                    searchTerm: '',
+                  );
+                }).toList(),
+              ),
             );
           }
         },
@@ -835,7 +829,6 @@ class LikedPage extends StatelessWidget {
           .eq('creator_id', userId);
 
       int retweetCount = retweetCountResponse.length;
-      print(retweetCount);
 
       bool isRetweetedByUser = false;
       if (retweetCount > 0) {
@@ -845,7 +838,7 @@ class LikedPage extends StatelessWidget {
           id: tweet['id'],
           username: userResponse['display_name'],
           profilePicture: userResponse['display_photo'],
-          verified: Random().nextBool(),
+          verified: false,
           createdAt: timeAgo(DateTime.parse(tweet['created_at'])),
           content: tweet['content'],
           media:
@@ -876,20 +869,20 @@ class LikedPage extends StatelessWidget {
           } else if (snapshot.data!.isEmpty) {
             return Center(child: Text('No tweets found.'));
           } else {
-            return ListView(
-              shrinkWrap:
-                  true, // Use shrinkWrap to make ListView work inside SingleChildScrollView
-              physics:
-                  NeverScrollableScrollPhysics(), // Disable scrolling inside the ListView
-              children: snapshot.data!.map((tweet) {
-                return SingleTweet(
-                  tweet: tweet,
-                  isBookmarked: true,
-                  isLast: false,
-                  isLiked: tweet.isLiked,
-                  searchTerm: '',
-                );
-              }).toList(),
+            return Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Column(
+                // Disable scrolling inside the ListView
+                children: snapshot.data!.map((tweet) {
+                  return SingleTweet(
+                    tweet: tweet,
+                    isBookmarked: true,
+                    isLast: false,
+                    isLiked: tweet.isLiked,
+                    searchTerm: '',
+                  );
+                }).toList(),
+              ),
             );
           }
         },

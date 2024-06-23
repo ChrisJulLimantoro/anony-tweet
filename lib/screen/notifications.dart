@@ -73,7 +73,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
           .single();
       return response['display_photo'];
     } catch (e) {
-      print('Error fetching display photo: $e');
       return null;
     }
   }
@@ -94,11 +93,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final response =
         await supabase.rpc('getnotification', params: {'v_user_id': userId});
 
-    debugPrint("response ${response.toString()}");
     // Parse the response into a list of NotificationPair objects
     final List<Map<String, dynamic>> data =
         List<Map<String, dynamic>>.from(response);
-    debugPrint("data ${data.toString()}");
     return data.map((e) {
       e['liked'] = likedTweetIds.contains(e['tweet']['id']);
       return e;
@@ -166,7 +163,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           icon: ClipOval(child: displayImage),
                           onPressed: () {
                             Scaffold.of(context).openDrawer();
-                            debugPrint("PRESSED");
                           },
                         );
                       },
@@ -179,9 +175,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   borderRadius: BorderRadius.circular(50),
                   child: IconButton(
                     icon: const Icon(CupertinoIcons.gear, size: 28),
-                    onPressed: () {
-                      debugPrint("PRESSED");
-                    },
+                    onPressed: () {},
                   ),
                 ),
               ],

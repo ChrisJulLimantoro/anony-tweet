@@ -73,7 +73,6 @@ class _ExplorePageState extends State<ExplorePage> {
           .single();
       return response['display_photo'];
     } catch (e) {
-      print('Error fetching display photo: $e');
       return null;
     }
   }
@@ -165,7 +164,6 @@ class _ExplorePageState extends State<ExplorePage> {
                         icon: ClipOval(child: displayImage),
                         onPressed: () {
                           Scaffold.of(context).openDrawer();
-                          debugPrint("PRESSED");
                         },
                       );
                     },
@@ -175,9 +173,7 @@ class _ExplorePageState extends State<ExplorePage> {
             ),
             actions: [
               IconButton(
-                  onPressed: () {
-                    print("PRESSED");
-                  },
+                  onPressed: () {},
                   icon: const Icon(
                     CupertinoIcons.gear,
                     size: 28,
@@ -190,7 +186,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 color: theme == Brightness.light
                     ? Colors.grey.shade200
                     : Colors.grey.shade800,
-                width: 0.5, 
+                width: 0.5,
               ),
             ),
             flexibleSpace: ClipRRect(

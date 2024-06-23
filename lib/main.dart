@@ -24,7 +24,6 @@ Future<void> main() async {
     final authResponse =
         await Supabase.instance.client.auth.signInAnonymously();
 
-    // print("auth session: ${authResponse.session}");
     final Session session = authResponse.session!;
     final SharedPreferences savedUser = await SharedPreferences.getInstance();
     // savedUser.clear();
@@ -41,7 +40,6 @@ Future<void> main() async {
       if (DateTime.now().millisecondsSinceEpoch > expiry) {
         await savedUser.remove('user');
       } else {
-        print("user found!");
         runApp(
           BlocProvider(
             create: (context) => SessionBloc(

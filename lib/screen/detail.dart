@@ -44,13 +44,11 @@ class _DetailPageState extends State<DetailPage> {
       likedTweetIds.add(record['tweet_id']);
     }
     // }
-    // print(likedTweetsResponse);
     final response = await Supabase.instance.client
         .from('tweets')
         .select('*')
         .eq('id', id)
         .single();
-    // print(response);
 
     final userResponse = await Supabase.instance.client
         .from('user')
@@ -58,7 +56,6 @@ class _DetailPageState extends State<DetailPage> {
         .eq('id', response['creator_id'])
         .single();
     DateTime createdAt = DateTime.parse(response['created_at']);
-    // print("result: ${likedTweetIds.contains(response['id'])}");
     final retweetCountResponse = await Supabase.instance.client
         .from('tweets')
         .select()
@@ -66,7 +63,6 @@ class _DetailPageState extends State<DetailPage> {
         .eq('creator_id', userId);
 
     int retweetCount = retweetCountResponse.length;
-    print(retweetCount);
 
     bool isRetweetedByUser = false;
     if (retweetCount > 0) {
@@ -93,7 +89,7 @@ class _DetailPageState extends State<DetailPage> {
         id: response['id'],
         username: userResponse['display_name'],
         profilePicture: userResponse['display_photo'],
-        verified: Random().nextBool(),
+        verified: false,
         createdAt: customTimeStamp(createdAt),
         content: response['content'],
         media: response['media'] != null
@@ -114,7 +110,7 @@ class _DetailPageState extends State<DetailPage> {
         id: '1',
         username: faker.internet.userName(),
         profilePicture: "https://randomuser.me/api/portraits/women/18.jpg",
-        verified: Random().nextDouble() <= 0.5 ? true : false,
+        verified: false,
         createdAt: "${Random().nextInt(23)}h ago",
         content: "saya punya babi #anjing #leo",
         media: [],
@@ -160,7 +156,6 @@ class _DetailPageState extends State<DetailPage> {
     );
 
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
-    debugPrint("data ${data.toString()}");
     List<Tweet> comments = [];
     final likedTweetsResponse = await Supabase.instance.client
         .from('likes')
@@ -322,7 +317,6 @@ class _DetailPageState extends State<DetailPage> {
                               return Text("Error: ${snapshot.error}");
                             } else if (snapshot.hasData &&
                                 snapshot.data!.isNotEmpty) {
-                              print(snapshot);
                               return Column(
                                 children: snapshot.data!.map((tweet) {
                                   int index = snapshot.data!.indexOf(tweet);
@@ -349,7 +343,6 @@ class _DetailPageState extends State<DetailPage> {
                                 }).toList(),
                               );
                             } else {
-                              print("hello");
                               return Padding(
                                 padding: const EdgeInsets.all(20),
                                 child: Center(

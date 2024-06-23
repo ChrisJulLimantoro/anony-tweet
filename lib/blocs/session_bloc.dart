@@ -40,8 +40,6 @@ class SessionBloc extends Cubit<void> {
         displayName = response[0]['display_name'];
         displayPhoto = response[0]['display_photo'];
 
-        print(displayPhoto);
-
         SharedPreferences sharedUser = await SharedPreferences.getInstance();
         var loginInfo = {
           "id": id,

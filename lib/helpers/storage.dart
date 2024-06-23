@@ -13,8 +13,6 @@ Future<String> uploadImage(
 
     return fileName;
   } catch (e) {
-    print(e.toString());
-
     return "";
   }
 }
@@ -28,8 +26,6 @@ void downloadImage(String fileUrl) async {
     "responseType": "blob",
   });
 
-  await ImageGallerySaver.saveImage(
-      Uint8List.fromList(response.bodyBytes),
-      quality: 80,
-      name: "PCUFess_${DateTime.now().millisecondsSinceEpoch}");
+  await ImageGallerySaver.saveImage(Uint8List.fromList(response.bodyBytes),
+      quality: 80, name: "PCUFess_${DateTime.now().millisecondsSinceEpoch}");
 }

@@ -47,11 +47,8 @@ class _PostCommentState extends State<PostComment> {
         pickedImages.forEach((element) {
           images.add(element);
         });
-        debugPrint(images.length.toString());
       });
-    } on PlatformException catch (e) {
-      debugPrint('Failed to pick image: $e');
-    }
+    } on PlatformException catch (e) {}
   }
 
   Future<void> pickImageFromCamera() async {
@@ -65,11 +62,8 @@ class _PostCommentState extends State<PostComment> {
       setState(() {
         // images = pickedImages;
         images.add(pickedImage);
-        debugPrint(images.length.toString());
       });
-    } on PlatformException catch (e) {
-      debugPrint('Failed to pick image: $e');
-    }
+    } on PlatformException catch (e) {}
   }
 
   Future<bool> postComment(String creator) async {
@@ -97,7 +91,6 @@ class _PostCommentState extends State<PostComment> {
       });
       return true;
     } catch (e) {
-      debugPrint('Error posting tweet: $e');
       return false;
     }
   }
@@ -113,13 +106,11 @@ class _PostCommentState extends State<PostComment> {
       likedTweetIds.add(record['tweet_id']);
     }
     // }
-    // print(likedTweetsResponse);
     final response = await Supabase.instance.client
         .from('tweets')
         .select('*')
         .eq('id', id)
         .single();
-    // print(response);
 
     final userResponse = await Supabase.instance.client
         .from('user')
@@ -127,7 +118,6 @@ class _PostCommentState extends State<PostComment> {
         .eq('id', response['creator_id'])
         .single();
     DateTime createdAt = DateTime.parse(response['created_at']);
-    // print("result: ${likedTweetIds.contains(response['id'])}");
     final retweetCountResponse = await Supabase.instance.client
         .from('tweets')
         .select()
@@ -135,7 +125,6 @@ class _PostCommentState extends State<PostComment> {
         .eq('creator_id', userId);
 
     int retweetCount = retweetCountResponse.length;
-    print(retweetCount);
 
     bool isRetweetedByUser = false;
     if (retweetCount > 0) {
@@ -162,7 +151,7 @@ class _PostCommentState extends State<PostComment> {
       id: response['id'],
       username: userResponse['display_name'],
       profilePicture: userResponse['display_photo'],
-      verified: Random().nextBool(),
+      verified: false,
       createdAt: customTimeStamp(createdAt),
       content: response['content'],
       media: response['media'] != null
@@ -224,7 +213,6 @@ class _PostCommentState extends State<PostComment> {
                       setState(() => isLoading = true);
                       bool success = await postComment(
                           context.read<SessionBloc>().username ?? "");
-                      debugPrint("success : $success");
 
                       if (success) {
                         ScaffoldMessenger.of(context).showSnackBar(

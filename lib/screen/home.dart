@@ -65,8 +65,6 @@ class _HomePageState extends State<HomePage> {
   Future<List<Tweet>> fetchTweets(BuildContext context) async {
     final userId = context.read<SessionBloc>().id ?? "";
 
-    print("user ID: $userId");
-
     final likedTweetsResponse =
         await supabase.from('likes').select('tweet_id').eq('user_id', userId);
     final likedTweetIds = <String>{};
@@ -81,7 +79,6 @@ class _HomePageState extends State<HomePage> {
       "order_by": "created_at",
     });
     List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
-    debugPrint("data ${data.toString()}");
 
     List<Tweet> tweets = [];
     for (var tweetData in data) {
@@ -115,7 +112,6 @@ class _HomePageState extends State<HomePage> {
           .eq('creator_id', userId);
 
       int retweetCount = retweetCountResponse.length;
-      print(retweetCount);
 
       bool isRetweetedByUser = false;
       if (retweetCount > 0) {
@@ -157,7 +153,6 @@ class _HomePageState extends State<HomePage> {
           .single();
       return response['display_photo'];
     } catch (e) {
-      print('Error fetching display photo: $e');
       return null;
     }
   }
@@ -228,7 +223,6 @@ class _HomePageState extends State<HomePage> {
                           icon: ClipOval(child: displayImage),
                           onPressed: () {
                             Scaffold.of(context).openDrawer();
-                            debugPrint("PRESSED");
                           },
                         );
                       },
@@ -241,9 +235,7 @@ class _HomePageState extends State<HomePage> {
                   borderRadius: BorderRadius.circular(50),
                   child: IconButton(
                     icon: const Icon(CupertinoIcons.gear, size: 28),
-                    onPressed: () {
-                      debugPrint("PRESSED");
-                    },
+                    onPressed: () {},
                   ),
                 ),
               ],
