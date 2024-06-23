@@ -35,7 +35,7 @@ class _ExplorePageState extends State<ExplorePage> {
             return word;
           })
           .where((word) =>
-              word.isNotEmpty && !isEmoji(word) && !word.startsWith('#'))
+              word.isNotEmpty && !isEmoji(word) && !word.startsWith('#') && word.length > 2)
           .take(10)
           .toList();
     } else {
