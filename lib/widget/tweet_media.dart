@@ -24,6 +24,7 @@ class TweetMediaGrid extends StatelessWidget {
     if (images.length.isEven) {
       return SizedBox(
         height: 200,
+        width: imageWidth * 2,
         child: Container(
           padding: EdgeInsets.zero,
           decoration: BoxDecoration(
