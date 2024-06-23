@@ -221,7 +221,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
               future: _notificationsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CupertinoActivityIndicator(
+                    radius: 14,
+                  ));
                 } else if (snapshot.hasError) {
                   return Center(
                       child: Text('You are not connected to the internet.'));
