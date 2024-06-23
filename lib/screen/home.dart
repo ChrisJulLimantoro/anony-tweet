@@ -166,9 +166,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-      backgroundColor: theme == Brightness.light
-          ? Colors.white
-          : Colors.black.withAlpha(200),
+      // backgroundColor: theme == Brightness.light
+      //     ? Colors.white.withAlpha(200)
+      //     : Colors.black.withAlpha(200),
       body: RefreshIndicator(
         onRefresh: _refreshTweets,
         child: CustomScrollView(

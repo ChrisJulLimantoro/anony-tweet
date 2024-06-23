@@ -313,7 +313,7 @@ class SearchPageState extends State<SearchPage>
         title: TextField(
           focusNode: _focusNode,
           decoration: InputDecoration(
-            hintText: "Search Anony Tweets",
+            hintText: "Search tweets",
             hintStyle: const TextStyle(
               fontSize: 16,
             ),

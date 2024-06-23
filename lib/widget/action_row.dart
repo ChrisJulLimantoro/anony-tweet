@@ -33,14 +33,15 @@ class _ActionRowState extends State<ActionRow> {
   }
 
   void _showBottomSheet(BuildContext context, String creator, String oldId) {
+    final theme = MediaQuery.of(context).platformBrightness;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: theme == Brightness.dark ? Colors.black : Colors.white,
       builder: (context) {
         return Container(
           height: 150,
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: theme == Brightness.dark ? Colors.black : Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -49,9 +50,17 @@ class _ActionRowState extends State<ActionRow> {
           child: Wrap(
             children: <Widget>[
               ListTile(
-                leading: const Icon(CupertinoIcons.repeat, color: Colors.black),
-                title: Text(isRetweeted ? 'Unrepost' : 'Repost',
-                    style: TextStyle(color: Colors.black)),
+                leading: Icon(
+                  CupertinoIcons.repeat,
+                  color: theme == Brightness.dark ? Colors.white : Colors.black,
+                ),
+                title: Text(
+                  isRetweeted ? 'Unrepost' : 'Repost',
+                  style: TextStyle(
+                    color:
+                        theme == Brightness.dark ? Colors.white : Colors.black,
+                  ),
+                ),
                 onTap: () {
                   if (isRetweeted) {
                     unretweet(
@@ -64,10 +73,14 @@ class _ActionRowState extends State<ActionRow> {
                 },
               ),
               ListTile(
-                leading:
-                    const Icon(CupertinoIcons.clear_circled, color: Colors.red),
-                title:
-                    const Text('Cancel', style: TextStyle(color: Colors.red)),
+                leading: const Icon(
+                  CupertinoIcons.clear_circled,
+                  color: Colors.red,
+                ),
+                title: const Text('Cancel',
+                    style: TextStyle(
+                      color: Colors.red,
+                    )),
                 onTap: () => Navigator.pop(context),
               ),
             ],
