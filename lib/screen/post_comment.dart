@@ -22,6 +22,7 @@ class PostComment extends StatefulWidget {
 }
 
 class _PostCommentState extends State<PostComment> {
+  
   final supabase = Supabase.instance.client;
   final TextEditingController tweetController = TextEditingController();
   List<XFile> images = [];
@@ -164,10 +165,22 @@ class _PostCommentState extends State<PostComment> {
       isRetweetedByUser: isRetweetedByUser,
     );
   }
+  Future<String> getDisplayPhotoUrl(String userId) async {
+  final response = await supabase
+      .from('user')
+      .select('display_photo')
+      .eq('id', userId)
+      .single();
+
+
+  return response['display_photo'] as String;
+}
+
 
   @override
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
+    final userId = context.read<SessionBloc>().id ?? "";
 
     return Scaffold(
       backgroundColor: theme == Brightness.light ? Colors.white : Colors.black,
@@ -184,18 +197,18 @@ class _PostCommentState extends State<PostComment> {
             width: 0.5,
           ),
         ),
-        title: TextButton(
-          child: Text(
-            "Cancel",
-            style: TextStyle(
-              color: theme == Brightness.light ? Colors.black : Colors.white,
-              fontSize: 18,
-            ),
-          ),
-          onPressed: () {
-            Navigator.popAndPushNamed(context, "/comment");
-          },
-        ),
+        // title: TextButton(
+        //   child: Text(
+        //     "Cancel",
+        //     style: TextStyle(
+        //       color: theme == Brightness.light ? Colors.black : Colors.white,
+        //       fontSize: 18,
+        //     ),
+        //   ),
+        //   onPressed: () {
+        //     Navigator.popAndPushNamed(context, "/comment");
+        //   },
+        // ),
         centerTitle: false,
         backgroundColor:
             theme == Brightness.light ? Colors.white : Colors.black,
@@ -326,14 +339,27 @@ class _PostCommentState extends State<PostComment> {
                     SizedBox(
                       width: 16,
                     ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.network(
-                        "https://randomuser.me/api/portraits/men/34.jpg",
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
-                      ),
+                    FutureBuilder<String>(
+                      future: getDisplayPhotoUrl(userId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Icon(Icons.error);
+                        } else if (snapshot.hasData) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.network(
+                              snapshot.data!,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        } else {
+                          return Icon(Icons.error_outline);
+                        }
+                      },
                     ),
                     Expanded(
                       child: Column(
