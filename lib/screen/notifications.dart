@@ -107,6 +107,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             title: const Text(
@@ -207,13 +208,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
               pulledExtent,
               refreshState,
             ) {
-              return const Center(
-                child: CupertinoActivityIndicator(
-                  radius: 14.0,
-                  key: Key('refresh-indicator'),
-                  animating: true,
-                ),
-              );
+              if (Theme.of(context).platform == TargetPlatform.iOS) {
+                return Center(
+                  child: CupertinoActivityIndicator(
+                    radius: 14.0,
+                    key: Key('refresh-indicator'),
+                    animating: true,
+                  ),
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.black,
+                  ),
+                );
+              }
             },
           ),
           SliverToBoxAdapter(
@@ -221,10 +230,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
               future: _notificationsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
+                  return SizedBox(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.78,
+                    child: const Center(
                       child: CupertinoActivityIndicator(
-                    radius: 14,
-                  ));
+                        radius: 14,
+                      ),
+                    ),
+                  );
                 } else if (snapshot.hasError) {
                   return Center(
                       child: Text('You are not connected to the internet.'));
@@ -264,6 +278,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           oriCreator: "",
                           isRetweetedByUser: notification['label'] == 'retweet',
                         );
+
                         if (notification['label'] == "comment") {
                           return GestureDetector(
                             onTap: () => openDetail(tweet.id),

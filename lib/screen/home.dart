@@ -161,10 +161,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     Brightness theme = MediaQuery.of(context).platformBrightness;
     return Scaffold(
-      // backgroundColor: theme == Brightness.light
-      //     ? Colors.white.withAlpha(200)
-      //     : Colors.black.withAlpha(200),
       body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             title: const Text(
@@ -267,13 +265,21 @@ class _HomePageState extends State<HomePage> {
               pulledExtent,
               refreshState,
             ) {
-              return const Center(
-                child: CupertinoActivityIndicator(
-                  radius: 14.0,
-                  key: Key('refresh-indicator'),
-                  animating: true,
-                ),
-              );
+              if (Theme.of(context).platform == TargetPlatform.iOS) {
+                return Center(
+                  child: CupertinoActivityIndicator(
+                    radius: 14.0,
+                    key: Key('refresh-indicator'),
+                    animating: true,
+                  ),
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.black,
+                  ),
+                );
+              }
             },
           ),
           SliverToBoxAdapter(
