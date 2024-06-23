@@ -104,7 +104,7 @@ class _ExplorePageState extends State<ExplorePage> {
                 child: TextField(
                   enabled: false,
                   decoration: InputDecoration(
-                    hintText: "Search Anony Tweets",
+                    hintText: "Search tweets",
                     hintStyle: const TextStyle(
                       fontSize: 16,
                     ),
