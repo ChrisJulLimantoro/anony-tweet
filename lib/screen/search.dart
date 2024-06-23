@@ -396,7 +396,9 @@ class SearchPageState extends State<SearchPage>
               radius: 14,
             ));
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child: Text('You are not connected to the internet.'),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Column(
               children: [
