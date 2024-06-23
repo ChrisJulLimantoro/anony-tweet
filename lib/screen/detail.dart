@@ -83,7 +83,7 @@ class _DetailPageState extends State<DetailPage> {
           .single();
       oriCreator = originalCreatorResponse['display_name'];
     } else {
-      final response2 = "";
+      // final response2 = "";
     }
     return Tweet(
         id: response['id'],
@@ -189,7 +189,7 @@ class _DetailPageState extends State<DetailPage> {
             .single();
         oriCreator = originalCreatorResponse['display_name'];
       } else {
-        final response2 = "";
+        // final response2 = "";
       }
 
       final retweetCountResponse = await Supabase.instance.client

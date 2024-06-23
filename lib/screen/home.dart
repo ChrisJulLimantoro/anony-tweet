@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
             .single();
         oriCreator = originalCreatorResponse['display_name'];
       } else {
-        final response2 = "";
+        // final response2 = "";
       }
       final retweetCountResponse = await supabase
           .from('tweets')

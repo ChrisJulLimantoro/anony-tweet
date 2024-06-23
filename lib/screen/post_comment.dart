@@ -1,7 +1,5 @@
 import 'dart:math';
 import 'package:anony_tweet/model/tweet.dart';
-import 'package:anony_tweet/widget/single_tweet_reply.dart';
-import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:anony_tweet/helpers/storage.dart';
 import 'package:anony_tweet/helpers/hashtags.dart';
 import 'package:flutter/services.dart';
-import 'package:anony_tweet/helpers/storage.dart';
 import 'dart:io';
 
 class PostComment extends StatefulWidget {
@@ -145,7 +142,7 @@ class _PostCommentState extends State<PostComment> {
           .single();
       oriCreator = originalCreatorResponse['display_name'];
     } else {
-      final response2 = "";
+      // final response2 = "";
     }
     return Tweet(
       id: response['id'],

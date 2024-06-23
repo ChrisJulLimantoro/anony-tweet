@@ -1,8 +1,6 @@
 import 'dart:ui';
-
 import 'package:anony_tweet/blocs/session_bloc.dart';
 import 'package:anony_tweet/main.dart';
-import 'package:anony_tweet/screen/search.dart';
 import 'package:anony_tweet/widget/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

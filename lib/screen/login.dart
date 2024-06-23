@@ -15,7 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login(BuildContext context) async {
-    final Brightness theme = MediaQuery.of(context).platformBrightness;
+    // final Brightness theme = MediaQuery.of(context).platformBrightness;
     final response = await context
         .read<SessionBloc>()
         .login(usernameController.text, passwordController.text);
