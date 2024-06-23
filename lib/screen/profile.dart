@@ -299,7 +299,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                           builder: (context, snapshot) {
                                             if (snapshot.connectionState ==
                                                 ConnectionState.waiting) {
-                                              return CircularProgressIndicator();
+                                              return const CupertinoActivityIndicator(
+                                                radius: 14.0,
+                                              );
                                             } else if (snapshot.hasError) {
                                               return Text(
                                                   'You are not connected to the internet');
