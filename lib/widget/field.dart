@@ -32,6 +32,7 @@ class Field extends StatelessWidget {
         ],
       ),
       child: TextFormField(
+        cursorColor: Colors.black,
         controller: con,
         obscureText: isPassword,
         decoration: InputDecoration(
